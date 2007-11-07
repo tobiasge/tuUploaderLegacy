@@ -167,10 +167,13 @@ public class UploadServ extends Thread {
 			Command retVal = (Command) this.input.readObject();
 			return retVal;
 		} catch (ClassCastException e) {
+			log.error("readCommand(): failed with class problem");
 			this.ExceptionHandler(e);
 		} catch (ClassNotFoundException e) {
+			log.error("readCommand(): failed with class loader problem");
 			this.ExceptionHandler(e);
 		} catch (IOException e) {
+			log.error("readCommand(): failed with IO problem");
 			this.ExceptionHandler(e);
 		}
 		return null;
@@ -310,9 +313,7 @@ public class UploadServ extends Thread {
 					this.cleanUp();
 				} else {
 					if (null == cmd) {
-						log
-								.error(this.clientip
-										+ ": client command was null: ");
+						log.error(this.clientip + ": client command was null");
 					} else {
 						log.error(this.clientip + ": client used bad command: "
 								+ cmd.getClass());
