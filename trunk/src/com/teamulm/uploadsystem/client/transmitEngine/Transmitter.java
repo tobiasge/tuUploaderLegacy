@@ -152,11 +152,11 @@ public class Transmitter extends Thread {
 				}
 				this.chef.setStartNumber(resp.getStartNumber());
 				return true;
-			} else if (resp.getErrorCode() == LockPathCmd.ERROR_NOT_BADLOC) {
+			} else if (resp.getErrorCode() == Command.ERROR_LOC_BADLOC) {
 				MainWindow.getInstance()
 						.addStatusLine("Location nicht gültig.");
 				return false;
-			} else if (resp.getErrorCode() == LockPathCmd.ERROR_NOT_BADLOC) {
+			} else if (resp.getErrorCode() == Command.ERROR_LOC_NOTFREE) {
 				MainWindow.getInstance()
 						.addStatusLine("Location in Benutzung.");
 				MainWindow.getInstance().addStatusLine(

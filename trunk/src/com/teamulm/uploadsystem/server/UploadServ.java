@@ -284,7 +284,7 @@ public class UploadServ extends Thread {
 					LockPathCmd response = new LockPathCmd(true);
 					if (!DBConn.getInstance().checkLocation(
 							request.getLocation())) {
-						response.setErrorCode(LockPathCmd.ERROR_NOT_BADLOC);
+						response.setErrorCode(Command.ERROR_LOC_BADLOC);
 						response.setErrorMsg("location not valid");
 						response.setSuccess(false);
 						this.output.writeObject(response);
@@ -300,7 +300,7 @@ public class UploadServ extends Thread {
 						this.output.writeObject(response);
 						this.output.flush();
 					} else {
-						response.setErrorCode(LockPathCmd.ERROR_NOT_FREE);
+						response.setErrorCode(Command.ERROR_LOC_NOTFREE);
 						response.setErrorMsg("location is in use");
 						response.setSuccess(false);
 						this.output.writeObject(response);

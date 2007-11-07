@@ -6,11 +6,17 @@ public abstract class Command implements Serializable {
 
 	private static final long serialVersionUID = 5593609768805163288L;
 
+	public static final int ERROR_LOC_NOTFREE = 1;
+
+	public static final int ERROR_LOC_BADLOC = 2;
+
 	private boolean serverResponse;
 
 	private boolean success;
 
 	private String errorMsg;
+
+	private int errorCode;
 
 	protected Command() {
 		this.serverResponse = false;
@@ -44,5 +50,13 @@ public abstract class Command implements Serializable {
 
 	public void setErrorMsg(String errorMsg) {
 		this.errorMsg = errorMsg;
+	}
+
+	public int getErrorCode() {
+		return errorCode;
+	}
+
+	public void setErrorCode(int errorCode) {
+		this.errorCode = errorCode;
 	}
 }

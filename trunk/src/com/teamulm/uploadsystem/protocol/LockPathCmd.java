@@ -4,17 +4,11 @@ public class LockPathCmd extends Command {
 
 	private static final long serialVersionUID = -8628939768509360791L;
 
-	public static final int ERROR_NOT_FREE = 1;
-
-	public static final int ERROR_NOT_BADLOC = 2;
-
 	private String location;
 
 	private String date;
 
 	private int startNumber;
-
-	private int errorCode;
 
 	public LockPathCmd() {
 		super();
@@ -46,14 +40,6 @@ public class LockPathCmd extends Command {
 
 	public void setStartNumber(int startNumber) {
 		this.startNumber = startNumber;
-	}
-
-	public int getErrorCode() {
-		return errorCode;
-	}
-
-	public void setErrorCode(int errorCode) {
-		this.errorCode = errorCode;
 	}
 
 	public String getPath() {
