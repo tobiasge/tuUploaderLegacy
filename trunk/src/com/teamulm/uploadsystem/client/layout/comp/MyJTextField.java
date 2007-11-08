@@ -15,7 +15,6 @@ public class MyJTextField extends JTextField {
 		this.setInputVerifier(new MyInputVerifier(maxLength));
 	}
 
-	@SuppressWarnings("unused")
 	private class MyInputVerifier extends InputVerifier {
 
 		private int maxLength;

@@ -194,8 +194,6 @@ public class TrmEngine extends Thread {
 			this.transmit.disconnect();
 			return;
 		} else if (!this.transmit.setLocation()) {
-			MainWindow.getInstance()
-					.addStatusLine("Location ist nicht gültig.");
 			this.transmit.disconnect();
 			return;
 		}

@@ -18,7 +18,7 @@ public class PicServer extends Thread {
 
 	private static final Logger log = Logger.getLogger(PicServer.class);
 
-	private static final int PORT = 1808;
+	private static final int PORT = 1809;
 
 	private static final String SERVERCONFFILE = "server.conf";
 

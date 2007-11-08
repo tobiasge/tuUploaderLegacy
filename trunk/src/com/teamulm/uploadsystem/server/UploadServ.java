@@ -160,6 +160,7 @@ public class UploadServ extends Thread {
 			PicServer.getInstance().unlockLocation(this.gallery.getPath());
 		}
 		PicServer.getInstance().signoff(this.hashCode());
+		log.info(this.clientip + ": connection to client terminated");
 	}
 
 	private Command readCommand() {
@@ -167,13 +168,17 @@ public class UploadServ extends Thread {
 			Command retVal = (Command) this.input.readObject();
 			return retVal;
 		} catch (ClassCastException e) {
-			log.error("readCommand(): failed with class problem");
+			log.error(this.clientip
+					+ ": readCommand(): failed with class problem");
 			this.ExceptionHandler(e);
 		} catch (ClassNotFoundException e) {
-			log.error("readCommand(): failed with class loader problem");
+			log.error(this.clientip
+					+ ": readCommand(): failed with class loader problem");
 			this.ExceptionHandler(e);
 		} catch (IOException e) {
-			log.error("readCommand(): failed with IO problem");
+			log
+					.error(this.clientip
+							+ ": readCommand(): failed with IO problem");
 			this.ExceptionHandler(e);
 		}
 		return null;
@@ -222,7 +227,7 @@ public class UploadServ extends Thread {
 						response.setSuccess(false);
 						this.output.writeObject(response);
 						this.output.flush();
-						log.error(this.clientip
+						log.info(this.clientip
 								+ ": Bad user or password; User: "
 								+ request.getUserName());
 						this.cleanUp();
@@ -289,11 +294,12 @@ public class UploadServ extends Thread {
 						response.setSuccess(false);
 						this.output.writeObject(response);
 						this.output.flush();
+						log.info(this.clientip + ": invalid location selected");
 						this.cleanUp();
 					} else if (PicServer.getInstance().lockLocation(
 							request.getPath(), this.user.getUsername())) {
 						response.setSuccess(true);
-
+						this.hasLock = true;
 						this.gallery = Gallery.getGallery(this.baseDir, request
 								.getLocation(), request.getDate());
 						response.setStartNumber(this.gallery.getPictures() + 1);
@@ -305,6 +311,7 @@ public class UploadServ extends Thread {
 						response.setSuccess(false);
 						this.output.writeObject(response);
 						this.output.flush();
+						log.info(this.clientip + ": selected location is used");
 						this.cleanUp();
 					}
 				} else if (this.accepted && cmd instanceof QuitCmd) {
