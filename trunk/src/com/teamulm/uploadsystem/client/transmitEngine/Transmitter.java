@@ -202,8 +202,9 @@ public class Transmitter extends Thread {
 		MainWindow.getInstance().setUploadProgress(0);
 		Command retVal;
 		try {
-			while (this.Running && this.chef.isThereSomethingToTtansmit())
+			while (this.Running && this.chef.isThereSomethingToTtansmit()) {
 				if ((this.akt = this.chef.getNextToTransmit()) == null) {
+					log.info("this.chef.getNextToTransmit() returned null");
 				} else {
 					log.info("Sende Datei " + this.akt.getName());
 					SaveFileCmd cmd = new SaveFileCmd();
@@ -227,6 +228,7 @@ public class Transmitter extends Thread {
 										+ " nicht senden");
 					}
 				}
+			}
 			SaveGalleryCmd cmd = new SaveGalleryCmd();
 			cmd.setGallery(this.gallery);
 			this.output.writeObject(cmd);
