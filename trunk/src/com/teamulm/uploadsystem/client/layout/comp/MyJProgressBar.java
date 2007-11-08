@@ -62,7 +62,7 @@ public class MyJProgressBar extends JProgressBar {
 	private class RedrawAction extends AbstractAction {
 		public void actionPerformed(ActionEvent arg0) {
 			MyJProgressBar.this.setValue(MyJProgressBar.this.progress);
-			MyJProgressBar.this.setString(percent + " %");
+			MyJProgressBar.this.setString(MyJProgressBar.this.percent + " %");
 		};
 	}
 }

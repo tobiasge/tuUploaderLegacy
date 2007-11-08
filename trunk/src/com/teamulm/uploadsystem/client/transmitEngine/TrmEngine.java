@@ -233,7 +233,7 @@ public class TrmEngine extends Thread {
 			this.transmit.join();
 			Thread.sleep(1000);
 			this.reset();
-			TeamUlmUpload.getInstance().EngineKill();
+			TeamUlmUpload.getInstance().engineKill();
 			MainWindow.getInstance().addStatusLine("Aufräumen abgeschlossen.");
 			Thread.sleep(10);
 			MainWindow.getInstance().addStatusLine(

@@ -252,7 +252,7 @@ public class MainWindow extends JFrame {
 		JButton resetButton = new JButton("Zurücksetzen");
 		resetButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TeamUlmUpload.getInstance().EngineKill();
+				TeamUlmUpload.getInstance().engineKill();
 				MainWindow.this.reset();
 			}
 		});

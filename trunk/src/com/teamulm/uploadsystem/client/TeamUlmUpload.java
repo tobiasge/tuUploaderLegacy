@@ -69,7 +69,7 @@ public class TeamUlmUpload {
 		});
 	}
 
-	public void EngineInit(File[] list, String user, String password) {
+	public void engineInit(File[] list, String user, String password) {
 		this.trmEngine = new TrmEngine(list);
 		this.trmEngine.setUserPass(user, password);
 	}
@@ -78,7 +78,7 @@ public class TeamUlmUpload {
 		this.trmEngine.start();
 	}
 
-	public void EngineKill() {
+	public void engineKill() {
 		this.trmEngine = null;
 	}
 

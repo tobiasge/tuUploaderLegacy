@@ -35,8 +35,8 @@ public class FileList extends JList {
 		Collections.addAll(tmp, f);
 		this.fileList.removeAll(tmp);
 		this.fileList.addAll(tmp);
-		Collections.sort(this.fileList, FileNameSorter.getInstance());
-		updateListPicture();
+		Collections.sort(this.fileList, new FileNameSorter());
+		this.updateListPicture();
 	}
 
 	private void updateListPicture() {
@@ -48,14 +48,14 @@ public class FileList extends JList {
 
 	public void clearAllFiles() {
 		this.fileList.clear();
-		updateListPicture();
+		this.updateListPicture();
 	}
 
 	public void removeSelectedListPictureData() {
 		Object[] indices = this.getSelectedValues();
 		for (Object tmp : indices)
 			this.fileList.remove(tmp);
-		updateListPicture();
+		this.updateListPicture();
 	}
 
 	public File[] getFiles() {
@@ -64,28 +64,19 @@ public class FileList extends JList {
 		return files;
 	}
 
-}
+	private class FileNameSorter implements Comparator<File> {
 
-class FileNameSorter implements Comparator<File> {
-	private static FileNameSorter instance;
-
-	public static FileNameSorter getInstance() {
-		if (null == FileNameSorter.instance) {
-			FileNameSorter.instance = new FileNameSorter();
+		public FileNameSorter() {
 		}
-		return FileNameSorter.instance;
-	}
 
-	private FileNameSorter() {
-	}
-
-	public int compare(File o1, File o2) {
-		try {
-			return o1.getAbsoluteFile().getCanonicalPath().compareTo(
-					o2.getAbsoluteFile().getCanonicalPath());
-		} catch (IOException e) {
-			TeamUlmUpload.getInstance().systemCrashHandler(e);
-			return 0;
+		public int compare(File o1, File o2) {
+			try {
+				return o1.getAbsoluteFile().getCanonicalPath().compareTo(
+						o2.getAbsoluteFile().getCanonicalPath());
+			} catch (IOException e) {
+				TeamUlmUpload.getInstance().systemCrashHandler(e);
+				return 0;
+			}
 		}
 	}
 }

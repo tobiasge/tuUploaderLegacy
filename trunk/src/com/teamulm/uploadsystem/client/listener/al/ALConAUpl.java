@@ -81,7 +81,7 @@ public class ALConAUpl implements ActionListener {
 		}
 		log.debug("starte upload " + this.userSaidValue);
 
-		TeamUlmUpload.getInstance().EngineInit(this.files,
+		TeamUlmUpload.getInstance().engineInit(this.files,
 				this.userName.getText(),
 				new String(this.passWord.getPassword()));
 		TeamUlmUpload.getInstance().engineStart();
