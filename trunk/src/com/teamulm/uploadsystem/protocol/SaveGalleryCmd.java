@@ -30,7 +30,8 @@ public class SaveGalleryCmd extends Command {
 			toString = toString.concat("(Response): commandSucceded() = "
 					+ this.commandSucceded());
 		} else {
-			toString = toString.concat("(Request)");
+			toString = toString.concat("(Request): gallery = "
+					+ this.gallery.getPath());
 		}
 		return toString;
 	}

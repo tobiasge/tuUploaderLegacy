@@ -38,7 +38,8 @@ public class LoginCmd extends Command {
 			toString = toString.concat("(Response): commandSucceded() = "
 					+ this.commandSucceded());
 		} else {
-			toString = toString.concat("(Request)");
+			toString = toString
+					.concat("(Request): username = " + this.userName);
 		}
 		return toString;
 	}

@@ -28,7 +28,8 @@ public class HelloCmd extends Command {
 			toString = toString.concat("(Response): commandSucceded() = "
 					+ this.commandSucceded());
 		} else {
-			toString = toString.concat("(Request)");
+			toString = toString.concat("(Request): protocolVersion = "
+					+ this.protocolVersionString);
 		}
 		return toString;
 	}

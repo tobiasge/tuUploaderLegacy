@@ -48,7 +48,8 @@ public class SaveFileCmd extends Command {
 			toString = toString.concat("(Response): commandSucceded() = "
 					+ this.commandSucceded());
 		} else {
-			toString = toString.concat("(Request)");
+			toString = toString.concat("(Request): filename = " + this.fileName
+					+ " filesize = " + this.fileSize);
 		}
 		return toString;
 	}

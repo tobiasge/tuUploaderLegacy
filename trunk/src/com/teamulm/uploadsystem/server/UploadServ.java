@@ -138,7 +138,7 @@ public class UploadServ extends Thread {
 		try {
 			DataOutputStream out = new DataOutputStream(
 					new BufferedOutputStream(new FileOutputStream(this.baseDir
-							+ this.gallery.getDir() + cmd.getFileName())));
+							+ this.gallery.getPath() + cmd.getFileName())));
 			out.write(cmd.getFileContent(), 0, cmd.getFileSize());
 			out.flush();
 			out.close();
@@ -157,7 +157,7 @@ public class UploadServ extends Thread {
 	private void cleanUp() {
 		this.active = false;
 		if (this.hasLock) {
-			PicServer.getInstance().unlockLocation(this.gallery.getDir());
+			PicServer.getInstance().unlockLocation(this.gallery.getPath());
 		}
 		PicServer.getInstance().signoff(this.hashCode());
 	}
@@ -268,7 +268,7 @@ public class UploadServ extends Thread {
 						}
 						log.info(this.clientip + ": DB Entry done");
 						response.setSuccess(true);
-						response.setGallery(null);
+						response.setGallery(this.gallery);
 						this.output.writeObject(response);
 						this.output.flush();
 					} else {

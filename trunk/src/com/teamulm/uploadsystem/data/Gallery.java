@@ -95,9 +95,15 @@ public class Gallery implements Serializable {
 		this.title = title;
 	}
 
-	public String getDir() {
-		return this.location + System.getProperty("file.separator") + this.date
-				+ System.getProperty("file.separator");
+	public String getPath() {
+		if (this.suffix == 0) {
+			return this.location + System.getProperty("file.separator")
+					+ this.date + System.getProperty("file.separator");
+		} else {
+			return this.location + System.getProperty("file.separator")
+					+ this.date + "-" + this.suffix
+					+ System.getProperty("file.separator");
+		}
 	}
 
 	public int getSuffix() {
