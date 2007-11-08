@@ -6,7 +6,6 @@ import javax.swing.event.ListDataListener;
 
 import com.teamulm.uploadsystem.client.layout.MainWindow;
 
-
 public class MyJListListener implements ListDataListener {
 
 	public void contentsChanged(ListDataEvent arg0) {
@@ -24,8 +23,8 @@ public class MyJListListener implements ListDataListener {
 	private void updateDisplay(Object source) {
 		if (!(source instanceof DefaultListModel))
 			return;
-		DefaultListModel model = (DefaultListModel) source;
+		int remainingPictures = ((DefaultListModel) source).getSize();
 		MainWindow.getInstance().setSelectedPicText(
-				"Ausgewählte Bilder (" + model.getSize() + "):");
+				"Ausgewählte Bilder (" + remainingPictures + "):");
 	}
 }

@@ -74,7 +74,7 @@ public class TeamUlmUpload {
 		this.trmEngine.setUserPass(user, password);
 	}
 
-	public void EngineStart() {
+	public void engineStart() {
 		this.trmEngine.start();
 	}
 

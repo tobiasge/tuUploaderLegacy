@@ -52,7 +52,7 @@ public class ALConAUpl implements ActionListener {
 		} else if (null == MainWindow.getInstance().getTMPDir()
 				|| MainWindow.getInstance().getTMPDir().length() < 1) {
 			MainWindow.getInstance().addStatusLine(
-					"Kein Speicherort	  ausgewählt.");
+					"Kein Speicherort ausgewählt.");
 			return;
 		} else if (null == MainWindow.getInstance().getEventTitle()
 				|| MainWindow.getInstance().getEventTitle().length() < 1) {
@@ -61,7 +61,7 @@ public class ALConAUpl implements ActionListener {
 		} else if (null == MainWindow.getInstance().getEventDesc()
 				|| MainWindow.getInstance().getEventDesc().length() < 1) {
 			MainWindow.getInstance().addStatusLine(
-					"Bitte Beschreibung	  angeben.");
+					"Bitte Beschreibung angeben.");
 			return;
 		}
 
@@ -84,7 +84,7 @@ public class ALConAUpl implements ActionListener {
 		TeamUlmUpload.getInstance().EngineInit(this.files,
 				this.userName.getText(),
 				new String(this.passWord.getPassword()));
-		TeamUlmUpload.getInstance().EngineStart();
+		TeamUlmUpload.getInstance().engineStart();
 
 	}
 

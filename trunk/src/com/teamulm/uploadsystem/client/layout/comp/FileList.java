@@ -12,6 +12,7 @@ import javax.swing.JList;
 
 import com.teamulm.uploadsystem.client.TeamUlmUpload;
 import com.teamulm.uploadsystem.client.listener.MyJListListener;
+import com.teamulm.uploadsystem.client.listener.kl.KLPicturesList;
 
 @SuppressWarnings("serial")
 public class FileList extends JList {
@@ -24,6 +25,7 @@ public class FileList extends JList {
 		this.fileList = new Vector<File>();
 		this.files = new DefaultListModel();
 		this.files.addListDataListener(new MyJListListener());
+		this.addKeyListener(new KLPicturesList());
 		this.setModel(this.files);
 	}
 
