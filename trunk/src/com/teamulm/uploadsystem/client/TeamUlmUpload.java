@@ -11,32 +11,32 @@
  *******************************************************/
 package com.teamulm.uploadsystem.client;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.OperatingSystemMXBean;
-import java.net.Socket;
+import java.util.Date;
 import java.util.Properties;
 
+import javax.mail.Address;
+import javax.mail.Message;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 import com.teamulm.uploadsystem.client.layout.MainWindow;
 import com.teamulm.uploadsystem.client.transmitEngine.TrmEngine;
-
 
 public class TeamUlmUpload {
 
@@ -139,12 +139,26 @@ public class TeamUlmUpload {
 				report = "Konnte Log nicht lesen";
 			}
 			try {
-				Emailer.send("hermes.nb.team-ulm.de", 25,
-						"tobias.genannt@team-ulm.de",
-						"uploaderror@team-ulm.de",
-						"Error: " + error.getClass(), "Stacktrace: "
-								+ stackTrace + "\n\nLogfile:" + lines);
-
+				Properties mailProperties = new Properties();
+				mailProperties.setProperty("mail.smtp.host",
+						"hermes.nb.team-ulm.de");
+				Session mailSession = Session
+						.getDefaultInstance(mailProperties);
+				MimeMessage mailMessage = new MimeMessage(mailSession);
+				InternetAddress from = new InternetAddress();
+				from.setAddress("uploaderror@team-ulm.de");
+				from.setPersonal("Upload Error");
+				InternetAddress to = new InternetAddress();
+				to.setAddress("tobias.genannt@team-ulm.de");
+				to.setPersonal("Tobias Genannt");
+				mailMessage.addFrom(new Address[] { from });
+				mailMessage.addRecipient(Message.RecipientType.TO, to);
+				mailMessage.setSubject("Error: " + error.getClass());
+				mailMessage.setText(stackTrace + "\n\nLogfile:" + report,
+						"UTF-8", "plain");
+				mailMessage.setHeader("X-Mailer", "TU-Uploader");
+				mailMessage.setSentDate(new Date());
+				Transport.send(mailMessage);
 			} catch (Exception e) {
 				System.out.println(e.getClass() + ": " + e.getMessage());
 				JOptionPane.showMessageDialog(null,
@@ -153,124 +167,4 @@ public class TeamUlmUpload {
 			}
 		}
 	}
-}
-
-class Emailer {
-
-	public static void main(String[] args) throws Exception {
-		String results = send("localhost", 25, "sender@somewhere.com",
-				"recipient@somewhere.com", "Test Email", "<b>You got mail!</b>");
-		System.out.println(results);
-	}
-
-	/**
-	 * Sends an email.
-	 * 
-	 * @return The full SMTP conversation as a string.
-	 */
-	public static String send(String host, int port, String to, String from,
-			String subject, String message) throws Exception {
-
-		// Save the SMTP conversation into this buffer (for debugging if
-		// necessary)
-		StringBuffer buffer = new StringBuffer();
-
-		try {
-
-			// Connect to the SMTP server running on the local machine. Usually
-			// this is SendMail
-			Socket smtpSocket = new Socket(host, port);
-
-			// We send commands TO the server with this
-			DataOutputStream output = new DataOutputStream(smtpSocket
-					.getOutputStream());
-
-			// And recieve responses FROM the server with this
-			BufferedReader input = new BufferedReader(new InputStreamReader(
-					new DataInputStream(smtpSocket.getInputStream())));
-
-			try {
-
-				// Read the server's hello message
-				read(input, buffer);
-
-				// Say hello to the server
-				send(output, "HELO localhost.localdomain\r\n", buffer);
-				read(input, buffer);
-
-				// Who is sending the email
-				send(output, "MAIL FROM: <" + from + ">\r\n", buffer);
-				read(input, buffer);
-
-				// Where the mail is going
-				send(output, "RCPT to: <" + to + ">\r\n", buffer);
-				read(input, buffer);
-
-				// Start the message
-				send(output, "DATA\r\n", buffer);
-				read(input, buffer);
-
-				// Set the subject
-				send(output, "Subject: " + subject + "\r\n", buffer);
-
-				// If we detect HTML in the message, set the content type so it
-				// displays
-				// properly in the recipient's email client.
-				if (message.indexOf("<") == -1) {
-					send(
-							output,
-							"Content-type: text/plain; charset=\"us-ascii\"\r\n",
-							buffer);
-				} else {
-					send(
-							output,
-							"Content-type: text/html; charset=\"us-ascii\"\r\n",
-							buffer);
-				}
-
-				// Send the message
-				send(output, message, buffer);
-
-				// Finish the message
-				send(output, "\r\n.\r\n", buffer);
-				read(input, buffer);
-				// Close the socket
-				smtpSocket.close();
-
-			} catch (IOException e) {
-				System.out.println("Cannot send email as an error occurred.");
-			}
-		} catch (Exception e) {
-			System.out.println("Host unknown");
-		}
-
-		return buffer.toString();
-
-	}
-
-	/**
-	 * Sends a message to the server using the DataOutputStream's writeBytes()
-	 * method. Saves what was sent to the buffer so we can record the
-	 * conversation.
-	 */
-	private static void send(DataOutputStream output, String data,
-			StringBuffer buffer) throws IOException {
-		output.writeBytes(data);
-		buffer.append(data);
-	}
-
-	/**
-	 * Reads a line from the server and adds it onto the conversation buffer.
-	 */
-	private static void read(BufferedReader br, StringBuffer buffer)
-			throws IOException {
-		int c;
-		while ((c = br.read()) != -1) {
-			buffer.append((char) c);
-			if (c == '\n') {
-				break;
-			}
-		}
-	}
-
 }
