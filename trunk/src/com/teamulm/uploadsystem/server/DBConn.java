@@ -9,10 +9,9 @@ import com.teamulm.uploadsystem.data.Gallery;
 import com.teamulm.uploadsystem.data.User;
 import com.teamulm.uploadsystem.server.dbControl.DataBaseControler;
 
-
 public class DBConn {
 
-	private static final Logger log = Logger.getLogger(com.teamulm.uploadsystem.server.DBConn.class);
+	private static final Logger log = Logger.getLogger(DBConn.class);
 
 	private static DBConn instance;
 
