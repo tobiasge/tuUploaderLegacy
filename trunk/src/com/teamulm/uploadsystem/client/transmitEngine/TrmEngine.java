@@ -20,6 +20,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
+import com.teamulm.uploadsystem.client.Helper;
 import com.teamulm.uploadsystem.client.TeamUlmUpload;
 import com.teamulm.uploadsystem.client.layout.MainWindow;
 import com.teamulm.uploadsystem.client.layout.comp.MyJProgressBar;
@@ -126,7 +127,7 @@ public class TrmEngine extends Thread {
 			this.transmitedFiles++;
 			retVal = this.totransmit.remove(0);
 		} catch (Exception e) {
-			TeamUlmUpload.getInstance().systemCrashHandler(e);
+			Helper.getInstance().systemCrashHandler(e);
 		} finally {
 			this.picTransmitLock.unlock();
 		}
@@ -240,7 +241,7 @@ public class TrmEngine extends Thread {
 					"Das Programm kann geschlossen werden.");
 			log.info("Beende Transmitter.");
 		} catch (Exception e) {
-			TeamUlmUpload.getInstance().systemCrashHandler(e);
+			Helper.getInstance().systemCrashHandler(e);
 		}
 	}
 }

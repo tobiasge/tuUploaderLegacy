@@ -14,21 +14,11 @@ package com.teamulm.uploadsystem.client;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.OperatingSystemMXBean;
-import java.util.Date;
 import java.util.Properties;
 
-import javax.mail.Address;
-import javax.mail.Message;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
@@ -44,9 +34,9 @@ public class TeamUlmUpload {
 
 	private TrmEngine trmEngine;
 
-	private static final String CLIENTCONFFILE = "client.conf";
+	public static final String CLIENTCONFFILE = "client.conf";
 
-	private static final String LOGFILE = "TeamUlm.log";
+	public static final String LOGFILE = "TeamUlm.log";
 
 	private static TeamUlmUpload instance = null;
 
@@ -94,7 +84,7 @@ public class TeamUlmUpload {
 			serverConf.loadFromXML(new FileInputStream(
 					TeamUlmUpload.CLIENTCONFFILE));
 		} catch (IOException e) {
-			TeamUlmUpload.getInstance().systemCrashHandler(e);
+			Helper.getInstance().systemCrashHandler(e);
 		}
 		return serverConf;
 	}
@@ -106,65 +96,9 @@ public class TeamUlmUpload {
 			PropertyConfigurator.configure(logConf);
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {
-			TeamUlmUpload.getInstance().systemCrashHandler(e);
+			Helper.getInstance().systemCrashHandler(e);
 		}
 		System.setProperty("line.separator", "\n");
 		TeamUlmUpload.getInstance();
-	}
-
-	public void systemCrashHandler(Exception error) {
-		log.error("" + error.getMessage());
-		StringWriter sw = new StringWriter();
-		error.printStackTrace(new PrintWriter(sw));
-		String stackTrace = sw.toString();
-
-		Object[] options = { "Ja", "Nein" };
-		if (JOptionPane.NO_OPTION == JOptionPane
-				.showOptionDialog(
-						null,
-						"Es ist ein Fehler aufgetreten. Soll ein Report erstellt werden?",
-						"Fehlerreport...?", JOptionPane.YES_NO_OPTION,
-						JOptionPane.ERROR_MESSAGE, null, options, options[1]))
-			return;
-		else {
-			MainWindow.getInstance().addStatusLine("Sende Fehlerbericht");
-			String[] lines = Helper.getInstance().readFileData(
-					TeamUlmUpload.LOGFILE, false);
-			String report = "";
-			if (null != lines) {
-				for (String line : lines) {
-					report += line + "\n";
-				}
-			} else {
-				report = "Konnte Log nicht lesen";
-			}
-			try {
-				Properties mailProperties = new Properties();
-				mailProperties.setProperty("mail.smtp.host",
-						"hermes.nb.team-ulm.de");
-				Session mailSession = Session
-						.getDefaultInstance(mailProperties);
-				MimeMessage mailMessage = new MimeMessage(mailSession);
-				InternetAddress from = new InternetAddress();
-				from.setAddress("uploaderror@team-ulm.de");
-				from.setPersonal("Upload Error");
-				InternetAddress to = new InternetAddress();
-				to.setAddress("tobias.genannt@team-ulm.de");
-				to.setPersonal("Tobias Genannt");
-				mailMessage.addFrom(new Address[] { from });
-				mailMessage.addRecipient(Message.RecipientType.TO, to);
-				mailMessage.setSubject("Error: " + error.getClass());
-				mailMessage.setText(stackTrace + "\n\nLogfile:" + report,
-						"UTF-8", "plain");
-				mailMessage.setHeader("X-Mailer", "TU-Uploader");
-				mailMessage.setSentDate(new Date());
-				Transport.send(mailMessage);
-			} catch (Exception e) {
-				System.out.println(e.getClass() + ": " + e.getMessage());
-				JOptionPane.showMessageDialog(null,
-						"Bericht konnte nicht gesendet werden.", "Fehler...",
-						JOptionPane.ERROR_MESSAGE);
-			}
-		}
 	}
 }

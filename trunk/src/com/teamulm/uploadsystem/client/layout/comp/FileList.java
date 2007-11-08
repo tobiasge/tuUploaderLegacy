@@ -10,7 +10,7 @@ import java.util.Vector;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 
-import com.teamulm.uploadsystem.client.TeamUlmUpload;
+import com.teamulm.uploadsystem.client.Helper;
 import com.teamulm.uploadsystem.client.listener.MyJListListener;
 import com.teamulm.uploadsystem.client.listener.kl.KLPicturesList;
 
@@ -74,7 +74,7 @@ public class FileList extends JList {
 				return o1.getAbsoluteFile().getCanonicalPath().compareTo(
 						o2.getAbsoluteFile().getCanonicalPath());
 			} catch (IOException e) {
-				TeamUlmUpload.getInstance().systemCrashHandler(e);
+				Helper.getInstance().systemCrashHandler(e);
 				return 0;
 			}
 		}

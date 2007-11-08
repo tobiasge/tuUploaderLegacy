@@ -25,12 +25,10 @@ import java.nio.channels.FileChannel;
 
 import javax.imageio.ImageIO;
 
-
 import org.apache.log4j.Logger;
 
-import com.teamulm.uploadsystem.client.TeamUlmUpload;
+import com.teamulm.uploadsystem.client.Helper;
 import com.teamulm.uploadsystem.client.layout.MainWindow;
-
 
 public class Converter extends Thread {
 
@@ -137,7 +135,7 @@ public class Converter extends Thread {
 			MainWindow.getInstance().addStatusLine(
 					"Thread: " + this.ident + " Konnte " + actFile.getName()
 							+ " nicht konvertieren");
-			TeamUlmUpload.getInstance().systemCrashHandler(e);
+			Helper.getInstance().systemCrashHandler(e);
 		}
 	}
 }
@@ -175,7 +173,7 @@ class ImageConverter {
 			try {
 				pg.grabPixels();
 			} catch (InterruptedException e) {
-				TeamUlmUpload.getInstance().systemCrashHandler(e);
+				Helper.getInstance().systemCrashHandler(e);
 				return null;
 			}
 			if ((pg.getStatus() & ImageObserver.ABORT) != 0)

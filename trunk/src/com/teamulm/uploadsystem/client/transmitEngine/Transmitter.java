@@ -11,6 +11,7 @@ import java.net.Socket;
 
 import org.apache.log4j.Logger;
 
+import com.teamulm.uploadsystem.client.Helper;
 import com.teamulm.uploadsystem.client.TeamUlmUpload;
 import com.teamulm.uploadsystem.client.layout.MainWindow;
 import com.teamulm.uploadsystem.data.Gallery;
@@ -70,7 +71,7 @@ public class Transmitter extends Thread {
 			MainWindow.getInstance().addStatusLine(
 					"Konnte Verbindung nicht herstellen");
 			this.connected = false;
-			TeamUlmUpload.getInstance().systemCrashHandler(e);
+			Helper.getInstance().systemCrashHandler(e);
 		}
 	}
 
@@ -90,11 +91,11 @@ public class Transmitter extends Thread {
 			Command retVal = (Command) this.input.readObject();
 			return retVal;
 		} catch (ClassCastException e) {
-			TeamUlmUpload.getInstance().systemCrashHandler(e);
+			Helper.getInstance().systemCrashHandler(e);
 		} catch (ClassNotFoundException e) {
-			TeamUlmUpload.getInstance().systemCrashHandler(e);
+			Helper.getInstance().systemCrashHandler(e);
 		} catch (IOException e) {
-			TeamUlmUpload.getInstance().systemCrashHandler(e);
+			Helper.getInstance().systemCrashHandler(e);
 		}
 		return null;
 	}
@@ -114,7 +115,7 @@ public class Transmitter extends Thread {
 			log.debug("Server said: " + retVal);
 			return retVal instanceof LoginCmd && retVal.commandSucceded();
 		} catch (Exception e) {
-			TeamUlmUpload.getInstance().systemCrashHandler(e);
+			Helper.getInstance().systemCrashHandler(e);
 			return false;
 		}
 	}
@@ -129,7 +130,7 @@ public class Transmitter extends Thread {
 			log.debug("Server said: " + retVal);
 			return retVal instanceof HelloCmd && retVal.commandSucceded();
 		} catch (Exception e) {
-			TeamUlmUpload.getInstance().systemCrashHandler(e);
+			Helper.getInstance().systemCrashHandler(e);
 			return false;
 		}
 	}
@@ -165,7 +166,7 @@ public class Transmitter extends Thread {
 			} else
 				return false;
 		} catch (Exception e) {
-			TeamUlmUpload.getInstance().systemCrashHandler(e);
+			Helper.getInstance().systemCrashHandler(e);
 			return false;
 		}
 	}
@@ -246,7 +247,7 @@ public class Transmitter extends Thread {
 			MainWindow.getInstance().addStatusLine("Verbindung beendet");
 			sleep(10);
 		} catch (Exception e) {
-			TeamUlmUpload.getInstance().systemCrashHandler(e);
+			Helper.getInstance().systemCrashHandler(e);
 			this.Running = false;
 		}
 		MainWindow.getInstance().setUploadProgress(1000);
@@ -260,7 +261,7 @@ public class Transmitter extends Thread {
 			this.output.close();
 			this.input.close();
 		} catch (Exception e) {
-			TeamUlmUpload.getInstance().systemCrashHandler(e);
+			Helper.getInstance().systemCrashHandler(e);
 		}
 	}
 }

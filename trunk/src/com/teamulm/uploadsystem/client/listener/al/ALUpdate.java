@@ -18,7 +18,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-import com.teamulm.uploadsystem.client.TeamUlmUpload;
+import com.teamulm.uploadsystem.client.Helper;
 import com.teamulm.uploadsystem.client.layout.MainWindow;
 
 
@@ -46,7 +46,7 @@ public class ALUpdate implements ActionListener {
 		} catch (Exception e2) {
 			MainWindow.getInstance()
 					.addStatusLine("Konnte Liste nicht updaten");
-			TeamUlmUpload.getInstance().systemCrashHandler(e2);
+			Helper.getInstance().systemCrashHandler(e2);
 		}
 	}
 }
