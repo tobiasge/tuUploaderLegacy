@@ -46,7 +46,7 @@ public class Helper {
 			inputStream.close();
 		} catch (Exception ex) {
 			if (reportError)
-				Helper.getInstance().systemCrashHandler(ex);
+				this.systemCrashHandler(ex);
 			return null;
 		}
 		Object[] list = listData.toArray();
@@ -72,8 +72,7 @@ public class Helper {
 			return;
 		else {
 			MainWindow.getInstance().addStatusLine("Sende Fehlerbericht");
-			String[] lines = Helper.getInstance().readFileData(
-					TeamUlmUpload.LOGFILE, false);
+			String[] lines = this.readFileData(TeamUlmUpload.LOGFILE, false);
 			String report = "";
 			if (null != lines) {
 				for (String line : lines) {
