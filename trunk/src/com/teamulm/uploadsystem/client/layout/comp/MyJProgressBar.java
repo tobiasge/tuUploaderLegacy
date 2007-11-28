@@ -35,6 +35,7 @@ public class MyJProgressBar extends JProgressBar {
 
 	public void reset() {
 		this.progress = 0;
+		this.percent = 0;
 	}
 
 	public boolean setProgress(int value) {
