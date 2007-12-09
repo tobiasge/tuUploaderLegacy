@@ -118,7 +118,7 @@ public class UploadServ extends Thread {
 			log.error(this.clientip + ": Lost Connection to " + this.clientip);
 			this.cleanUp();
 		} else {
-			log.error(this.clientip + ": Unkn6wn Exception: " + exc.getClass());
+			log.error(this.clientip + ": Unknown Exception: " + exc.getClass());
 			exc.printStackTrace(System.err);
 			this.cleanUp();
 		}
@@ -155,9 +155,12 @@ public class UploadServ extends Thread {
 	}
 
 	private void cleanUp() {
+		if (!this.active)
+			return;
 		this.active = false;
 		if (this.hasLock) {
 			PicServer.getInstance().unlockLocation(this.gallery.getPath());
+			this.hasLock = false;
 		}
 		PicServer.getInstance().signoff(this.hashCode());
 		log.info(this.clientip + ": connection to client terminated");
@@ -210,9 +213,9 @@ public class UploadServ extends Thread {
 					this.output.flush();
 				}
 			} else {
-				this.active = false;
 				log.error(this.clientip
 						+ ": Client did not send HELLO with version");
+				this.cleanUp();
 			}
 			// User und Passwd testen
 			if (this.active) {
@@ -240,7 +243,6 @@ public class UploadServ extends Thread {
 						this.output.flush();
 					}
 				} else {
-					this.active = false;
 					log.error(this.clientip + ": No user send");
 					this.cleanUp();
 				}
@@ -325,7 +327,6 @@ public class UploadServ extends Thread {
 						log.error(this.clientip + ": client used bad command: "
 								+ cmd.getClass());
 					}
-					this.active = false;
 					this.cleanUp();
 				}
 			}
