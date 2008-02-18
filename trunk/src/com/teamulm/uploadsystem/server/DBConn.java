@@ -2,6 +2,7 @@ package com.teamulm.uploadsystem.server;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
@@ -43,13 +44,13 @@ public class DBConn {
 			retVal = new User(result.getInt("userid"), result
 					.getString("passwort_enc"), result.getString("username"));
 		} catch (Exception e) {
-			log.error("Failure in getUserForName: " + e.getClass());
-			log.error("Failure in getUserForName: " + e.getMessage());
+			log.error("Failure in getUserForName(): " + e.getClass());
+			log.error("Failure in getUserForName(): " + e.getMessage());
 		}
 		return retVal;
 	}
 
-	public Gallery getGallery(String location, String date) {
+	public Gallery getGallery(String location, String date, int suffix) {
 		PreparedStatement request;
 		ResultSet result;
 		Gallery retVal = null;
@@ -59,11 +60,12 @@ public class DBConn {
 			return retVal;
 		}
 		String query = "SELECT galid, pictures, suffix FROM tu_fotos WHERE location = ? "
-				+ "AND date_gal = STR_TO_DATE(?, '%d-%m-%Y')";
+				+ "AND date_gal = STR_TO_DATE(?, '%d-%m-%Y') AND suffix = ?";
 		try {
 			request = connection.prepareStatement(query);
 			request.setString(1, location);
 			request.setString(2, date);
+			request.setInt(0, suffix);
 			result = request.executeQuery();
 			if (!result.first())
 				return retVal;
@@ -74,10 +76,66 @@ public class DBConn {
 			retVal.setGalid(result.getInt("galid"));
 			retVal.setSuffix(result.getInt("suffix"));
 		} catch (Exception e) {
-			log.error("Failure in getGallery: " + e.getClass());
-			log.error("Failure in getGallery: " + e.getMessage());
+			log.error("Failure in getGallery(): " + e.getClass());
+			log.error("Failure in getGallery(): " + e.getMessage());
 		}
 		return retVal;
+	}
+
+	public int getNextSuffixFor(String location, String date) {
+		PreparedStatement request;
+		ResultSet result;
+		com.teamulm.uploadsystem.server.dbControl.DBConn connection = null;
+		if (null == (connection = DataBaseControler.getInstance()
+				.getDataBaseForTable("tu_fotos"))) {
+			return 0;
+		}
+		String query = "SELECT IF(MAX(suffix) IS NULL, 0, MAX(suffix)) AS suffix FROM tu_fotos WHERE location = ? "
+				+ "AND date_gal = STR_TO_DATE(?, '%d-%m-%Y')";
+		try {
+			request = connection.prepareStatement(query);
+			request.setString(1, location);
+			request.setString(2, date);
+			result = request.executeQuery();
+			if (!result.first())
+				return 0;
+			return result.getInt("suffix") + 1;
+		} catch (Exception e) {
+			log.error("Failure in getNextSuffixFor(): " + e.getClass());
+			log.error("Failure in getNextSuffixFor(): " + e.getMessage());
+		}
+		return 0;
+	}
+
+	public boolean getGalleries(String date, ArrayList<Gallery> galleries) {
+		PreparedStatement request;
+		ResultSet result;
+		com.teamulm.uploadsystem.server.dbControl.DBConn connection = null;
+		if (null == (connection = DataBaseControler.getInstance()
+				.getDataBaseForTable("tu_fotos"))) {
+			return false;
+		}
+		String query = "SELECT galid, pictures, suffix, location FROM tu_fotos WHERE "
+				+ "date_gal = STR_TO_DATE(?, '%d-%m-%Y')";
+		try {
+			request = connection.prepareStatement(query);
+			request.setString(1, date);
+			result = request.executeQuery();
+			while (result.next()) {
+				Gallery tmpGal = new Gallery();
+				tmpGal.setDate(date);
+				tmpGal.setLocation(result.getString("location"));
+				tmpGal.setPictures(result.getInt("pictures"));
+				tmpGal.setGalid(result.getInt("galid"));
+				tmpGal.setSuffix(result.getInt("suffix"));
+				galleries.add(tmpGal);
+			}
+		} catch (Exception e) {
+			log.error("Failure in getGalleries(): " + e.getClass());
+			log.error("Failure in getGalleries(): " + e.getMessage());
+			return false;
+		}
+		return true;
 	}
 
 	public boolean checkLocation(String location) {
@@ -97,8 +155,8 @@ public class DBConn {
 			result.first();
 			retVal = (result.getInt("number") == 1);
 		} catch (Exception e) {
-			log.error("Failure in checkLocation: " + e.getClass());
-			log.error("Failure in checkLocation: " + e.getMessage());
+			log.error("Failure in checkLocation(): " + e.getClass());
+			log.error("Failure in checkLocation(): " + e.getMessage());
 		}
 		return retVal;
 	}
@@ -121,8 +179,8 @@ public class DBConn {
 			request.setLong(4, uploadedPictures);
 			request.executeUpdate();
 		} catch (Exception e) {
-			log.error("Failure in saveLastUploadLogEntry: " + e.getClass());
-			log.error("Failure in saveLastUploadLogEntry: " + e.getMessage());
+			log.error("Failure in saveLastUploadLogEntry(): " + e.getClass());
+			log.error("Failure in saveLastUploadLogEntry(): " + e.getMessage());
 			return false;
 		}
 		return true;
@@ -163,8 +221,8 @@ public class DBConn {
 				request.executeUpdate();
 			}
 		} catch (Exception e) {
-			log.error("Failure in saveGalleryToDataBase: " + e.getClass());
-			log.error("Failure in saveGalleryToDataBase: " + e.getMessage());
+			log.error("Failure in saveGalleryToDataBase(): " + e.getClass());
+			log.error("Failure in saveGalleryToDataBase(): " + e.getMessage());
 			return false;
 		}
 		return true;

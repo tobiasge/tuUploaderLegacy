@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
@@ -16,9 +17,11 @@ import com.teamulm.uploadsystem.client.TeamUlmUpload;
 import com.teamulm.uploadsystem.client.layout.MainWindow;
 import com.teamulm.uploadsystem.data.Gallery;
 import com.teamulm.uploadsystem.protocol.Command;
+import com.teamulm.uploadsystem.protocol.GetGalleriesCmd;
 import com.teamulm.uploadsystem.protocol.HelloCmd;
 import com.teamulm.uploadsystem.protocol.LockPathCmd;
 import com.teamulm.uploadsystem.protocol.LoginCmd;
+import com.teamulm.uploadsystem.protocol.NewGalleryCmd;
 import com.teamulm.uploadsystem.protocol.QuitCmd;
 import com.teamulm.uploadsystem.protocol.SaveFileCmd;
 import com.teamulm.uploadsystem.protocol.SaveGalleryCmd;
@@ -153,11 +156,11 @@ public class Transmitter extends Thread {
 				}
 				this.chef.setStartNumber(resp.getStartNumber());
 				return true;
-			} else if (resp.getErrorCode() == Command.ERROR_LOC_BADLOC) {
+			} else if (resp.getErrorCode() == LockPathCmd.ERROR_LOC_BADLOC) {
 				MainWindow.getInstance()
 						.addStatusLine("Location nicht gültig.");
 				return false;
-			} else if (resp.getErrorCode() == Command.ERROR_LOC_NOTFREE) {
+			} else if (resp.getErrorCode() == LockPathCmd.ERROR_LOC_NOTFREE) {
 				MainWindow.getInstance()
 						.addStatusLine("Location in Benutzung.");
 				MainWindow.getInstance().addStatusLine(
@@ -171,6 +174,46 @@ public class Transmitter extends Thread {
 		}
 	}
 
+	public synchronized Gallery newGallery(String location, String date) {
+		NewGalleryCmd cmd = new NewGalleryCmd();
+		cmd.setDate(date);
+		cmd.setLocation(location);
+		try {
+			this.output.writeObject(cmd);
+			this.output.flush();
+			Command retVal = this.readCommand();
+			log.debug("Server said: " + retVal);
+			if (retVal instanceof NewGalleryCmd) {
+				NewGalleryCmd response = (NewGalleryCmd) retVal;
+				return response.getGallery();
+			}
+			return null;
+		} catch (Exception e) {
+			Helper.getInstance().systemCrashHandler(e);
+			return null;
+		}
+	}
+
+	public synchronized ArrayList<Gallery> getGalleriesFor(String date) {
+		GetGalleriesCmd cmd = new GetGalleriesCmd();
+		cmd.setDate(date);
+		try {
+			this.output.writeObject(cmd);
+			this.output.flush();
+			Command retVal = this.readCommand();
+			log.debug("Server said: " + retVal);
+			if (retVal instanceof GetGalleriesCmd) {
+				GetGalleriesCmd response = (GetGalleriesCmd) retVal;
+				return response.getGalleries();
+			} else {
+				return new ArrayList<Gallery>();
+			}
+		} catch (Exception e) {
+			Helper.getInstance().systemCrashHandler(e);
+			return new ArrayList<Gallery>();
+		}
+	}
+	
 	private byte[] getBytesFromFile(File file) throws IOException {
 		InputStream is = new FileInputStream(file);
 		long length = file.length();

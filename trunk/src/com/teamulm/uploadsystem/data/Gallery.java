@@ -1,17 +1,10 @@
 package com.teamulm.uploadsystem.data;
 
-import java.io.File;
 import java.io.Serializable;
-
-import org.apache.log4j.Logger;
-
-import com.teamulm.uploadsystem.server.DBConn;
 
 public class Gallery implements Serializable {
 
 	private static final long serialVersionUID = -9028890879729734915L;
-
-	private static final Logger log = Logger.getLogger(Gallery.class);
 
 	private String location;
 
@@ -122,21 +115,23 @@ public class Gallery implements Serializable {
 		this.newGallery = newGallery;
 	}
 
-	public static Gallery getGallery(String baseDir, String location,
-			String date) {
-		Gallery retVal;
-		File dir = new File(baseDir + location
-				+ System.getProperty("file.separator") + date);
-		if (!dir.exists()) {
-			dir.mkdirs();
-			log.info("New Location dir created " + dir.getAbsolutePath());
+	public static String getPath(String location, String date, int suffix) {
+		if (suffix == 0) {
+			return location + System.getProperty("file.separator") + date
+					+ System.getProperty("file.separator");
+		} else {
+			return location + System.getProperty("file.separator") + date + "-"
+					+ suffix + System.getProperty("file.separator");
 		}
-		retVal = DBConn.getInstance().getGallery(location, date);
-		if (null == retVal) {
-			retVal = new Gallery();
-			retVal.setDate(date);
-			retVal.setLocation(location);
-		}
-		return retVal;
+	}
+
+	public String toString() {
+		StringBuffer buf = new StringBuffer();
+		buf.append(this.getPath());
+		buf.append(" with ");
+		buf.append(this.pictures);
+		buf.append(" pictures and intern = ");
+		buf.append(this.intern);
+		return buf.toString();
 	}
 }

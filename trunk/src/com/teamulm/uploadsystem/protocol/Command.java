@@ -6,10 +6,6 @@ public abstract class Command implements Serializable {
 
 	private static final long serialVersionUID = 5593609768805163288L;
 
-	public static final int ERROR_LOC_NOTFREE = 1;
-
-	public static final int ERROR_LOC_BADLOC = 2;
-
 	private boolean serverResponse;
 
 	private boolean success;

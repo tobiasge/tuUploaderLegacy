@@ -4,9 +4,15 @@ public class LockPathCmd extends Command {
 
 	private static final long serialVersionUID = -8628939768509360791L;
 
+	public static final int ERROR_LOC_NOTFREE = 1;
+
+	public static final int ERROR_LOC_BADLOC = 2;
+
 	private String location;
 
 	private String date;
+
+	private int suffix;
 
 	private int startNumber;
 
@@ -43,8 +49,14 @@ public class LockPathCmd extends Command {
 	}
 
 	public String getPath() {
-		return this.location + System.getProperty("file.separator") + this.date
-				+ System.getProperty("file.separator");
+		if (this.suffix == 0) {
+			return this.location + System.getProperty("file.separator")
+					+ this.date + System.getProperty("file.separator");
+		} else {
+			return this.location + System.getProperty("file.separator")
+					+ this.date + "-" + this.suffix
+					+ System.getProperty("file.separator");
+		}
 	}
 
 	public String toString() {
@@ -56,5 +68,13 @@ public class LockPathCmd extends Command {
 			toString = toString.concat("(Request): for path " + this.getPath());
 		}
 		return toString;
+	}
+
+	public int getSuffix() {
+		return suffix;
+	}
+
+	public void setSuffix(int suffix) {
+		this.suffix = suffix;
 	}
 }

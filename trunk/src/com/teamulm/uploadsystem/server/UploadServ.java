@@ -2,6 +2,7 @@ package com.teamulm.uploadsystem.server;
 
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -10,6 +11,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -17,9 +19,11 @@ import org.apache.log4j.Logger;
 import com.teamulm.uploadsystem.data.Gallery;
 import com.teamulm.uploadsystem.data.User;
 import com.teamulm.uploadsystem.protocol.Command;
+import com.teamulm.uploadsystem.protocol.GetGalleriesCmd;
 import com.teamulm.uploadsystem.protocol.HelloCmd;
 import com.teamulm.uploadsystem.protocol.LockPathCmd;
 import com.teamulm.uploadsystem.protocol.LoginCmd;
+import com.teamulm.uploadsystem.protocol.NewGalleryCmd;
 import com.teamulm.uploadsystem.protocol.QuitCmd;
 import com.teamulm.uploadsystem.protocol.SaveFileCmd;
 import com.teamulm.uploadsystem.protocol.SaveGalleryCmd;
@@ -132,6 +136,23 @@ public class UploadServ extends Thread {
 			log.error(this.clientip + ": Gallery saving failed");
 			return false;
 		}
+	}
+
+	public Gallery getGallery(String baseDir, String location, String date,
+			int suffix) {
+		Gallery retVal;
+		File dir = new File(baseDir + Gallery.getPath(location, date, suffix));
+		if (!dir.exists()) {
+			dir.mkdirs();
+			log.info("New Location dir created " + dir.getAbsolutePath());
+		}
+		retVal = DBConn.getInstance().getGallery(location, date, suffix);
+		if (null == retVal) {
+			retVal = new Gallery();
+			retVal.setDate(date);
+			retVal.setLocation(location);
+		}
+		return retVal;
 	}
 
 	private boolean saveFile(SaveFileCmd cmd) {
@@ -286,12 +307,38 @@ public class UploadServ extends Thread {
 						this.output.writeObject(response);
 						this.output.flush();
 					}
+				} else if (this.accepted && cmd instanceof NewGalleryCmd) {
+					NewGalleryCmd request = (NewGalleryCmd) cmd;
+					NewGalleryCmd response = new NewGalleryCmd(true);
+					Gallery gal = new Gallery();
+					gal.setLocation(request.getLocation());
+					gal.setDate(request.getDate());
+					gal.setSuffix(DBConn.getInstance().getNextSuffixFor(
+							request.getLocation(), request.getDate()));
+					response.setGallery(gal);
+					response.setSuccess(true);
+					this.output.writeObject(response);
+					this.output.flush();
+					response.setGallery(gal);
+				} else if (this.accepted && cmd instanceof GetGalleriesCmd) {
+					GetGalleriesCmd request = (GetGalleriesCmd) cmd;
+					GetGalleriesCmd response = new GetGalleriesCmd(true);
+					ArrayList<Gallery> galleries = new ArrayList<Gallery>();
+					if (DBConn.getInstance().getGalleries(request.getDate(),
+							galleries)) {
+						response.setSuccess(true);
+					} else {
+						response.setSuccess(false);
+					}
+					response.setGalleries(galleries);
+					this.output.writeObject(response);
+					this.output.flush();
 				} else if (this.accepted && cmd instanceof LockPathCmd) {
 					LockPathCmd request = (LockPathCmd) cmd;
 					LockPathCmd response = new LockPathCmd(true);
 					if (!DBConn.getInstance().checkLocation(
 							request.getLocation())) {
-						response.setErrorCode(Command.ERROR_LOC_BADLOC);
+						response.setErrorCode(LockPathCmd.ERROR_LOC_BADLOC);
 						response.setErrorMsg("location not valid");
 						response.setSuccess(false);
 						this.output.writeObject(response);
@@ -302,13 +349,14 @@ public class UploadServ extends Thread {
 							request.getPath(), this.user.getUsername())) {
 						response.setSuccess(true);
 						this.hasLock = true;
-						this.gallery = Gallery.getGallery(this.baseDir, request
-								.getLocation(), request.getDate());
+						this.gallery = this.getGallery(this.baseDir, request
+								.getLocation(), request.getDate(), request
+								.getSuffix());
 						response.setStartNumber(this.gallery.getPictures() + 1);
 						this.output.writeObject(response);
 						this.output.flush();
 					} else {
-						response.setErrorCode(Command.ERROR_LOC_NOTFREE);
+						response.setErrorCode(LockPathCmd.ERROR_LOC_NOTFREE);
 						response.setErrorMsg("location is in use");
 						response.setSuccess(false);
 						this.output.writeObject(response);
