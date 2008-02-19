@@ -1,5 +1,6 @@
 package com.teamulm.uploadsystem.client.wizard;
 
+import java.awt.Checkbox;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -40,6 +41,8 @@ public class GallerySelectStep extends AbstractWizardStep {
 	private DefaultTableModel galTableModel;
 	private JRadioButton newGal, selGal;
 
+	private Checkbox isInternal;
+
 	public GallerySelectStep() {
 		super("Galerie wählen",
 				"Hier eine Galerie auswählen, oder eine Neue erstellen.");
@@ -48,13 +51,17 @@ public class GallerySelectStep extends AbstractWizardStep {
 	}
 
 	public void applyState() throws InvalidStateException {
-		/*
-		 * if (this.selGal.isSelected()) { this.model.setGallery((Gallery)
-		 * this.galTable.getValueAt( this.galTable.getSelectedRow(), 0)); } else {
-		 * Gallery gal = new Gallery(); gal.setLocation((String)
-		 * this.locationsBox.getSelectedLoc());
-		 * gal.setDate(this.model.getDate()); this.model.setGallery(gal); }
-		 */
+		if (this.selGal.isSelected()) {
+			this.model.setGallery((Gallery) this.galTable.getValueAt(
+					this.galTable.getSelectedRow(), 0));
+		} else {
+			Gallery gal = new Gallery();
+			gal.setLocation((String) this.locationsBox.getSelectedLoc());
+			gal.setDate(this.model.getDate());
+			gal.setIntern(this.isInternal.getState());
+			this.model.setGallery(gal);
+		}
+
 	}
 
 	@Override
@@ -145,6 +152,8 @@ public class GallerySelectStep extends AbstractWizardStep {
 		this.locationsBox.addActionListener(new GalleryListener());
 		this.locationsBox.setLocationsFile("locations.list");
 		this.mainView.add(this.locationsBox);
+		this.isInternal = new Checkbox("Intern");
+		this.mainView.add(this.isInternal);
 		JButton updateButton = new JButton("Locations laden");
 		updateButton.addActionListener(new ALUpdate(this.locationsBox));
 		this.mainView.add(updateButton);
@@ -192,7 +201,8 @@ public class GallerySelectStep extends AbstractWizardStep {
 								.getValueAt(GallerySelectStep.this.galTable
 										.getSelectedRow(), 0));
 				GallerySelectStep.this.setComplete(true);
-				GallerySelectStep.this.selGal.doClick();
+				GallerySelectStep.this.newGal.setSelected(false);
+				GallerySelectStep.this.selGal.setSelected(true);
 			}
 		}
 
@@ -206,9 +216,11 @@ public class GallerySelectStep extends AbstractWizardStep {
 							.setLocation((String) GallerySelectStep.this.locationsBox
 									.getSelectedLoc());
 					gal.setDate(GallerySelectStep.this.model.getDate());
+					gal.setIntern(GallerySelectStep.this.isInternal.getState());
 					GallerySelectStep.this.model.setGallery(gal);
 					GallerySelectStep.this.setComplete(true);
-					GallerySelectStep.this.newGal.doClick();
+					GallerySelectStep.this.newGal.setSelected(true);
+					GallerySelectStep.this.selGal.setSelected(false);
 				}
 			}
 

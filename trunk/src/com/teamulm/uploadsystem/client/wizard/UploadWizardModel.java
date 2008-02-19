@@ -72,9 +72,6 @@ public class UploadWizardModel extends DynamicModel implements OverviewProvider 
 
 	protected void setGallery(Gallery newGallery) {
 		this.galleryToUpload = newGallery;
-		if (null != this.trmEngine) {
-			this.trmEngine.setGallery(newGallery);
-		}
 	}
 
 	private class DynamicModelOverview extends JPanel implements
@@ -103,7 +100,7 @@ public class UploadWizardModel extends DynamicModel implements OverviewProvider 
 			for (Iterator<?> iter = model.stepIterator(); iter.hasNext();) {
 				WizardStep step = (WizardStep) iter.next();
 				JLabel label = new JLabel("" + i++ + ". " + step.getName());
-				label.setBackground(new Color(240, 240, 240));
+				label.setBackground(new Color(59, 80, 145));
 				label.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
 				label.setAlignmentX(0);
 				label.setMaximumSize(new Dimension(Integer.MAX_VALUE, label

@@ -27,6 +27,7 @@ import com.teamulm.uploadsystem.protocol.NewGalleryCmd;
 import com.teamulm.uploadsystem.protocol.QuitCmd;
 import com.teamulm.uploadsystem.protocol.SaveFileCmd;
 import com.teamulm.uploadsystem.protocol.SaveGalleryCmd;
+import com.teamulm.uploadsystem.protocol.UnLockPathCmd;
 
 /**
  * @author Tobias Genannt
@@ -323,6 +324,13 @@ public class UploadServ extends Thread {
 					}
 					response.setGalleries(galleries);
 					this.output.writeObject(response);
+					this.output.flush();
+				} else if (this.accepted && cmd instanceof UnLockPathCmd) {
+					UnLockPathCmd request = (UnLockPathCmd) cmd;
+					PicServer.getInstance().unlockLocation(request.getPath());
+					request.setServerResponse(true);
+					request.setSuccess(true);
+					this.output.writeObject(request);
 					this.output.flush();
 				} else if (this.accepted && cmd instanceof LockPathCmd) {
 					LockPathCmd request = (LockPathCmd) cmd;

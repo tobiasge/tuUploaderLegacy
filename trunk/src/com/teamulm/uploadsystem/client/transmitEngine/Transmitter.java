@@ -24,6 +24,7 @@ import com.teamulm.uploadsystem.protocol.NewGalleryCmd;
 import com.teamulm.uploadsystem.protocol.QuitCmd;
 import com.teamulm.uploadsystem.protocol.SaveFileCmd;
 import com.teamulm.uploadsystem.protocol.SaveGalleryCmd;
+import com.teamulm.uploadsystem.protocol.UnLockPathCmd;
 
 public class Transmitter extends Thread {
 
@@ -122,11 +123,12 @@ public class Transmitter extends Thread {
 		}
 	}
 
-	public synchronized boolean setLocation() {
+	public synchronized boolean lockLocation(Gallery gal) {
 		try {
 			LockPathCmd cmd = new LockPathCmd();
-			cmd.setDate(this.gallery.getDate());
-			cmd.setLocation(this.gallery.getLocation());
+			cmd.setDate(gal.getDate());
+			cmd.setLocation(gal.getLocation());
+			cmd.setSuffix(gal.getSuffix());
 			this.output.writeObject(cmd);
 			this.output.flush();
 			Command retVal = this.readCommand();
@@ -286,5 +288,25 @@ public class Transmitter extends Thread {
 
 	protected void setGallery(Gallery gallery) {
 		this.gallery = gallery;
+	}
+
+	protected boolean unLockLocation(Gallery gal) {
+		try {
+			UnLockPathCmd cmd = new UnLockPathCmd();
+			cmd.setDate(gal.getDate());
+			cmd.setLocation(gal.getLocation());
+			cmd.setSuffix(gal.getSuffix());
+			this.output.writeObject(cmd);
+			this.output.flush();
+			Command retVal = this.readCommand();
+			log.debug("Server said: " + retVal);
+			if (!(retVal instanceof UnLockPathCmd))
+				return false;
+			UnLockPathCmd resp = (UnLockPathCmd) retVal;
+			return resp.commandSucceded();
+		} catch (Exception e) {
+			Helper.getInstance().systemCrashHandler(e);
+			return false;
+		}
 	}
 }

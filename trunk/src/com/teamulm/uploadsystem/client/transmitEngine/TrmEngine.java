@@ -19,10 +19,13 @@ import java.util.Vector;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.swing.SwingUtilities;
+
 import org.apache.log4j.Logger;
 
 import com.teamulm.uploadsystem.client.Helper;
 import com.teamulm.uploadsystem.client.TeamUlmUpload;
+import com.teamulm.uploadsystem.client.layout.comp.MyJProgressBar;
 import com.teamulm.uploadsystem.data.Gallery;
 
 public class TrmEngine extends Thread {
@@ -45,34 +48,22 @@ public class TrmEngine extends Thread {
 
 	private long transmitedFiles;
 
-	private boolean intern, stopRequested;
+	private boolean stopRequested;
 
 	private int startNum;
 
-	private boolean startNumSet;
-
 	private Converter[] converters;
-
-	private String username;
-
-	private String password;
-
-	private boolean passSet;
 
 	private ReentrantLock picTransmitLock, picConvertLock, picNumLock;
 
 	private Condition picToTransmit, startNumSetCond;
 
+	private MyJProgressBar convertBar, uploadBar;
+
 	private Gallery gallery;
 
 	public Gallery getGallery() {
 		return gallery;
-	}
-
-	public void setGallery(Gallery gallery) {
-		this.gallery = gallery;
-		if (null != this.transmit)
-			this.transmit.setGallery(gallery);
 	}
 
 	public TrmEngine() {
@@ -86,8 +77,6 @@ public class TrmEngine extends Thread {
 		this.transmitedFiles = this.convertedFiles = 0;
 		this.totransmit = new Vector<File>();
 		this.startNum = -1;
-		this.startNumSet = false;
-		this.passSet = false;
 		this.stopRequested = false;
 		OperatingSystemMXBean sysInfo1 = ManagementFactory
 				.getOperatingSystemMXBean();
@@ -111,7 +100,6 @@ public class TrmEngine extends Thread {
 	}
 
 	protected File getNextToTransmit() {
-
 		File retVal = null;
 		this.picTransmitLock.lock();
 		try {
@@ -126,6 +114,13 @@ public class TrmEngine extends Thread {
 		} finally {
 			this.picTransmitLock.unlock();
 		}
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				TrmEngine.this.uploadBar
+						.setProgress((int) ((MyJProgressBar.MAX / TrmEngine.this.totalFiles) * TrmEngine.this.transmitedFiles));
+			};
+		});
+
 		return retVal;
 	}
 
@@ -139,13 +134,24 @@ public class TrmEngine extends Thread {
 		this.convertedFiles++;
 		this.picToTransmit.signal();
 		this.picTransmitLock.unlock();
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				TrmEngine.this.convertBar
+						.setProgress((int) ((MyJProgressBar.MAX / TrmEngine.this.totalFiles) * TrmEngine.this.convertedFiles));
+			};
+		});
 	}
 
 	protected void setStartNumber(int start) {
 		this.picNumLock.lock();
 		this.startNum = start - 1;
-		this.startNumSet = true;
 		this.startNumSetCond.signal();
+		this.picNumLock.unlock();
+	}
+
+	protected void unSetStartNumber() {
+		this.picNumLock.lock();
+		this.startNum = -1;
 		this.picNumLock.unlock();
 	}
 
@@ -167,41 +173,11 @@ public class TrmEngine extends Thread {
 			this.reset();
 			return;
 		}
-		this.transmit = new Transmitter(this);
-		this.transmit.setPriority(3);
-		if (!this.transmit.isConnected()) {
-			this.transmit.disconnect();
-			return;
-		} else if (!this.transmit.verCheck()) {
-			this.transmit.disconnect();
-			return;
-		} else if (!this.passSet
-				|| !this.transmit.login(this.username, this.password)) {
-			this.transmit.disconnect();
-			return;
-		} else if (!this.transmit.setLocation()) {
-			this.transmit.disconnect();
-			return;
-		}
-		if (this.intern) {
-		}
-		if (this.stopRequested) {
-			this.reset();
-			return;
-		}
 		for (int i = 0; i < this.converters.length; i++) {
 			this.converters[i] = new Converter(this, this.savePath, i);
 			this.converters[i].setPriority(3);
 		}
 		try {
-			this.picNumLock.lock();
-			while (!this.startNumSet)
-				this.startNumSetCond.await();
-			this.picNumLock.unlock();
-			if (this.stopRequested) {
-				this.reset();
-				return;
-			}
 			log.info("Starte Converter.");
 			for (Converter con : this.converters)
 				con.start();
@@ -245,6 +221,13 @@ public class TrmEngine extends Thread {
 		return this.transmit.verCheck();
 	}
 
+	public synchronized void disconnect() {
+		if (null == this.transmit || !this.transmit.isConnected()) {
+			return;
+		}
+		this.transmit.disconnect();
+	}
+
 	public synchronized ArrayList<Gallery> getGalleriesFor(String date) {
 		if (null == this.transmit || !this.transmit.isConnected()) {
 			return new ArrayList<Gallery>();
@@ -252,7 +235,25 @@ public class TrmEngine extends Thread {
 		return this.transmit.getGalleriesFor(date);
 	}
 
-	public synchronized void disconnect() {
-		this.transmit.disconnect();
+	public synchronized boolean lockLocation(Gallery gal) {
+		if (null == this.transmit || !this.transmit.isConnected()) {
+			return false;
+		}
+		this.gallery = gal;
+		if (null != this.transmit)
+			this.transmit.setGallery(gal);
+		return this.transmit.lockLocation(gal);
+	}
+
+	public synchronized boolean unLockLocation(Gallery gal) {
+		if (null == this.transmit || !this.transmit.isConnected()) {
+			return false;
+		}
+		return this.transmit.unLockLocation(gal);
+	}
+
+	public void setProgressBars(MyJProgressBar upload, MyJProgressBar convert) {
+		this.uploadBar = upload;
+		this.convertBar = convert;
 	}
 }

@@ -36,6 +36,7 @@ public class UploadWizard {
 			}
 		});
 		this.uploadWizardModel.add(new PictureSelectStep());
+		this.uploadWizardModel.add(new SummaryStep());
 		this.myWizard = new Wizard(this.uploadWizardModel);
 		this.myWizard.setDefaultExitMode(Wizard.EXIT_ON_CLOSE);
 		this.myWizard.addWizardListener(new WizardListener() {
@@ -48,7 +49,7 @@ public class UploadWizard {
 			}
 		});
 		((DefaultTitleComponent) this.myWizard.getTitleComponent())
-				.setFadeColor(Color.BLUE);
+				.setFadeColor(new Color(59, 80, 145));
 		((DefaultTitleComponent) this.myWizard.getTitleComponent())
 				.setGradientBackground(true);
 	}
