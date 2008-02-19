@@ -19,8 +19,6 @@ import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
 
-import com.teamulm.uploadsystem.client.layout.MainWindow;
-
 public class Helper {
 
 	private static final Logger log = Logger.getLogger(Helper.class);
@@ -71,7 +69,6 @@ public class Helper {
 						JOptionPane.ERROR_MESSAGE, null, options, options[1]))
 			return;
 		else {
-			MainWindow.getInstance().addStatusLine("Sende Fehlerbericht");
 			String[] lines = this.readFileData(TeamUlmUpload.LOGFILE, false);
 			String report = "";
 			if (null != lines) {

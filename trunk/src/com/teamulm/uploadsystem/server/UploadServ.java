@@ -138,10 +138,10 @@ public class UploadServ extends Thread {
 		}
 	}
 
-	public Gallery getGallery(String baseDir, String location, String date,
-			int suffix) {
+	public Gallery getGallery(String location, String date, int suffix) {
 		Gallery retVal;
-		File dir = new File(baseDir + Gallery.getPath(location, date, suffix));
+		File dir = new File(this.baseDir
+				+ Gallery.getPath(location, date, suffix));
 		if (!dir.exists()) {
 			dir.mkdirs();
 			log.info("New Location dir created " + dir.getAbsolutePath());
@@ -238,10 +238,9 @@ public class UploadServ extends Thread {
 						+ ": Client did not send HELLO with version");
 				this.cleanUp();
 			}
-			// User und Passwd testen
-			if (this.active) {
+			while (this.active) {
 				cmd = this.readCommand();
-				if (cmd instanceof LoginCmd) {
+				if (cmd instanceof LoginCmd && !this.accepted) {
 					LoginCmd request = (LoginCmd) cmd;
 					LoginCmd response = new LoginCmd(true);
 					if (!this.authUser(request.getUserName(), request
@@ -254,7 +253,6 @@ public class UploadServ extends Thread {
 						log.info(this.clientip
 								+ ": Bad user or password; User: "
 								+ request.getUserName());
-						this.cleanUp();
 					} else {
 						this.accepted = true;
 						response.setSuccess(true);
@@ -263,14 +261,7 @@ public class UploadServ extends Thread {
 						this.output.writeObject(response);
 						this.output.flush();
 					}
-				} else {
-					log.error(this.clientip + ": No user send");
-					this.cleanUp();
-				}
-			}
-			while (this.active) {
-				cmd = this.readCommand();
-				if (this.accepted && cmd instanceof SaveFileCmd) {
+				} else if (this.accepted && cmd instanceof SaveFileCmd) {
 					SaveFileCmd request = (SaveFileCmd) cmd;
 					SaveFileCmd response = new SaveFileCmd(true);
 					response.setSuccess(this.saveFile(request));
@@ -344,14 +335,12 @@ public class UploadServ extends Thread {
 						this.output.writeObject(response);
 						this.output.flush();
 						log.info(this.clientip + ": invalid location selected");
-						this.cleanUp();
 					} else if (PicServer.getInstance().lockLocation(
 							request.getPath(), this.user.getUsername())) {
 						response.setSuccess(true);
 						this.hasLock = true;
-						this.gallery = this.getGallery(this.baseDir, request
-								.getLocation(), request.getDate(), request
-								.getSuffix());
+						this.gallery = this.getGallery(request.getLocation(),
+								request.getDate(), request.getSuffix());
 						response.setStartNumber(this.gallery.getPictures() + 1);
 						this.output.writeObject(response);
 						this.output.flush();
@@ -362,7 +351,6 @@ public class UploadServ extends Thread {
 						this.output.writeObject(response);
 						this.output.flush();
 						log.info(this.clientip + ": selected location is used");
-						this.cleanUp();
 					}
 				} else if (this.accepted && cmd instanceof QuitCmd) {
 					log.info(this.clientip + ": client closed connection");
@@ -375,7 +363,6 @@ public class UploadServ extends Thread {
 						log.error(this.clientip + ": client used bad command: "
 								+ cmd.getClass());
 					}
-					this.cleanUp();
 				}
 			}
 		} catch (Exception e) {

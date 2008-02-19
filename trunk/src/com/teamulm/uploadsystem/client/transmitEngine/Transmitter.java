@@ -14,7 +14,6 @@ import org.apache.log4j.Logger;
 
 import com.teamulm.uploadsystem.client.Helper;
 import com.teamulm.uploadsystem.client.TeamUlmUpload;
-import com.teamulm.uploadsystem.client.layout.MainWindow;
 import com.teamulm.uploadsystem.data.Gallery;
 import com.teamulm.uploadsystem.protocol.Command;
 import com.teamulm.uploadsystem.protocol.GetGalleriesCmd;
@@ -55,8 +54,6 @@ public class Transmitter extends Thread {
 		this.setName("Transmitter");
 		this.chef = chef;
 		this.Running = true;
-		this.gallery = this.getGalleryData();
-		this.deleteFiles = MainWindow.getInstance().getDeleteTMP();
 		try {
 			int serverPort = Integer.parseInt(TeamUlmUpload.getInstance()
 					.getClientConf().getProperty("serverPort"));
@@ -71,22 +68,9 @@ public class Transmitter extends Thread {
 				this.connected = true;
 			}
 		} catch (Exception e) {
-			MainWindow.getInstance().addStatusLine(
-					"Konnte Verbindung nicht herstellen");
 			this.connected = false;
 			Helper.getInstance().systemCrashHandler(e);
 		}
-	}
-
-	private Gallery getGalleryData() {
-		Gallery gallery = new Gallery();
-		gallery.setDesc(MainWindow.getInstance().getEventDesc());
-		gallery.setIntern(MainWindow.getInstance().getIntern());
-		gallery.setTitle(MainWindow.getInstance().getEventTitle());
-		gallery.setLocation(MainWindow.getInstance().getLocations()
-				.getSelectedLoc());
-		gallery.setDate(MainWindow.getInstance().getDateEditor().getDate());
-		return gallery;
 	}
 
 	private Command readCommand() {
@@ -107,7 +91,7 @@ public class Transmitter extends Thread {
 		return this.connected;
 	}
 
-	public synchronized boolean login(String username, String passwd) {
+	protected synchronized boolean login(String username, String passwd) {
 		LoginCmd cmd = new LoginCmd();
 		cmd.setUserName(username);
 		cmd.setPassWord(passwd);
@@ -157,14 +141,8 @@ public class Transmitter extends Thread {
 				this.chef.setStartNumber(resp.getStartNumber());
 				return true;
 			} else if (resp.getErrorCode() == LockPathCmd.ERROR_LOC_BADLOC) {
-				MainWindow.getInstance()
-						.addStatusLine("Location nicht gültig.");
 				return false;
 			} else if (resp.getErrorCode() == LockPathCmd.ERROR_LOC_NOTFREE) {
-				MainWindow.getInstance()
-						.addStatusLine("Location in Benutzung.");
-				MainWindow.getInstance().addStatusLine(
-						"Bitte später nochmal probieren.");
 				return false;
 			} else
 				return false;
@@ -194,7 +172,7 @@ public class Transmitter extends Thread {
 		}
 	}
 
-	public synchronized ArrayList<Gallery> getGalleriesFor(String date) {
+	protected synchronized ArrayList<Gallery> getGalleriesFor(String date) {
 		GetGalleriesCmd cmd = new GetGalleriesCmd();
 		cmd.setDate(date);
 		try {
@@ -213,7 +191,7 @@ public class Transmitter extends Thread {
 			return new ArrayList<Gallery>();
 		}
 	}
-	
+
 	private byte[] getBytesFromFile(File file) throws IOException {
 		InputStream is = new FileInputStream(file);
 		long length = file.length();
@@ -242,8 +220,6 @@ public class Transmitter extends Thread {
 
 	@Override
 	public void run() {
-		MainWindow.getInstance().addStatusLine("Beginne Übertragung");
-		MainWindow.getInstance().setUploadProgress(0);
 		Command retVal;
 		try {
 			while (this.Running && this.chef.isThereSomethingToTtansmit()) {
@@ -267,9 +243,6 @@ public class Transmitter extends Thread {
 					} else {
 						log.info("Datei " + this.akt.getName()
 								+ " nicht gesendet");
-						MainWindow.getInstance().addStatusLine(
-								"Konnte " + this.akt.getAbsoluteFile()
-										+ " nicht senden");
 					}
 				}
 			}
@@ -280,23 +253,22 @@ public class Transmitter extends Thread {
 			retVal = this.readCommand();
 			log.debug("Server said: " + retVal);
 			if (retVal instanceof SaveGalleryCmd && retVal.commandSucceded()) {
-				MainWindow.getInstance().addStatusLine("Galerie gespeichert");
+
 			} else {
-				MainWindow.getInstance().addStatusLine(
-						"Fehler bei Datenbankeintrag");
+
 			}
-			MainWindow.getInstance().addStatusLine("Beende Übertragung");
+
 			this.disconnect();
-			MainWindow.getInstance().addStatusLine("Verbindung beendet");
+
 			sleep(10);
 		} catch (Exception e) {
 			Helper.getInstance().systemCrashHandler(e);
 			this.Running = false;
 		}
-		MainWindow.getInstance().setUploadProgress(1000);
+
 	}
 
-	public synchronized void disconnect() {
+	protected synchronized void disconnect() {
 		try {
 			this.Running = false;
 			this.output.writeObject(new QuitCmd());
@@ -306,5 +278,13 @@ public class Transmitter extends Thread {
 		} catch (Exception e) {
 			Helper.getInstance().systemCrashHandler(e);
 		}
+	}
+
+	protected Gallery getGallery() {
+		return gallery;
+	}
+
+	protected void setGallery(Gallery gallery) {
+		this.gallery = gallery;
 	}
 }

@@ -28,7 +28,6 @@ import javax.imageio.ImageIO;
 import org.apache.log4j.Logger;
 
 import com.teamulm.uploadsystem.client.Helper;
-import com.teamulm.uploadsystem.client.layout.MainWindow;
 
 public class Converter extends Thread {
 
@@ -78,8 +77,7 @@ public class Converter extends Thread {
 
 	@Override
 	public void run() {
-		MainWindow.getInstance().addStatusLine(
-				"Beginne Konvertierung: " + this.ident);
+
 		BufferedImage outPic = null;
 		File outPicName = null;
 		File actFile = null;
@@ -94,8 +92,6 @@ public class Converter extends Thread {
 							+ " Übersprungen wegen Größe " + actFile.getName()
 							+ " -> Breit: " + actPic.getWidth() + " Hoch: "
 							+ actPic.getHeight());
-					MainWindow.getInstance().addStatusLine(
-							"Bild ignoriert: Bild zu klein.");
 				} else if ((actPic.getWidth() == this.bigPicSize.x)
 						&& (actPic.getHeight() == this.bigPicSize.y)) {
 					// Bild hat richtige Größe
@@ -132,9 +128,6 @@ public class Converter extends Thread {
 			}
 			sleep(5);
 		} catch (Exception e) {
-			MainWindow.getInstance().addStatusLine(
-					"Thread: " + this.ident + " Konnte " + actFile.getName()
-							+ " nicht konvertieren");
 			Helper.getInstance().systemCrashHandler(e);
 		}
 	}

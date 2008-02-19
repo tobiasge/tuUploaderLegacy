@@ -11,7 +11,6 @@
  *******************************************************/
 package com.teamulm.uploadsystem.client;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -25,8 +24,8 @@ import javax.swing.UIManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
-import com.teamulm.uploadsystem.client.layout.MainWindow;
 import com.teamulm.uploadsystem.client.transmitEngine.TrmEngine;
+import com.teamulm.uploadsystem.client.wizard.UploadWizard;
 
 public class TeamUlmUpload {
 
@@ -52,16 +51,10 @@ public class TeamUlmUpload {
 				+ sysInfo1.getAvailableProcessors() + " CPU(s)");
 		log.info("Memory Usage is: " + sysInfo2.getHeapMemoryUsage());
 		SwingUtilities.invokeLater(new Runnable() {
-
 			public void run() {
-				MainWindow.getInstance().populateFields();
+				new UploadWizard().show();
 			}
 		});
-	}
-
-	public void engineInit(File[] list, String user, String password) {
-		this.trmEngine = new TrmEngine(list);
-		this.trmEngine.setUserPass(user, password);
 	}
 
 	public void engineStart() {

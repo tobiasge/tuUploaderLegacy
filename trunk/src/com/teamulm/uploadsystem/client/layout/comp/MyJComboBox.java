@@ -6,8 +6,6 @@ import java.awt.Font;
 import javax.swing.JComboBox;
 
 import com.teamulm.uploadsystem.client.Helper;
-import com.teamulm.uploadsystem.client.layout.MainWindow;
-
 
 @SuppressWarnings("serial")
 public class MyJComboBox extends JComboBox {
@@ -27,10 +25,8 @@ public class MyJComboBox extends JComboBox {
 			this.addItem("    -- Bitte wählen --");
 			for (String element : loc)
 				this.addItem(element);
-		} else {
-			MainWindow.getInstance().addStatusLine(
-					"Locationsdatei nicht gefunden");
 		}
+		this.revalidate();
 	}
 
 	@Override

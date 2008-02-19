@@ -59,7 +59,7 @@ public class DBConn {
 				.getDataBaseForTable("tu_fotos"))) {
 			return retVal;
 		}
-		String query = "SELECT galid, pictures, suffix FROM tu_fotos WHERE location = ? "
+		String query = "SELECT galid, pictures, suffix, tt FROM tu_fotos WHERE location = ? "
 				+ "AND date_gal = STR_TO_DATE(?, '%d-%m-%Y') AND suffix = ?";
 		try {
 			request = connection.prepareStatement(query);
@@ -75,6 +75,9 @@ public class DBConn {
 			retVal.setPictures(result.getInt("pictures"));
 			retVal.setGalid(result.getInt("galid"));
 			retVal.setSuffix(result.getInt("suffix"));
+			retVal.setTitle(result.getString("title"));
+			retVal.setDesc(result.getString("description"));
+			retVal.setNewGallery(false);
 		} catch (Exception e) {
 			log.error("Failure in getGallery(): " + e.getClass());
 			log.error("Failure in getGallery(): " + e.getMessage());
@@ -115,7 +118,7 @@ public class DBConn {
 				.getDataBaseForTable("tu_fotos"))) {
 			return false;
 		}
-		String query = "SELECT galid, pictures, suffix, location FROM tu_fotos WHERE "
+		String query = "SELECT galid, pictures, suffix, location, description, title FROM tu_fotos WHERE "
 				+ "date_gal = STR_TO_DATE(?, '%d-%m-%Y')";
 		try {
 			request = connection.prepareStatement(query);
@@ -128,6 +131,9 @@ public class DBConn {
 				tmpGal.setPictures(result.getInt("pictures"));
 				tmpGal.setGalid(result.getInt("galid"));
 				tmpGal.setSuffix(result.getInt("suffix"));
+				tmpGal.setTitle(result.getString("title"));
+				tmpGal.setDesc(result.getString("description"));
+				tmpGal.setNewGallery(false);
 				galleries.add(tmpGal);
 			}
 		} catch (Exception e) {

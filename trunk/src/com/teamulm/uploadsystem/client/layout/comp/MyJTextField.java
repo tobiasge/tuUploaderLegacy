@@ -5,8 +5,6 @@ import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
-import com.teamulm.uploadsystem.client.layout.MainWindow;
-
 @SuppressWarnings("serial")
 public class MyJTextField extends JTextField {
 
@@ -28,7 +26,7 @@ public class MyJTextField extends JTextField {
 		public boolean verify(JComponent arg0) {
 			JTextField lab = (JTextField) arg0;
 			if (lab.getText().length() > this.maxLength) {
-				JOptionPane.showMessageDialog(MainWindow.getInstance(),
+				JOptionPane.showMessageDialog(null,
 						"<html>Der Text ist zu lang (" + lab.getText().length()
 								+ " Zeichen).<br>Bitte kürze ihn um "
 								+ (lab.getText().length() - this.maxLength)

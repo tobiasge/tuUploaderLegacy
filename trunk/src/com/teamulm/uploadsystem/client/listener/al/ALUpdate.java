@@ -19,11 +19,15 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import com.teamulm.uploadsystem.client.Helper;
-import com.teamulm.uploadsystem.client.layout.MainWindow;
-
-
+import com.teamulm.uploadsystem.client.layout.comp.MyJComboBox;
 
 public class ALUpdate implements ActionListener {
+
+	private MyJComboBox myBox;
+
+	public ALUpdate(MyJComboBox myBox) {
+		this.myBox = myBox;
+	}
 
 	public void actionPerformed(ActionEvent e) {
 		try {
@@ -40,12 +44,9 @@ public class ALUpdate implements ActionListener {
 			out.write(contentByteArray);
 			out.flush();
 			out.close();
-			MainWindow.getInstance().getLocations().setLocationsFile(
-					"locations.list");
-			MainWindow.getInstance().addStatusLine("Locations Update fertig");
+			this.myBox.setLocationsFile("locations.list");
 		} catch (Exception e2) {
-			MainWindow.getInstance()
-					.addStatusLine("Konnte Liste nicht updaten");
+
 			Helper.getInstance().systemCrashHandler(e2);
 		}
 	}

@@ -14,6 +14,7 @@ package com.teamulm.uploadsystem.client.transmitEngine;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
+import java.util.ArrayList;
 import java.util.Vector;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -22,8 +23,7 @@ import org.apache.log4j.Logger;
 
 import com.teamulm.uploadsystem.client.Helper;
 import com.teamulm.uploadsystem.client.TeamUlmUpload;
-import com.teamulm.uploadsystem.client.layout.MainWindow;
-import com.teamulm.uploadsystem.client.layout.comp.MyJProgressBar;
+import com.teamulm.uploadsystem.data.Gallery;
 
 public class TrmEngine extends Thread {
 
@@ -63,7 +63,19 @@ public class TrmEngine extends Thread {
 
 	private Condition picToTransmit, startNumSetCond;
 
-	public TrmEngine(File[] toconvert) {
+	private Gallery gallery;
+
+	public Gallery getGallery() {
+		return gallery;
+	}
+
+	public void setGallery(Gallery gallery) {
+		this.gallery = gallery;
+		if (null != this.transmit)
+			this.transmit.setGallery(gallery);
+	}
+
+	public TrmEngine() {
 		super();
 		this.setName("TrmEngine");
 		this.picTransmitLock = new ReentrantLock(false);
@@ -72,10 +84,7 @@ public class TrmEngine extends Thread {
 		this.picToTransmit = this.picTransmitLock.newCondition();
 		this.startNumSetCond = this.picNumLock.newCondition();
 		this.transmitedFiles = this.convertedFiles = 0;
-		this.toconvert = new Vector<File>();
 		this.totransmit = new Vector<File>();
-		this.totalFiles = toconvert.length * 2;
-		this.savePath = new File(MainWindow.getInstance().getTMPDir());
 		this.startNum = -1;
 		this.startNumSet = false;
 		this.passSet = false;
@@ -83,9 +92,6 @@ public class TrmEngine extends Thread {
 		OperatingSystemMXBean sysInfo1 = ManagementFactory
 				.getOperatingSystemMXBean();
 		this.converters = new Converter[sysInfo1.getAvailableProcessors()];
-		for (File fi : toconvert)
-			this.toconvert.add(fi);
-		this.intern = MainWindow.getInstance().getIntern();
 	}
 
 	public File getNextToConvert() {
@@ -97,14 +103,6 @@ public class TrmEngine extends Thread {
 		return retVal;
 	}
 
-	public synchronized void setUserPass(String user, String password) {
-		if (user.length() == 0 || password.length() == 0)
-			return;
-		this.username = user;
-		this.password = password;
-		this.passSet = true;
-	}
-
 	private synchronized void reset() {
 		int length = this.converters.length;
 		for (int i = 0; i < length; i++)
@@ -112,11 +110,8 @@ public class TrmEngine extends Thread {
 		this.transmit = null;
 	}
 
-	public File getNextToTransmit() {
-		MainWindow
-				.getInstance()
-				.setUploadProgress(
-						(int) ((MyJProgressBar.MAX / this.totalFiles) * this.transmitedFiles));
+	protected File getNextToTransmit() {
+
 		File retVal = null;
 		this.picTransmitLock.lock();
 		try {
@@ -134,23 +129,19 @@ public class TrmEngine extends Thread {
 		return retVal;
 	}
 
-	public synchronized boolean isThereSomethingToTtansmit() {
+	protected synchronized boolean isThereSomethingToTtansmit() {
 		return this.totalFiles > this.transmitedFiles;
 	}
 
-	public void setToTransmit(File file) {
+	protected void setToTransmit(File file) {
 		this.picTransmitLock.lock();
 		this.totransmit.add(file);
 		this.convertedFiles++;
 		this.picToTransmit.signal();
 		this.picTransmitLock.unlock();
-		MainWindow
-				.getInstance()
-				.setConvertProgress(
-						(int) ((MyJProgressBar.MAX / this.totalFiles) * this.convertedFiles));
 	}
 
-	public void setStartNumber(int start) {
+	protected void setStartNumber(int start) {
 		this.picNumLock.lock();
 		this.startNum = start - 1;
 		this.startNumSet = true;
@@ -158,7 +149,7 @@ public class TrmEngine extends Thread {
 		this.picNumLock.unlock();
 	}
 
-	public int getNextPicNum() {
+	protected int getNextPicNum() {
 		this.picNumLock.lock();
 		this.startNum++;
 		int retVal = this.startNum;
@@ -176,22 +167,16 @@ public class TrmEngine extends Thread {
 			this.reset();
 			return;
 		}
-		MainWindow.getInstance().addStatusLine(
-				"Beginne Verbindung zum Server...");
 		this.transmit = new Transmitter(this);
 		this.transmit.setPriority(3);
 		if (!this.transmit.isConnected()) {
 			this.transmit.disconnect();
 			return;
 		} else if (!this.transmit.verCheck()) {
-			MainWindow.getInstance().addStatusLine(
-					"Falsche Programmversion: " + TrmEngine.VERSION);
 			this.transmit.disconnect();
 			return;
 		} else if (!this.passSet
 				|| !this.transmit.login(this.username, this.password)) {
-			MainWindow.getInstance()
-					.addStatusLine("User oder Passwort falsch.");
 			this.transmit.disconnect();
 			return;
 		} else if (!this.transmit.setLocation()) {
@@ -199,7 +184,6 @@ public class TrmEngine extends Thread {
 			return;
 		}
 		if (this.intern) {
-			MainWindow.getInstance().addStatusLine("Erstelle interne Galerie.");
 		}
 		if (this.stopRequested) {
 			this.reset();
@@ -227,7 +211,6 @@ public class TrmEngine extends Thread {
 				if (con.isAlive())
 					con.join();
 			this.totalFiles = this.convertedFiles;
-			MainWindow.getInstance().setConvertProgress(1000);
 			this.picTransmitLock.lock();
 			this.picToTransmit.signal();
 			this.picTransmitLock.unlock();
@@ -235,13 +218,41 @@ public class TrmEngine extends Thread {
 			Thread.sleep(1000);
 			this.reset();
 			TeamUlmUpload.getInstance().engineKill();
-			MainWindow.getInstance().addStatusLine("Aufräumen abgeschlossen.");
 			Thread.sleep(10);
-			MainWindow.getInstance().addStatusLine(
-					"Das Programm kann geschlossen werden.");
 			log.info("Beende Transmitter.");
 		} catch (Exception e) {
 			Helper.getInstance().systemCrashHandler(e);
 		}
+	}
+
+	public void setFiles(File[] files) {
+		this.totalFiles = files.length * 2;
+		this.toconvert = new Vector<File>();
+		for (File fi : files)
+			this.toconvert.add(fi);
+	}
+
+	public void setTmpPath(String path) {
+		this.savePath = new File(path);
+	}
+
+	public boolean login(String userName, String passWord) {
+		return this.transmit.login(userName, passWord);
+	}
+
+	public boolean connect() {
+		this.transmit = new Transmitter(this);
+		return this.transmit.verCheck();
+	}
+
+	public synchronized ArrayList<Gallery> getGalleriesFor(String date) {
+		if (null == this.transmit || !this.transmit.isConnected()) {
+			return new ArrayList<Gallery>();
+		}
+		return this.transmit.getGalleriesFor(date);
+	}
+
+	public synchronized void disconnect() {
+		this.transmit.disconnect();
 	}
 }

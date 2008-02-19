@@ -108,7 +108,7 @@ public class Gallery implements Serializable {
 	}
 
 	public boolean isNewGallery() {
-		return newGallery;
+		return this.newGallery;
 	}
 
 	public void setNewGallery(boolean newGallery) {
@@ -126,12 +126,6 @@ public class Gallery implements Serializable {
 	}
 
 	public String toString() {
-		StringBuffer buf = new StringBuffer();
-		buf.append(this.getPath());
-		buf.append(" with ");
-		buf.append(this.pictures);
-		buf.append(" pictures and intern = ");
-		buf.append(this.intern);
-		return buf.toString();
+		return this.location;
 	}
 }
