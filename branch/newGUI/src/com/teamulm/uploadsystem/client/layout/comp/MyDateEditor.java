@@ -1,53 +1,54 @@
 package com.teamulm.uploadsystem.client.layout.comp;
 
-import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 
-import javax.swing.JSpinner;
-import javax.swing.SpinnerDateModel;
+import com.toedter.calendar.JDateChooser;
+import com.toedter.calendar.JTextFieldDateEditor;
 
 @SuppressWarnings("serial")
-public class MyDateEditor extends JSpinner {
-
-	private SpinnerDateModel dateModel;
-
-	private DateEditor dateEditor;
+public class MyDateEditor extends JDateChooser {
+	private boolean isCalendarVisible = false;
 
 	public MyDateEditor() {
-		this.dateModel = new SpinnerDateModel();
-		this.setModel(this.dateModel);
-		dateEditor = new DateEditor(this, "dd.MM.yyyy");
-		dateEditor.setFont(new Font("", Font.PLAIN, 12));
-		this.setFont(new Font("", Font.PLAIN, 12));
-		this.setEditor(dateEditor);
+		super(new Date(), "dd.MM.yyyy");
+		this.setLocale(Locale.GERMANY);
+		this.setMaxSelectableDate(new Date());
 	}
 
-	public String getDate() {
-		String retVal = "";
-		GregorianCalendar date2 = new GregorianCalendar();
-		date2.setTime(this.dateModel.getDate());
-		int day = date2.get(Calendar.DAY_OF_MONTH);
-		int month = date2.get(Calendar.MONTH) + 1;
-		int year = date2.get(Calendar.YEAR);
-		if (day < 10) {
-			retVal += "0" + day + "-";
-		} else {
-			retVal += day + "-";
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (this.isCalendarVisible) {
+			this.popup.setVisible(false);
+			this.isCalendarVisible = false;
+			return;
 		}
-		if (month < 10) {
-			retVal += "0" + month + "-";
-		} else {
-			retVal += month + "-";
+		this.isCalendarVisible = true;
+		super.actionPerformed(e);
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		if (evt.getPropertyName().equals("day")) {
+			if (this.popup.isVisible()) {
+				this.isCalendarVisible = false;
+			}
 		}
-		retVal += year;
-		return retVal;
+		super.propertyChange(evt);
+	}
+
+	public String getDateString() {
+		return ((JTextFieldDateEditor) this.getDateEditor().getUiComponent())
+				.getText().replace('.', '-');
 	}
 
 	public boolean isToday() {
-		GregorianCalendar today = new GregorianCalendar();
-		GregorianCalendar date = new GregorianCalendar();
-		date.setTime(this.dateModel.getDate());
+		Calendar today = new GregorianCalendar();
+		Calendar date = this.getCalendar();
 		if ((date.get(Calendar.DAY_OF_MONTH) == today
 				.get(Calendar.DAY_OF_MONTH))
 				&& (date.get(Calendar.MONTH) == today.get(Calendar.MONTH))
@@ -58,6 +59,6 @@ public class MyDateEditor extends JSpinner {
 	}
 
 	public void setDateToday() {
-		this.dateModel.setValue(Calendar.getInstance().getTime());
+		this.setDate(Calendar.getInstance().getTime());
 	}
 }

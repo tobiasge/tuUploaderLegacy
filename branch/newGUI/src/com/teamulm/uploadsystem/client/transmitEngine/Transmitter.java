@@ -82,7 +82,7 @@ public class Transmitter extends Thread {
 		gallery.setTitle(MainWindow.getInstance().getEventTitle());
 		gallery.setLocation(MainWindow.getInstance().getLocations()
 				.getSelectedLoc());
-		gallery.setDate(MainWindow.getInstance().getDateEditor().getDate());
+		gallery.setDate(MainWindow.getInstance().getDateEditor().getDateString());
 		return gallery;
 	}
 
