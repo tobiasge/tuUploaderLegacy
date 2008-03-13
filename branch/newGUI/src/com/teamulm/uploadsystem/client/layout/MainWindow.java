@@ -9,6 +9,7 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Date;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -36,6 +37,8 @@ import com.teamulm.uploadsystem.client.listener.al.ALRemovePic;
 import com.teamulm.uploadsystem.client.listener.al.ALUpdate;
 import com.teamulm.uploadsystem.client.listener.kl.KLEventTitle;
 import com.teamulm.uploadsystem.client.listener.wl.WLMainClose;
+import com.toedter.calendar.JDateChooser;
+import com.toedter.calendar.JTextFieldDateEditor;
 
 
 @SuppressWarnings("serial")
@@ -182,7 +185,14 @@ public class MainWindow extends JFrame {
 		infoPanelConstraints.gridy = 4;
 		infoPanelConstraints.insets = leftInsets;
 		this.eventDate = new MyDateEditor();
-		infoPanel.add(this.eventDate, infoPanelConstraints);
+		//infoPanel.add(this.eventDate, infoPanelConstraints);
+		
+		JDateChooser dateChooser = new JDateChooser(new Date(), "dd.MM.yyyy");
+		dateChooser.setDate(new Date());
+		infoPanel.add(dateChooser, infoPanelConstraints);
+
+		System.err.println(((JTextFieldDateEditor)dateChooser.getDateEditor().getUiComponent()).getText());
+		
 		infoPanelConstraints.gridx = 0;
 		infoPanelConstraints.gridy = 5;
 		infoPanelConstraints.insets = rightInsets;
