@@ -25,7 +25,6 @@ import javax.swing.UIManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
-import com.jgoodies.looks.LookUtils;
 import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
 import com.teamulm.uploadsystem.client.layout.MainWindow;
 import com.teamulm.uploadsystem.client.transmitEngine.TrmEngine;
