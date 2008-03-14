@@ -13,13 +13,14 @@ import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 
 import com.teamulm.uploadsystem.client.Helper;
-import com.teamulm.uploadsystem.client.TeamUlmUpload;
 import com.teamulm.uploadsystem.client.layout.comp.MyJProgressBar;
 import com.teamulm.uploadsystem.data.Gallery;
 
 public class TrmEngine extends Thread {
 
 	private static final Logger log = Logger.getLogger(TrmEngine.class);
+
+	private static TrmEngine instance;
 
 	private File savePath;
 
@@ -37,7 +38,7 @@ public class TrmEngine extends Thread {
 
 	private long transmitedFiles;
 
-	private boolean stopRequested;
+	private boolean stopRequested, loggedIn, connected;
 
 	private int startNum;
 
@@ -51,11 +52,18 @@ public class TrmEngine extends Thread {
 
 	private Gallery gallery;
 
+	public static TrmEngine getInstance() {
+		if (null == TrmEngine.instance) {
+			TrmEngine.instance = new TrmEngine();
+		}
+		return TrmEngine.instance;
+	}
+
 	public Gallery getGallery() {
 		return gallery;
 	}
 
-	public TrmEngine() {
+	private TrmEngine() {
 		super();
 		this.setName("TrmEngine");
 		this.picTransmitLock = new ReentrantLock(false);
@@ -67,6 +75,8 @@ public class TrmEngine extends Thread {
 		this.totransmit = new Vector<File>();
 		this.startNum = -1;
 		this.stopRequested = false;
+		this.loggedIn = false;
+		this.connected = false;
 		OperatingSystemMXBean sysInfo1 = ManagementFactory
 				.getOperatingSystemMXBean();
 		this.converters = new Converter[sysInfo1.getAvailableProcessors()];
@@ -86,6 +96,7 @@ public class TrmEngine extends Thread {
 		for (int i = 0; i < length; i++)
 			this.converters[i] = null;
 		this.transmit = null;
+		TrmEngine.instance = null;
 	}
 
 	protected File getNextToTransmit() {
@@ -182,7 +193,7 @@ public class TrmEngine extends Thread {
 			this.transmit.join();
 			Thread.sleep(1000);
 			this.reset();
-			TeamUlmUpload.getInstance().engineKill();
+			TrmEngine.instance = null;
 			Thread.sleep(10);
 			log.info("Beende Transmitter.");
 		} catch (Exception e) {
@@ -197,17 +208,15 @@ public class TrmEngine extends Thread {
 			this.toconvert.add(fi);
 	}
 
-	public void setTmpPath(String path) {
-		this.savePath = new File(path);
-	}
-
 	public boolean login(String userName, String passWord) {
+		this.loggedIn = true;
 		return this.transmit.login(userName, passWord);
 	}
 
 	public boolean connect() {
 		this.transmit = new Transmitter(this);
-		return this.transmit.verCheck();
+		this.connected = this.transmit.verCheck();
+		return this.connected;
 	}
 
 	public synchronized void disconnect() {
@@ -244,5 +253,13 @@ public class TrmEngine extends Thread {
 	public void setProgressBars(MyJProgressBar upload, MyJProgressBar convert) {
 		this.uploadBar = upload;
 		this.convertBar = convert;
+	}
+
+	public boolean isLoggedIn() {
+		return this.loggedIn;
+	}
+
+	public boolean isConnected() {
+		return this.connected;
 	}
 }

@@ -22,7 +22,6 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
-import com.teamulm.uploadsystem.client.TeamUlmUpload;
 import com.teamulm.uploadsystem.client.layout.comp.FileList;
 import com.teamulm.uploadsystem.client.layout.comp.MyDateEditor;
 import com.teamulm.uploadsystem.client.layout.comp.MyJButton;
@@ -32,10 +31,12 @@ import com.teamulm.uploadsystem.client.layout.comp.MyJTextField;
 import com.teamulm.uploadsystem.client.layout.comp.StatusList;
 import com.teamulm.uploadsystem.client.listener.al.ALChoosePic;
 import com.teamulm.uploadsystem.client.listener.al.ALConAUpl;
+import com.teamulm.uploadsystem.client.listener.al.ALGalleryLoad;
 import com.teamulm.uploadsystem.client.listener.al.ALRemovePic;
 import com.teamulm.uploadsystem.client.listener.al.ALUpdate;
 import com.teamulm.uploadsystem.client.listener.kl.KLEventTitle;
 import com.teamulm.uploadsystem.client.listener.wl.WLMainClose;
+import com.teamulm.uploadsystem.client.transmitEngine.TrmEngine;
 
 @SuppressWarnings("serial")
 public class MainWindow extends JFrame {
@@ -129,7 +130,7 @@ public class MainWindow extends JFrame {
 		panelConstraints.fill = GridBagConstraints.HORIZONTAL;
 		Insets rightInsets = new Insets(2, 0, 2, 5);
 		Insets leftInsets = new Insets(2, 5, 2, 0);
-	
+
 		panelConstraints.gridx = 0;
 		panelConstraints.gridy = 0;
 		panelConstraints.insets = rightInsets;
@@ -142,8 +143,7 @@ public class MainWindow extends JFrame {
 		MyJButton deleteSelection = new MyJButton("Auswahl löschen");
 		deleteSelection.addActionListener(new ALRemovePic());
 		infoPanel.add(deleteSelection, panelConstraints);
-		
-		
+
 		panelConstraints.gridx = 0;
 		panelConstraints.gridy = 1;
 		panelConstraints.insets = rightInsets;
@@ -153,16 +153,14 @@ public class MainWindow extends JFrame {
 		panelConstraints.insets = leftInsets;
 		this.comboLocations = new MyJComboBox();
 		infoPanel.add(comboLocations, panelConstraints);
-		
-		
+
 		panelConstraints.gridx = 1;
 		panelConstraints.gridy = 2;
 		panelConstraints.insets = leftInsets;
 		MyJButton updateLocs = new MyJButton("Locations Update");
 		updateLocs.addActionListener(new ALUpdate());
 		infoPanel.add(updateLocs, panelConstraints);
-		
-		
+
 		panelConstraints.gridx = 0;
 		panelConstraints.gridy = 3;
 		panelConstraints.insets = rightInsets;
@@ -172,13 +170,14 @@ public class MainWindow extends JFrame {
 		panelConstraints.insets = leftInsets;
 		this.eventDate = new MyDateEditor();
 		infoPanel.add(this.eventDate, panelConstraints);
-		
-		
+
 		panelConstraints.gridx = 1;
 		panelConstraints.gridy = 4;
 		panelConstraints.insets = leftInsets;
-		infoPanel.add(new MyJButton("Galerien laden"), panelConstraints);
-		
+		JButton galleryLoadButton = new MyJButton("Galerien laden");
+		galleryLoadButton.addActionListener(new ALGalleryLoad());
+		infoPanel.add(galleryLoadButton, panelConstraints);
+
 		panelConstraints.gridx = 0;
 		panelConstraints.gridy = 5;
 		panelConstraints.insets = rightInsets;
@@ -189,8 +188,7 @@ public class MainWindow extends JFrame {
 		this.fieldTitle = new MyJTextField(MainWindow.TITLEMAXLENGTH);
 		this.fieldTitle.addKeyListener(new KLEventTitle());
 		infoPanel.add(fieldTitle, panelConstraints);
-		
-		
+
 		panelConstraints.gridx = 0;
 		panelConstraints.gridy = 6;
 		panelConstraints.insets = rightInsets;
@@ -200,8 +198,7 @@ public class MainWindow extends JFrame {
 		panelConstraints.insets = leftInsets;
 		this.fieldDesc = new MyJTextField(MainWindow.DESCRMAXLENGTH);
 		infoPanel.add(this.fieldDesc, panelConstraints);
-		
-	
+
 		panelConstraints.gridx = 1;
 		panelConstraints.gridy = 7;
 		panelConstraints.insets = leftInsets;
@@ -257,8 +254,8 @@ public class MainWindow extends JFrame {
 		JButton resetButton = new JButton("Zurücksetzen");
 		resetButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				TeamUlmUpload.getInstance().engineKill();
 				MainWindow.this.reset();
+				TrmEngine.getInstance().requestStop();
 			}
 		});
 		buttonPanel.add(resetButton, BorderLayout.EAST);

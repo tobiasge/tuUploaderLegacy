@@ -23,6 +23,7 @@ import com.teamulm.uploadsystem.protocol.GetGalleriesCmd;
 import com.teamulm.uploadsystem.protocol.HelloCmd;
 import com.teamulm.uploadsystem.protocol.LockPathCmd;
 import com.teamulm.uploadsystem.protocol.LoginCmd;
+import com.teamulm.uploadsystem.protocol.NewGalleryCmd;
 import com.teamulm.uploadsystem.protocol.PingCmd;
 import com.teamulm.uploadsystem.protocol.QuitCmd;
 import com.teamulm.uploadsystem.protocol.SaveFileCmd;
@@ -146,37 +147,23 @@ public class Transmitter extends Thread {
 		}
 	}
 
-	public synchronized boolean setLocation() {
+	public synchronized Gallery newGallery(String location, String date) {
+		NewGalleryCmd cmd = new NewGalleryCmd();
+		cmd.setDate(date);
+		cmd.setLocation(location);
 		try {
-			LockPathCmd cmd = new LockPathCmd();
-			cmd.setDate(this.gallery.getDate());
-			cmd.setLocation(this.gallery.getLocation());
+			this.output.writeObject(cmd);
+			this.output.flush();
 			Command retVal = this.sendAndReadCommand(cmd);
 			log.debug("Server said: " + retVal);
-			if (!(retVal instanceof LockPathCmd))
-				return false;
-			LockPathCmd resp = (LockPathCmd) retVal;
-			if (resp.commandSucceded()) {
-				if (resp.getStartNumber() > 1) {
-					this.gallery.setNewGallery(false);
-				}
-				this.chef.setStartNumber(resp.getStartNumber());
-				return true;
-			} else if (resp.getErrorCode() == Command.ERROR_LOC_BADLOC) {
-				MainWindow.getInstance()
-						.addStatusLine("Location nicht gültig.");
-				return false;
-			} else if (resp.getErrorCode() == Command.ERROR_LOC_NOTFREE) {
-				MainWindow.getInstance()
-						.addStatusLine("Location in Benutzung.");
-				MainWindow.getInstance().addStatusLine(
-						"Bitte später nochmal probieren.");
-				return false;
-			} else
-				return false;
+			if (retVal instanceof NewGalleryCmd) {
+				NewGalleryCmd response = (NewGalleryCmd) retVal;
+				return response.getGallery();
+			}
+			return null;
 		} catch (Exception e) {
 			Helper.getInstance().systemCrashHandler(e);
-			return false;
+			return null;
 		}
 	}
 
@@ -197,7 +184,7 @@ public class Transmitter extends Thread {
 			return new ArrayList<Gallery>();
 		}
 	}
-	
+
 	private byte[] getBytesFromFile(File file) throws IOException {
 		InputStream is = new FileInputStream(file);
 		long length = file.length();
@@ -224,10 +211,6 @@ public class Transmitter extends Thread {
 		this.Running = false;
 	}
 
-	protected void setGallery(Gallery gallery) {
-		this.gallery = gallery;
-	}
-	
 	protected boolean unLockLocation(Gallery gal) {
 		try {
 			UnLockPathCmd cmd = new UnLockPathCmd();
@@ -245,7 +228,7 @@ public class Transmitter extends Thread {
 			return false;
 		}
 	}
-	
+
 	public synchronized boolean lockLocation(Gallery gal) {
 		try {
 			LockPathCmd cmd = new LockPathCmd();
@@ -275,7 +258,6 @@ public class Transmitter extends Thread {
 		}
 	}
 
-	
 	@Override
 	public void run() {
 		MainWindow.getInstance().addStatusLine("Beginne Übertragung");
@@ -338,5 +320,13 @@ public class Transmitter extends Thread {
 		} catch (Exception e) {
 			Helper.getInstance().systemCrashHandler(e);
 		}
+	}
+
+	protected Gallery getGallery() {
+		return gallery;
+	}
+
+	protected void setGallery(Gallery gallery) {
+		this.gallery = gallery;
 	}
 }

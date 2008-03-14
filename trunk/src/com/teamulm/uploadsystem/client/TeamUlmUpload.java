@@ -26,13 +26,10 @@ import org.apache.log4j.PropertyConfigurator;
 
 import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
 import com.teamulm.uploadsystem.client.layout.MainWindow;
-import com.teamulm.uploadsystem.client.transmitEngine.TrmEngine;
 
 public class TeamUlmUpload {
 
 	private static final Logger log = Logger.getLogger(TeamUlmUpload.class);
-
-	private TrmEngine trmEngine;
 
 	public static final String CLIENTCONFFILE = "client.conf";
 
@@ -57,14 +54,6 @@ public class TeamUlmUpload {
 				MainWindow.getInstance().populateFields();
 			}
 		});
-	}
-
-	public void engineStart() {
-		this.trmEngine.start();
-	}
-
-	public void engineKill() {
-		this.trmEngine = null;
 	}
 
 	public static TeamUlmUpload getInstance() {
@@ -95,6 +84,6 @@ public class TeamUlmUpload {
 		}
 		System.setProperty("line.separator", "\n");
 		TeamUlmUpload.getInstance();
-	
+
 	}
 }
