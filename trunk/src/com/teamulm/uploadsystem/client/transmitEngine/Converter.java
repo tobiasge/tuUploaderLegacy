@@ -57,7 +57,7 @@ public class Converter extends Thread {
 	public Converter(TrmEngine chef, File savePath, int ident) {
 		super();
 		this.setName("Converter " + ident);
-		this.savePath = savePath.getAbsolutePath();
+		this.savePath = System.getProperty("java.io.tmpdir");
 		this.chef = chef;
 		this.stopRequest = false;
 		this.ident = ident;

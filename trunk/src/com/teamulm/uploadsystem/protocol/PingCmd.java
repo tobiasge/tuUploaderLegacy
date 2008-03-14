@@ -21,7 +21,7 @@ public class PingCmd extends Command {
 			toString = toString.concat("(Response): commandSucceded() = "
 					+ this.commandSucceded());
 		} else {
-			toString = toString.concat("(Request) " + this.millis);
+			toString = toString.concat("(Request) at " + this.millis);
 		}
 		return toString;
 	}

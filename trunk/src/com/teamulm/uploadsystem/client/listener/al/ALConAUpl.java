@@ -45,7 +45,6 @@ public class ALConAUpl implements ActionListener {
 					"Bitte Beschreibung angeben.");
 			return;
 		}
-
 		if (MainWindow.getInstance().getDateEditor().isToday()) {
 			int retVal = this.todayDialog();
 			if ((JOptionPane.NO_OPTION == retVal || JOptionPane.CLOSED_OPTION == retVal)) {
@@ -68,8 +67,8 @@ public class ALConAUpl implements ActionListener {
 				return;
 			}
 			log.debug("starte upload " + userSaidValue);
-			if (!TrmEngine.getInstance().login(dialog.getUser(),
-					dialog.getPass())) {
+			if (!TrmEngine.getInstance().login(
+					dialog.getUser(), dialog.getPass())) {
 				MainWindow.getInstance().addStatusLine(
 						"Username oder Passwort falsch.");
 				return;

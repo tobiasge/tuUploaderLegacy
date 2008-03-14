@@ -147,36 +147,36 @@ public class MainWindow extends JFrame {
 		panelConstraints.gridx = 0;
 		panelConstraints.gridy = 1;
 		panelConstraints.insets = rightInsets;
-		infoPanel.add(new JLabel("Eventlocation:"), panelConstraints);
-		panelConstraints.gridx = 1;
-		panelConstraints.gridy = 1;
-		panelConstraints.insets = leftInsets;
-		this.comboLocations = new MyJComboBox();
-		infoPanel.add(comboLocations, panelConstraints);
-
-		panelConstraints.gridx = 1;
-		panelConstraints.gridy = 2;
-		panelConstraints.insets = leftInsets;
-		MyJButton updateLocs = new MyJButton("Locations Update");
-		updateLocs.addActionListener(new ALUpdate());
-		infoPanel.add(updateLocs, panelConstraints);
-
-		panelConstraints.gridx = 0;
-		panelConstraints.gridy = 3;
-		panelConstraints.insets = rightInsets;
 		infoPanel.add(new JLabel("Eventdatum:"), panelConstraints);
 		panelConstraints.gridx = 1;
-		panelConstraints.gridy = 3;
+		panelConstraints.gridy = 1;
 		panelConstraints.insets = leftInsets;
 		this.eventDate = new MyDateEditor();
 		infoPanel.add(this.eventDate, panelConstraints);
 
 		panelConstraints.gridx = 1;
-		panelConstraints.gridy = 4;
+		panelConstraints.gridy = 2;
 		panelConstraints.insets = leftInsets;
 		JButton galleryLoadButton = new MyJButton("Galerien laden");
 		galleryLoadButton.addActionListener(new ALGalleryLoad());
 		infoPanel.add(galleryLoadButton, panelConstraints);
+
+		panelConstraints.gridx = 0;
+		panelConstraints.gridy = 3;
+		panelConstraints.insets = rightInsets;
+		infoPanel.add(new JLabel("Eventlocation:"), panelConstraints);
+		panelConstraints.gridx = 1;
+		panelConstraints.gridy = 3;
+		panelConstraints.insets = leftInsets;
+		this.comboLocations = new MyJComboBox();
+		infoPanel.add(comboLocations, panelConstraints);
+
+		panelConstraints.gridx = 1;
+		panelConstraints.gridy = 4;
+		panelConstraints.insets = leftInsets;
+		MyJButton updateLocs = new MyJButton("Locations Update");
+		updateLocs.addActionListener(new ALUpdate());
+		infoPanel.add(updateLocs, panelConstraints);
 
 		panelConstraints.gridx = 0;
 		panelConstraints.gridy = 5;

@@ -48,7 +48,7 @@ public class Transmitter extends Thread {
 
 	private boolean connected;
 
-	private boolean Running;
+	private boolean Running, loggedIn;
 
 	private Gallery gallery;
 
@@ -59,7 +59,7 @@ public class Transmitter extends Thread {
 		this.setName("Transmitter");
 		this.chef = chef;
 		this.Running = true;
-		this.gallery = this.getGalleryData();
+		this.loggedIn = false;
 		try {
 			int serverPort = Integer.parseInt(TeamUlmUpload.getInstance()
 					.getClientConf().getProperty("serverPort"));
@@ -74,30 +74,12 @@ public class Transmitter extends Thread {
 				this.connected = true;
 			}
 		} catch (Exception e) {
-			MainWindow.getInstance().addStatusLine(
-					"Konnte Verbindung nicht herstellen");
 			this.connected = false;
 			Helper.getInstance().systemCrashHandler(e);
 		}
 		this.keepAliveTimer = new Timer("KeepAliveTimer", true);
-		this.keepAliveTimer.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				Transmitter.this.sendAndReadCommand(new PingCmd());
-			}
-		}, 0, 2000);
-	}
-
-	private Gallery getGalleryData() {
-		Gallery gallery = new Gallery();
-		gallery.setDesc(MainWindow.getInstance().getEventDesc());
-		gallery.setIntern(MainWindow.getInstance().getIntern());
-		gallery.setTitle(MainWindow.getInstance().getEventTitle());
-		gallery.setLocation(MainWindow.getInstance().getLocations()
-				.getSelectedLoc());
-		gallery.setDate(MainWindow.getInstance().getDateEditor()
-				.getDateString());
-		return gallery;
+		this.keepAliveTimer
+				.schedule(new KeepAliveTimerTask(), 0, 1000 * 60 * 2);
 	}
 
 	private synchronized Command sendAndReadCommand(Command command) {
@@ -127,7 +109,9 @@ public class Transmitter extends Thread {
 		try {
 			Command retVal = this.sendAndReadCommand(cmd);
 			log.debug("Server said: " + retVal);
-			return retVal instanceof LoginCmd && retVal.commandSucceded();
+			this.loggedIn = retVal instanceof LoginCmd
+					&& retVal.commandSucceded();
+			return this.loggedIn;
 		} catch (Exception e) {
 			Helper.getInstance().systemCrashHandler(e);
 			return false;
@@ -278,13 +262,14 @@ public class Transmitter extends Thread {
 					log.debug("Server said: " + retVal);
 					if (retVal instanceof SaveFileCmd
 							&& retVal.commandSucceded()) {
-						log.info("Datei " + this.akt.getName() + " gesendet");
+						log.info("Datei " + this.akt.getAbsolutePath()
+								+ " gesendet");
 						this.akt.delete();
 					} else {
 						log.info("Datei " + this.akt.getName()
 								+ " nicht gesendet");
 						MainWindow.getInstance().addStatusLine(
-								"Konnte " + this.akt.getAbsoluteFile()
+								"Konnte " + this.akt.getName()
 										+ " nicht senden");
 					}
 				}
@@ -328,5 +313,17 @@ public class Transmitter extends Thread {
 
 	protected void setGallery(Gallery gallery) {
 		this.gallery = gallery;
+	}
+
+	private class KeepAliveTimerTask extends TimerTask {
+		private final Logger log = Logger.getLogger(KeepAliveTimerTask.class);
+
+		@Override
+		public void run() {
+			if (Transmitter.this.isConnected()) {
+				log.debug("sending PingCmd");
+				Transmitter.this.sendAndReadCommand(new PingCmd());
+			}
+		}
 	}
 }

@@ -263,7 +263,7 @@ public class UploadServ extends Thread {
 						this.output.writeObject(response);
 						this.output.flush();
 					}
-				} else if (this.accepted && cmd instanceof PingCmd) {
+				} else if (cmd instanceof PingCmd) {
 					PingCmd request = (PingCmd) cmd;
 					log.info(this.clientip + ": " + request.toString());
 					PingCmd response = new PingCmd(true);
@@ -368,7 +368,7 @@ public class UploadServ extends Thread {
 						this.output.flush();
 						log.info(this.clientip + ": selected location is used");
 					}
-				} else if (this.accepted && cmd instanceof QuitCmd) {
+				} else if (cmd instanceof QuitCmd) {
 					log.info(this.clientip + ": client closed connection");
 					QuitCmd response = new QuitCmd(true);
 					response.setSuccess(true);

@@ -209,8 +209,9 @@ public class TrmEngine extends Thread {
 	}
 
 	public boolean login(String userName, String passWord) {
-		this.loggedIn = true;
-		return this.transmit.login(userName, passWord);
+		this.loggedIn = this.transmit.login(userName, passWord);
+		;
+		return this.loggedIn;
 	}
 
 	public boolean connect() {
