@@ -48,7 +48,7 @@ public class MainWindow extends JFrame {
 
 	private FileList fileList;
 
-	private MyJTextField fieldTitle, fieldDesc, fieldTMPDir;
+	private MyJTextField fieldTitle, fieldDesc;
 
 	private MyJComboBox comboLocations;
 
@@ -56,7 +56,7 @@ public class MainWindow extends JFrame {
 
 	private StatusList statusList;
 
-	private JCheckBox intern, deleteTMP;
+	private JCheckBox intern;
 
 	private MyDateEditor eventDate;
 
@@ -123,84 +123,90 @@ public class MainWindow extends JFrame {
 		constraints.insets = new Insets(2, 2, 2, 2);
 		panel.add(filePanel, constraints);
 
-		JPanel checkBoxPanel = new JPanel(new GridLayout());
-		this.intern = new JCheckBox("Intern", false);
-		checkBoxPanel.add(this.intern);
-		this.deleteTMP = new JCheckBox("Lösche Temp-Dateien", true);
-		checkBoxPanel.add(this.deleteTMP);
-		constraints.gridy++;
-		panel.add(checkBoxPanel, constraints);
-
 		JPanel infoPanel = new JPanel(new GridBagLayout());
-		GridBagConstraints infoPanelConstraints = new GridBagConstraints();
-		infoPanelConstraints.anchor = GridBagConstraints.NORTHWEST;
-		infoPanelConstraints.fill = GridBagConstraints.HORIZONTAL;
+		GridBagConstraints panelConstraints = new GridBagConstraints();
+		panelConstraints.anchor = GridBagConstraints.NORTHWEST;
+		panelConstraints.fill = GridBagConstraints.HORIZONTAL;
 		Insets rightInsets = new Insets(2, 0, 2, 5);
 		Insets leftInsets = new Insets(2, 5, 2, 0);
-		infoPanelConstraints.gridx = 0;
-		infoPanelConstraints.gridy = 0;
-		infoPanelConstraints.insets = rightInsets;
+	
+		panelConstraints.gridx = 0;
+		panelConstraints.gridy = 0;
+		panelConstraints.insets = rightInsets;
 		MyJButton buttonChoosePic = new MyJButton("Bilder wählen");
 		buttonChoosePic.addActionListener(new ALChoosePic());
-		infoPanel.add(buttonChoosePic, infoPanelConstraints);
-		infoPanelConstraints.gridx = 1;
-		infoPanelConstraints.gridy = 0;
-		infoPanelConstraints.insets = leftInsets;
+		infoPanel.add(buttonChoosePic, panelConstraints);
+		panelConstraints.gridx = 1;
+		panelConstraints.gridy = 0;
+		panelConstraints.insets = leftInsets;
 		MyJButton deleteSelection = new MyJButton("Auswahl löschen");
 		deleteSelection.addActionListener(new ALRemovePic());
-		infoPanel.add(deleteSelection, infoPanelConstraints);
-		infoPanelConstraints.gridx = 0;
-		infoPanelConstraints.gridy = 1;
-		infoPanelConstraints.insets = rightInsets;
-		infoPanel.add(new JLabel("Speicherverzeichnis:"), infoPanelConstraints);
-		infoPanelConstraints.gridx = 1;
-		infoPanelConstraints.gridy = 1;
-		infoPanelConstraints.insets = leftInsets;
-		this.fieldTMPDir = new MyJTextField(10000);
-		infoPanel.add(this.fieldTMPDir, infoPanelConstraints);
-		infoPanelConstraints.gridx = 0;
-		infoPanelConstraints.gridy = 2;
-		infoPanelConstraints.insets = rightInsets;
-		infoPanel.add(new JLabel("Eventlocation:"), infoPanelConstraints);
-		infoPanelConstraints.gridx = 1;
-		infoPanelConstraints.gridy = 2;
-		infoPanelConstraints.insets = leftInsets;
+		infoPanel.add(deleteSelection, panelConstraints);
+		
+		
+		panelConstraints.gridx = 0;
+		panelConstraints.gridy = 1;
+		panelConstraints.insets = rightInsets;
+		infoPanel.add(new JLabel("Eventlocation:"), panelConstraints);
+		panelConstraints.gridx = 1;
+		panelConstraints.gridy = 1;
+		panelConstraints.insets = leftInsets;
 		this.comboLocations = new MyJComboBox();
-		infoPanel.add(comboLocations, infoPanelConstraints);
-		infoPanelConstraints.gridx = 1;
-		infoPanelConstraints.gridy = 3;
-		infoPanelConstraints.insets = leftInsets;
+		infoPanel.add(comboLocations, panelConstraints);
+		
+		
+		panelConstraints.gridx = 1;
+		panelConstraints.gridy = 2;
+		panelConstraints.insets = leftInsets;
 		MyJButton updateLocs = new MyJButton("Locations Update");
 		updateLocs.addActionListener(new ALUpdate());
-		infoPanel.add(updateLocs, infoPanelConstraints);
-		infoPanelConstraints.gridx = 0;
-		infoPanelConstraints.gridy = 4;
-		infoPanelConstraints.insets = rightInsets;
-		infoPanel.add(new JLabel("Eventdatum:"), infoPanelConstraints);
-		infoPanelConstraints.gridx = 1;
-		infoPanelConstraints.gridy = 4;
-		infoPanelConstraints.insets = leftInsets;
+		infoPanel.add(updateLocs, panelConstraints);
+		
+		
+		panelConstraints.gridx = 0;
+		panelConstraints.gridy = 3;
+		panelConstraints.insets = rightInsets;
+		infoPanel.add(new JLabel("Eventdatum:"), panelConstraints);
+		panelConstraints.gridx = 1;
+		panelConstraints.gridy = 3;
+		panelConstraints.insets = leftInsets;
 		this.eventDate = new MyDateEditor();
-		infoPanel.add(this.eventDate, infoPanelConstraints);
-		infoPanelConstraints.gridx = 0;
-		infoPanelConstraints.gridy = 5;
-		infoPanelConstraints.insets = rightInsets;
-		infoPanel.add(new JLabel("Eventtitel:"), infoPanelConstraints);
-		infoPanelConstraints.gridx = 1;
-		infoPanelConstraints.gridy = 5;
-		infoPanelConstraints.insets = leftInsets;
+		infoPanel.add(this.eventDate, panelConstraints);
+		
+		
+		panelConstraints.gridx = 1;
+		panelConstraints.gridy = 4;
+		panelConstraints.insets = leftInsets;
+		infoPanel.add(new MyJButton("Galerien laden"), panelConstraints);
+		
+		panelConstraints.gridx = 0;
+		panelConstraints.gridy = 5;
+		panelConstraints.insets = rightInsets;
+		infoPanel.add(new JLabel("Eventtitel:"), panelConstraints);
+		panelConstraints.gridx = 1;
+		panelConstraints.gridy = 5;
+		panelConstraints.insets = leftInsets;
 		this.fieldTitle = new MyJTextField(MainWindow.TITLEMAXLENGTH);
 		this.fieldTitle.addKeyListener(new KLEventTitle());
-		infoPanel.add(fieldTitle, infoPanelConstraints);
-		infoPanelConstraints.gridx = 0;
-		infoPanelConstraints.gridy = 6;
-		infoPanelConstraints.insets = rightInsets;
-		infoPanel.add(new JLabel("Eventbeschreibung:"), infoPanelConstraints);
-		infoPanelConstraints.gridx = 1;
-		infoPanelConstraints.gridy = 6;
-		infoPanelConstraints.insets = leftInsets;
+		infoPanel.add(fieldTitle, panelConstraints);
+		
+		
+		panelConstraints.gridx = 0;
+		panelConstraints.gridy = 6;
+		panelConstraints.insets = rightInsets;
+		infoPanel.add(new JLabel("Eventbeschreibung:"), panelConstraints);
+		panelConstraints.gridx = 1;
+		panelConstraints.gridy = 6;
+		panelConstraints.insets = leftInsets;
 		this.fieldDesc = new MyJTextField(MainWindow.DESCRMAXLENGTH);
-		infoPanel.add(fieldDesc, infoPanelConstraints);
+		infoPanel.add(this.fieldDesc, panelConstraints);
+		
+	
+		panelConstraints.gridx = 1;
+		panelConstraints.gridy = 7;
+		panelConstraints.insets = leftInsets;
+		this.intern = new JCheckBox("Intern", false);
+		infoPanel.add(this.intern, panelConstraints);
 		constraints.gridy++;
 		panel.add(infoPanel, constraints);
 		return panel;
@@ -287,10 +293,6 @@ public class MainWindow extends JFrame {
 		return this.comboLocations.getSelectedLoc();
 	}
 
-	public void setTMPDir(String dir) {
-		this.fieldTMPDir.setText(dir);
-	}
-
 	public void addStatusLine(String line) {
 		this.statusList.addStatusLine(line);
 	}
@@ -299,20 +301,12 @@ public class MainWindow extends JFrame {
 		return this.eventDate;
 	}
 
-	public String getTMPDir() {
-		return this.fieldTMPDir.getText();
-	}
-
 	public MyJComboBox getLocations() {
 		return this.comboLocations;
 	}
 
 	public boolean getIntern() {
 		return this.intern.isSelected();
-	}
-
-	public boolean getDeleteTMP() {
-		return this.deleteTMP.isSelected();
 	}
 
 	public void setConvertProgress(int progress) {
@@ -338,12 +332,10 @@ public class MainWindow extends JFrame {
 		this.eventDate.setDateToday();
 		this.fieldDesc.setText("");
 		this.fieldTitle.setText("");
-		this.fieldTMPDir.setText("");
 		this.convertProgress.reset();
 		this.uploadProgress.reset();
 		this.fileList.clearAllFiles();
 		this.intern.setSelected(false);
-		this.deleteTMP.setSelected(true);
 		this.comboLocations.setSelectedIndex(0);
 	}
 

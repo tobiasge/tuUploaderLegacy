@@ -43,8 +43,6 @@ public class Transmitter extends Thread {
 
 	private boolean Running;
 
-	private boolean deleteFiles;
-
 	private Gallery gallery;
 
 	public Transmitter(TrmEngine chef) {
@@ -53,7 +51,6 @@ public class Transmitter extends Thread {
 		this.chef = chef;
 		this.Running = true;
 		this.gallery = this.getGalleryData();
-		this.deleteFiles = MainWindow.getInstance().getDeleteTMP();
 		try {
 			int serverPort = Integer.parseInt(TeamUlmUpload.getInstance()
 					.getClientConf().getProperty("serverPort"));
@@ -82,7 +79,8 @@ public class Transmitter extends Thread {
 		gallery.setTitle(MainWindow.getInstance().getEventTitle());
 		gallery.setLocation(MainWindow.getInstance().getLocations()
 				.getSelectedLoc());
-		gallery.setDate(MainWindow.getInstance().getDateEditor().getDateString());
+		gallery.setDate(MainWindow.getInstance().getDateEditor()
+				.getDateString());
 		return gallery;
 	}
 
@@ -219,8 +217,7 @@ public class Transmitter extends Thread {
 					if (retVal instanceof SaveFileCmd
 							&& retVal.commandSucceded()) {
 						log.info("Datei " + this.akt.getName() + " gesendet");
-						if (this.deleteFiles)
-							this.akt.delete();
+						this.akt.delete();
 					} else {
 						log.info("Datei " + this.akt.getName()
 								+ " nicht gesendet");

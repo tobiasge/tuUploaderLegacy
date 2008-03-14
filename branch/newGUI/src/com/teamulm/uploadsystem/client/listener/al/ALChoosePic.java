@@ -36,10 +36,6 @@ public class ALChoosePic implements ActionListener {
 				.getInstance())) {
 			MainWindow.getInstance().getFileList().setListPictureData(
 					this.fc.getSelectedFiles());
-			if (this.fc.getSelectedFiles().length > 0)
-				MainWindow.getInstance().setTMPDir(
-						this.fc.getSelectedFiles()[0].getParent()
-								+ System.getProperty("file.separator"));
 		}
 	}
 

@@ -49,11 +49,6 @@ public class ALConAUpl implements ActionListener {
 		if (null == this.files || this.files.length == 0) {
 			MainWindow.getInstance().addStatusLine("Keine Dateien ausgewählt.");
 			return;
-		} else if (null == MainWindow.getInstance().getTMPDir()
-				|| MainWindow.getInstance().getTMPDir().length() < 1) {
-			MainWindow.getInstance().addStatusLine(
-					"Kein Speicherort ausgewählt.");
-			return;
 		} else if (null == MainWindow.getInstance().getEventTitle()
 				|| MainWindow.getInstance().getEventTitle().length() < 1) {
 			MainWindow.getInstance().addStatusLine("Bitte Titel angeben.");

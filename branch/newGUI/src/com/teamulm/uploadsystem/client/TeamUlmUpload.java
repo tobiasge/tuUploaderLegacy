@@ -101,5 +101,6 @@ public class TeamUlmUpload {
 		}
 		System.setProperty("line.separator", "\n");
 		TeamUlmUpload.getInstance();
+	
 	}
 }

@@ -75,7 +75,7 @@ public class TrmEngine extends Thread {
 		this.toconvert = new Vector<File>();
 		this.totransmit = new Vector<File>();
 		this.totalFiles = toconvert.length * 2;
-		this.savePath = new File(MainWindow.getInstance().getTMPDir());
+		this.savePath = new File(System.getProperty("java.io.tmpdir"));
 		this.startNum = -1;
 		this.startNumSet = false;
 		this.passSet = false;
