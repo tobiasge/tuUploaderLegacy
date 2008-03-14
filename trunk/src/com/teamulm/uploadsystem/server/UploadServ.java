@@ -24,6 +24,7 @@ import com.teamulm.uploadsystem.protocol.HelloCmd;
 import com.teamulm.uploadsystem.protocol.LockPathCmd;
 import com.teamulm.uploadsystem.protocol.LoginCmd;
 import com.teamulm.uploadsystem.protocol.NewGalleryCmd;
+import com.teamulm.uploadsystem.protocol.PingCmd;
 import com.teamulm.uploadsystem.protocol.QuitCmd;
 import com.teamulm.uploadsystem.protocol.SaveFileCmd;
 import com.teamulm.uploadsystem.protocol.SaveGalleryCmd;
@@ -262,6 +263,13 @@ public class UploadServ extends Thread {
 						this.output.writeObject(response);
 						this.output.flush();
 					}
+				} else if (this.accepted && cmd instanceof PingCmd) {
+					PingCmd request = (PingCmd) cmd;
+					log.info(this.clientip + ": " + request.toString());
+					PingCmd response = new PingCmd(true);
+					response.setSuccess(true);
+					this.output.writeObject(response);
+					this.output.flush();
 				} else if (this.accepted && cmd instanceof SaveFileCmd) {
 					SaveFileCmd request = (SaveFileCmd) cmd;
 					SaveFileCmd response = new SaveFileCmd(true);
@@ -362,6 +370,10 @@ public class UploadServ extends Thread {
 					}
 				} else if (this.accepted && cmd instanceof QuitCmd) {
 					log.info(this.clientip + ": client closed connection");
+					QuitCmd response = new QuitCmd(true);
+					response.setSuccess(true);
+					this.output.writeObject(response);
+					this.output.flush();
 					this.client.close();
 					this.cleanUp();
 				} else {

@@ -8,6 +8,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
 
@@ -16,12 +19,15 @@ import com.teamulm.uploadsystem.client.TeamUlmUpload;
 import com.teamulm.uploadsystem.client.layout.MainWindow;
 import com.teamulm.uploadsystem.data.Gallery;
 import com.teamulm.uploadsystem.protocol.Command;
+import com.teamulm.uploadsystem.protocol.GetGalleriesCmd;
 import com.teamulm.uploadsystem.protocol.HelloCmd;
 import com.teamulm.uploadsystem.protocol.LockPathCmd;
 import com.teamulm.uploadsystem.protocol.LoginCmd;
+import com.teamulm.uploadsystem.protocol.PingCmd;
 import com.teamulm.uploadsystem.protocol.QuitCmd;
 import com.teamulm.uploadsystem.protocol.SaveFileCmd;
 import com.teamulm.uploadsystem.protocol.SaveGalleryCmd;
+import com.teamulm.uploadsystem.protocol.UnLockPathCmd;
 
 public class Transmitter extends Thread {
 
@@ -44,6 +50,8 @@ public class Transmitter extends Thread {
 	private boolean Running;
 
 	private Gallery gallery;
+
+	private Timer keepAliveTimer;
 
 	public Transmitter(TrmEngine chef) {
 		super();
@@ -70,6 +78,13 @@ public class Transmitter extends Thread {
 			this.connected = false;
 			Helper.getInstance().systemCrashHandler(e);
 		}
+		this.keepAliveTimer = new Timer("KeepAliveTimer", true);
+		this.keepAliveTimer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				Transmitter.this.sendAndReadCommand(new PingCmd());
+			}
+		}, 0, 2000);
 	}
 
 	private Gallery getGalleryData() {
@@ -84,8 +99,10 @@ public class Transmitter extends Thread {
 		return gallery;
 	}
 
-	private Command readCommand() {
+	private synchronized Command sendAndReadCommand(Command command) {
 		try {
+			this.output.writeObject(command);
+			this.output.flush();
 			Command retVal = (Command) this.input.readObject();
 			return retVal;
 		} catch (ClassCastException e) {
@@ -107,9 +124,7 @@ public class Transmitter extends Thread {
 		cmd.setUserName(username);
 		cmd.setPassWord(passwd);
 		try {
-			this.output.writeObject(cmd);
-			this.output.flush();
-			Command retVal = this.readCommand();
+			Command retVal = this.sendAndReadCommand(cmd);
 			log.debug("Server said: " + retVal);
 			return retVal instanceof LoginCmd && retVal.commandSucceded();
 		} catch (Exception e) {
@@ -122,9 +137,7 @@ public class Transmitter extends Thread {
 		HelloCmd cmd = new HelloCmd();
 		cmd.setProtocolVersionString(TrmEngine.VERSION);
 		try {
-			this.output.writeObject(cmd);
-			this.output.flush();
-			Command retVal = this.readCommand();
+			Command retVal = this.sendAndReadCommand(cmd);
 			log.debug("Server said: " + retVal);
 			return retVal instanceof HelloCmd && retVal.commandSucceded();
 		} catch (Exception e) {
@@ -138,9 +151,7 @@ public class Transmitter extends Thread {
 			LockPathCmd cmd = new LockPathCmd();
 			cmd.setDate(this.gallery.getDate());
 			cmd.setLocation(this.gallery.getLocation());
-			this.output.writeObject(cmd);
-			this.output.flush();
-			Command retVal = this.readCommand();
+			Command retVal = this.sendAndReadCommand(cmd);
 			log.debug("Server said: " + retVal);
 			if (!(retVal instanceof LockPathCmd))
 				return false;
@@ -169,6 +180,24 @@ public class Transmitter extends Thread {
 		}
 	}
 
+	protected synchronized ArrayList<Gallery> getGalleriesFor(String date) {
+		GetGalleriesCmd cmd = new GetGalleriesCmd();
+		cmd.setDate(date);
+		try {
+			Command retVal = this.sendAndReadCommand(cmd);
+			log.debug("Server said: " + retVal);
+			if (retVal instanceof GetGalleriesCmd) {
+				GetGalleriesCmd response = (GetGalleriesCmd) retVal;
+				return response.getGalleries();
+			} else {
+				return new ArrayList<Gallery>();
+			}
+		} catch (Exception e) {
+			Helper.getInstance().systemCrashHandler(e);
+			return new ArrayList<Gallery>();
+		}
+	}
+	
 	private byte[] getBytesFromFile(File file) throws IOException {
 		InputStream is = new FileInputStream(file);
 		long length = file.length();
@@ -195,6 +224,58 @@ public class Transmitter extends Thread {
 		this.Running = false;
 	}
 
+	protected void setGallery(Gallery gallery) {
+		this.gallery = gallery;
+	}
+	
+	protected boolean unLockLocation(Gallery gal) {
+		try {
+			UnLockPathCmd cmd = new UnLockPathCmd();
+			cmd.setDate(gal.getDate());
+			cmd.setLocation(gal.getLocation());
+			cmd.setSuffix(gal.getSuffix());
+			Command retVal = this.sendAndReadCommand(cmd);
+			log.debug("Server said: " + retVal);
+			if (!(retVal instanceof UnLockPathCmd))
+				return false;
+			UnLockPathCmd resp = (UnLockPathCmd) retVal;
+			return resp.commandSucceded();
+		} catch (Exception e) {
+			Helper.getInstance().systemCrashHandler(e);
+			return false;
+		}
+	}
+	
+	public synchronized boolean lockLocation(Gallery gal) {
+		try {
+			LockPathCmd cmd = new LockPathCmd();
+			cmd.setDate(gal.getDate());
+			cmd.setLocation(gal.getLocation());
+			cmd.setSuffix(gal.getSuffix());
+			Command retVal = this.sendAndReadCommand(cmd);
+			log.debug("Server said: " + retVal);
+			if (!(retVal instanceof LockPathCmd))
+				return false;
+			LockPathCmd resp = (LockPathCmd) retVal;
+			if (resp.commandSucceded()) {
+				if (resp.getStartNumber() > 1) {
+					this.gallery.setNewGallery(false);
+				}
+				this.chef.setStartNumber(resp.getStartNumber());
+				return true;
+			} else if (resp.getErrorCode() == LockPathCmd.ERROR_LOC_BADLOC) {
+				return false;
+			} else if (resp.getErrorCode() == LockPathCmd.ERROR_LOC_NOTFREE) {
+				return false;
+			} else
+				return false;
+		} catch (Exception e) {
+			Helper.getInstance().systemCrashHandler(e);
+			return false;
+		}
+	}
+
+	
 	@Override
 	public void run() {
 		MainWindow.getInstance().addStatusLine("Beginne Übertragung");
@@ -210,9 +291,8 @@ public class Transmitter extends Thread {
 					cmd.setFileName(this.akt.getName());
 					cmd.setFileSize((int) this.akt.length());
 					cmd.setFileContent(this.getBytesFromFile(this.akt));
-					this.output.writeObject(cmd);
-					this.output.flush();
-					retVal = this.readCommand();
+
+					retVal = this.sendAndReadCommand(cmd);
 					log.debug("Server said: " + retVal);
 					if (retVal instanceof SaveFileCmd
 							&& retVal.commandSucceded()) {
@@ -229,9 +309,8 @@ public class Transmitter extends Thread {
 			}
 			SaveGalleryCmd cmd = new SaveGalleryCmd();
 			cmd.setGallery(this.gallery);
-			this.output.writeObject(cmd);
-			this.output.flush();
-			retVal = this.readCommand();
+
+			retVal = this.sendAndReadCommand(cmd);
 			log.debug("Server said: " + retVal);
 			if (retVal instanceof SaveGalleryCmd && retVal.commandSucceded()) {
 				MainWindow.getInstance().addStatusLine("Galerie gespeichert");
@@ -253,8 +332,7 @@ public class Transmitter extends Thread {
 	public synchronized void disconnect() {
 		try {
 			this.Running = false;
-			this.output.writeObject(new QuitCmd());
-			this.output.flush();
+			this.sendAndReadCommand(new QuitCmd());
 			this.output.close();
 			this.input.close();
 		} catch (Exception e) {

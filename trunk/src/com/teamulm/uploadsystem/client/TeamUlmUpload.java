@@ -11,7 +11,6 @@
  *******************************************************/
 package com.teamulm.uploadsystem.client;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -58,11 +57,6 @@ public class TeamUlmUpload {
 				MainWindow.getInstance().populateFields();
 			}
 		});
-	}
-
-	public void engineInit(File[] list, String user, String password) {
-		this.trmEngine = new TrmEngine(list);
-		this.trmEngine.setUserPass(user, password);
 	}
 
 	public void engineStart() {

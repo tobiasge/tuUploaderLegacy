@@ -1,14 +1,3 @@
-/* TrmEngine.java
- *
- *******************************************************
- *
- * Beschreibung:
- *
- *
- * Autor: Tobias Genannt
- * (C) 2005
- *
- *******************************************************/
 package com.teamulm.uploadsystem.client.transmitEngine;
 
 import java.io.File;
