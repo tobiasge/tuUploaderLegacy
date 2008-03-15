@@ -25,7 +25,7 @@ public class TrmEngine extends Thread {
 
 	private File savePath;
 
-	public static final String VERSION = "4.0";
+	public static final String VERSION = "4.5";
 
 	private Vector<File> toconvert;
 

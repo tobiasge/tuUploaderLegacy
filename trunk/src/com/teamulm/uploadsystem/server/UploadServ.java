@@ -37,7 +37,7 @@ public class UploadServ extends Thread {
 
 	private static final Logger log = Logger.getLogger(UploadServ.class);
 
-	private static final String VER = "4.0";
+	private static final String VER = "4.5";
 
 	private Socket client;
 
