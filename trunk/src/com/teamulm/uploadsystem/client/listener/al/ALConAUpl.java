@@ -35,12 +35,12 @@ public class ALConAUpl implements ActionListener {
 		if (null == this.files || this.files.length == 0) {
 			MainWindow.getInstance().addStatusLine("Keine Dateien ausgewählt.");
 			return;
-		} else if (null == MainWindow.getInstance().getEventTitle()
-				|| MainWindow.getInstance().getEventTitle().length() < 1) {
+		} else if (null == MainWindow.getInstance().getGallery()
+				|| MainWindow.getInstance().getGallery().getTitle().length() < 1) {
 			MainWindow.getInstance().addStatusLine("Bitte Titel angeben.");
 			return;
-		} else if (null == MainWindow.getInstance().getEventDesc()
-				|| MainWindow.getInstance().getEventDesc().length() < 1) {
+		} else if (null == MainWindow.getInstance().getGallery()
+				|| MainWindow.getInstance().getGallery().getDesc().length() < 1) {
 			MainWindow.getInstance().addStatusLine(
 					"Bitte Beschreibung angeben.");
 			return;
@@ -52,7 +52,7 @@ public class ALConAUpl implements ActionListener {
 				return;
 			}
 		}
-		if (TrmEngine.getInstance().isConnected()) {
+		if (!TrmEngine.getInstance().isConnected()) {
 			if (!TrmEngine.getInstance().connect()) {
 				MainWindow.getInstance().addStatusLine(
 						"Konnte keine Verbindung herstellen");
@@ -67,14 +67,22 @@ public class ALConAUpl implements ActionListener {
 				return;
 			}
 			log.debug("starte upload " + userSaidValue);
-			if (!TrmEngine.getInstance().login(
-					dialog.getUser(), dialog.getPass())) {
+			if (!TrmEngine.getInstance().login(dialog.getUser(),
+					dialog.getPass())) {
 				MainWindow.getInstance().addStatusLine(
 						"Username oder Passwort falsch.");
 				return;
 			}
 		}
+
+		if (!TrmEngine.getInstance().lockLocation(
+				MainWindow.getInstance().getGallery())) {
+			return;
+		}
+
 		TrmEngine.getInstance().setFiles(this.files);
+		TrmEngine.getInstance().setGallery(
+				MainWindow.getInstance().getGallery());
 		TrmEngine.getInstance().start();
 	}
 

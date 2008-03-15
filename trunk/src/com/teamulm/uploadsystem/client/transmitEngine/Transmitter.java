@@ -103,6 +103,8 @@ public class Transmitter extends Thread {
 	}
 
 	public synchronized boolean login(String username, String passwd) {
+		if (!this.isConnected())
+			return false;
 		LoginCmd cmd = new LoginCmd();
 		cmd.setUserName(username);
 		cmd.setPassWord(passwd);
@@ -119,6 +121,8 @@ public class Transmitter extends Thread {
 	}
 
 	public synchronized boolean verCheck() {
+		if (!this.isConnected())
+			return false;
 		HelloCmd cmd = new HelloCmd();
 		cmd.setProtocolVersionString(TrmEngine.VERSION);
 		try {
@@ -136,8 +140,6 @@ public class Transmitter extends Thread {
 		cmd.setDate(date);
 		cmd.setLocation(location);
 		try {
-			this.output.writeObject(cmd);
-			this.output.flush();
 			Command retVal = this.sendAndReadCommand(cmd);
 			log.debug("Server said: " + retVal);
 			if (retVal instanceof NewGalleryCmd) {
@@ -231,8 +233,11 @@ public class Transmitter extends Thread {
 				this.chef.setStartNumber(resp.getStartNumber());
 				return true;
 			} else if (resp.getErrorCode() == LockPathCmd.ERROR_LOC_BADLOC) {
+				MainWindow.getInstance().addStatusLine("Ungültige Location.");
 				return false;
 			} else if (resp.getErrorCode() == LockPathCmd.ERROR_LOC_NOTFREE) {
+				MainWindow.getInstance()
+						.addStatusLine("Location in Benutzung.");
 				return false;
 			} else
 				return false;
@@ -298,6 +303,7 @@ public class Transmitter extends Thread {
 
 	public synchronized void disconnect() {
 		try {
+			this.keepAliveTimer.cancel();
 			this.Running = false;
 			this.sendAndReadCommand(new QuitCmd());
 			this.output.close();
@@ -313,6 +319,11 @@ public class Transmitter extends Thread {
 
 	protected void setGallery(Gallery gallery) {
 		this.gallery = gallery;
+	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		this.keepAliveTimer.cancel();
 	}
 
 	private class KeepAliveTimerTask extends TimerTask {

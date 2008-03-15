@@ -66,8 +66,8 @@ public class UploadServ extends Thread {
 		this.baseDir = serverConf.getProperty("baseDir");
 	}
 
-	public UploadServ(PicServer master, Socket so) {
-		super();
+	public UploadServ(PicServer master, Socket so, int number) {
+		super("UploadServ " + number);
 		this.hasLock = false;
 		this.uploaded = 0;
 		this.client = so;
@@ -153,6 +153,7 @@ public class UploadServ extends Thread {
 			retVal = new Gallery();
 			retVal.setDate(date);
 			retVal.setLocation(location);
+			retVal.setSuffix(suffix);
 		}
 		return retVal;
 	}
@@ -166,12 +167,14 @@ public class UploadServ extends Thread {
 			out.flush();
 			out.close();
 			this.uploaded++;
-			log.info(this.clientip + ": File " + cmd.getFileName()
-					+ " with size " + cmd.getFileSize() + " saved");
+			log.info(this.clientip + ": File " + this.gallery.getPath()
+					+ cmd.getFileName() + " with size " + cmd.getFileSize()
+					+ " saved");
 			return true;
 		} catch (Exception e) {
-			log.error(this.clientip + ": File " + cmd.getFileName()
-					+ " with size " + cmd.getFileSize() + " not saved");
+			log.error(this.clientip + ": File " + this.gallery.getPath()
+					+ cmd.getFileName() + " with size " + cmd.getFileSize()
+					+ " not saved");
 			this.ExceptionHandler(e);
 			return false;
 		}
@@ -244,6 +247,7 @@ public class UploadServ extends Thread {
 				cmd = this.readCommand();
 				if (cmd instanceof LoginCmd && !this.accepted) {
 					LoginCmd request = (LoginCmd) cmd;
+					log.info(this.clientip + ": " + request.toString());
 					LoginCmd response = new LoginCmd(true);
 					if (!this.authUser(request.getUserName(), request
 							.getPassWord())) {
@@ -272,14 +276,15 @@ public class UploadServ extends Thread {
 					this.output.flush();
 				} else if (this.accepted && cmd instanceof SaveFileCmd) {
 					SaveFileCmd request = (SaveFileCmd) cmd;
+					log.info(this.clientip + ": " + request.toString());
 					SaveFileCmd response = new SaveFileCmd(true);
 					response.setSuccess(this.saveFile(request));
 					this.output.writeObject(response);
 					this.output.flush();
 				} else if (this.accepted && cmd instanceof SaveGalleryCmd) {
 					SaveGalleryCmd request = (SaveGalleryCmd) cmd;
+					log.info(this.clientip + ": " + request.toString());
 					SaveGalleryCmd response = new SaveGalleryCmd(true);
-					log.info(this.clientip + ": DB Entry requested");
 					this.gallery.setPictures((this.uploaded / 2 + this.gallery
 							.getPictures()));
 					if (request.getGallery().isNewGallery()) {
@@ -309,6 +314,7 @@ public class UploadServ extends Thread {
 					}
 				} else if (this.accepted && cmd instanceof NewGalleryCmd) {
 					NewGalleryCmd request = (NewGalleryCmd) cmd;
+					log.info(this.clientip + ": " + request.toString());
 					NewGalleryCmd response = new NewGalleryCmd(true);
 					Gallery gal = new Gallery();
 					gal.setLocation(request.getLocation());
@@ -319,9 +325,10 @@ public class UploadServ extends Thread {
 					response.setSuccess(true);
 					this.output.writeObject(response);
 					this.output.flush();
-					response.setGallery(gal);
+					this.gallery = gal;
 				} else if (this.accepted && cmd instanceof GetGalleriesCmd) {
 					GetGalleriesCmd request = (GetGalleriesCmd) cmd;
+					log.info(this.clientip + ": " + request.toString());
 					GetGalleriesCmd response = new GetGalleriesCmd(true);
 					ArrayList<Gallery> galleries = new ArrayList<Gallery>();
 					if (DBConn.getInstance().getGalleries(request.getDate(),
@@ -335,6 +342,7 @@ public class UploadServ extends Thread {
 					this.output.flush();
 				} else if (this.accepted && cmd instanceof UnLockPathCmd) {
 					UnLockPathCmd request = (UnLockPathCmd) cmd;
+					log.info(this.clientip + ": " + request.toString());
 					PicServer.getInstance().unlockLocation(request.getPath());
 					request.setServerResponse(true);
 					request.setSuccess(true);
@@ -342,6 +350,7 @@ public class UploadServ extends Thread {
 					this.output.flush();
 				} else if (this.accepted && cmd instanceof LockPathCmd) {
 					LockPathCmd request = (LockPathCmd) cmd;
+					log.info(this.clientip + ": " + request.toString());
 					LockPathCmd response = new LockPathCmd(true);
 					if (!DBConn.getInstance().checkLocation(
 							request.getLocation())) {

@@ -51,7 +51,8 @@ public class TeamUlmUpload {
 		SwingUtilities.invokeLater(new Runnable() {
 
 			public void run() {
-				MainWindow.getInstance().populateFields();
+				Thread.currentThread().setName("EventQueue");
+				MainWindow.getInstance();
 			}
 		});
 	}

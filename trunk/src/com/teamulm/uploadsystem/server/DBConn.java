@@ -59,24 +59,25 @@ public class DBConn {
 				.getDataBaseForTable("tu_fotos"))) {
 			return retVal;
 		}
-		String query = "SELECT galid, pictures, suffix, tt FROM tu_fotos WHERE location = ? "
+		String query = "SELECT galid, pictures, suffix, title, description,intern FROM tu_fotos WHERE location = ? "
 				+ "AND date_gal = STR_TO_DATE(?, '%d-%m-%Y') AND suffix = ?";
 		try {
 			request = connection.prepareStatement(query);
 			request.setString(1, location);
 			request.setString(2, date);
-			request.setInt(0, suffix);
+			request.setInt(3, suffix);
 			result = request.executeQuery();
 			if (!result.first())
 				return retVal;
 			retVal = new Gallery();
 			retVal.setDate(date);
 			retVal.setLocation(location);
-			retVal.setPictures(result.getInt("pictures"));
 			retVal.setGalid(result.getInt("galid"));
+			retVal.setPictures(result.getInt("pictures"));
 			retVal.setSuffix(result.getInt("suffix"));
 			retVal.setTitle(result.getString("title"));
 			retVal.setDesc(result.getString("description"));
+			retVal.setIntern(result.getBoolean("intern"));
 			retVal.setNewGallery(false);
 		} catch (Exception e) {
 			log.error("Failure in getGallery(): " + e.getClass());
@@ -93,7 +94,7 @@ public class DBConn {
 				.getDataBaseForTable("tu_fotos"))) {
 			return 0;
 		}
-		String query = "SELECT IF(MAX(suffix) IS NULL, 0, MAX(suffix)) AS suffix FROM tu_fotos WHERE location = ? "
+		String query = "SELECT IF(MAX(suffix) IS NULL, -1, MAX(suffix)) AS suffix FROM tu_fotos WHERE location = ? "
 				+ "AND date_gal = STR_TO_DATE(?, '%d-%m-%Y')";
 		try {
 			request = connection.prepareStatement(query);
@@ -118,7 +119,7 @@ public class DBConn {
 				.getDataBaseForTable("tu_fotos"))) {
 			return false;
 		}
-		String query = "SELECT galid, pictures, suffix, location, description, title FROM tu_fotos WHERE "
+		String query = "SELECT galid, pictures, suffix, location, description, title, intern FROM tu_fotos WHERE "
 				+ "date_gal = STR_TO_DATE(?, '%d-%m-%Y')";
 		try {
 			request = connection.prepareStatement(query);
@@ -133,6 +134,7 @@ public class DBConn {
 				tmpGal.setSuffix(result.getInt("suffix"));
 				tmpGal.setTitle(result.getString("title"));
 				tmpGal.setDesc(result.getString("description"));
+				tmpGal.setIntern(result.getBoolean("intern"));
 				tmpGal.setNewGallery(false);
 				galleries.add(tmpGal);
 			}

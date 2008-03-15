@@ -12,7 +12,9 @@ public class MyJTextField extends JTextField {
 
 	public MyJTextField(int maxLength) {
 		super();
-		this.setInputVerifier(new MyInputVerifier(maxLength));
+		if (maxLength > 0) {
+			this.setInputVerifier(new MyInputVerifier(maxLength));
+		}
 	}
 
 	private class MyInputVerifier extends InputVerifier {

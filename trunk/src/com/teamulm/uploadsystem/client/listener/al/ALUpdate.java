@@ -21,8 +21,6 @@ import java.net.URLConnection;
 import com.teamulm.uploadsystem.client.Helper;
 import com.teamulm.uploadsystem.client.layout.MainWindow;
 
-
-
 public class ALUpdate implements ActionListener {
 
 	public void actionPerformed(ActionEvent e) {
@@ -40,8 +38,6 @@ public class ALUpdate implements ActionListener {
 			out.write(contentByteArray);
 			out.flush();
 			out.close();
-			MainWindow.getInstance().getLocations().setLocationsFile(
-					"locations.list");
 			MainWindow.getInstance().addStatusLine("Locations Update fertig");
 		} catch (Exception e2) {
 			MainWindow.getInstance()

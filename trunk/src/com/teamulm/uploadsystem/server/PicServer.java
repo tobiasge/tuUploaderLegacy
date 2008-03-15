@@ -83,7 +83,8 @@ public class PicServer extends Thread {
 				Socket socket = this.listen.accept();
 				log.info("Connection from: "
 						+ socket.getInetAddress().getHostAddress());
-				UploadServ comlink = new UploadServ(this, socket);
+				UploadServ comlink = new UploadServ(this, socket, this.childMap
+						.size() + 1);
 				this.childMap.put(new Integer(comlink.hashCode()), comlink);
 				comlink.start();
 			}
@@ -95,6 +96,7 @@ public class PicServer extends Thread {
 	}
 
 	private PicServer() {
+		super("PicServer");
 		this.Running = true;
 		log.info("Server startup");
 		log.info("--------------------");
@@ -126,7 +128,7 @@ public class PicServer extends Thread {
 		}
 		PicServer.instance = new PicServer();
 		PicServer.instance.start();
-		Runtime.getRuntime().addShutdownHook(new Thread() {
+		Runtime.getRuntime().addShutdownHook(new Thread("ShutDownHook") {
 			@Override
 			public void run() {
 				PicServer.instance.requestStop();

@@ -13,6 +13,7 @@ import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 
 import com.teamulm.uploadsystem.client.Helper;
+import com.teamulm.uploadsystem.client.layout.MainWindow;
 import com.teamulm.uploadsystem.client.layout.comp.MyJProgressBar;
 import com.teamulm.uploadsystem.data.Gallery;
 
@@ -48,8 +49,6 @@ public class TrmEngine extends Thread {
 
 	private Condition picToTransmit, startNumSetCond;
 
-	private MyJProgressBar convertBar, uploadBar;
-
 	private Gallery gallery;
 
 	public static TrmEngine getInstance() {
@@ -57,6 +56,13 @@ public class TrmEngine extends Thread {
 			TrmEngine.instance = new TrmEngine();
 		}
 		return TrmEngine.instance;
+	}
+
+	public static void kill() {
+		if (null != TrmEngine.instance) {
+			TrmEngine.instance.requestStop();
+			TrmEngine.instance = null;
+		}
 	}
 
 	public Gallery getGallery() {
@@ -73,6 +79,7 @@ public class TrmEngine extends Thread {
 		this.startNumSetCond = this.picNumLock.newCondition();
 		this.transmitedFiles = this.convertedFiles = 0;
 		this.totransmit = new Vector<File>();
+		this.toconvert = new Vector<File>();
 		this.startNum = -1;
 		this.stopRequested = false;
 		this.loggedIn = false;
@@ -116,8 +123,10 @@ public class TrmEngine extends Thread {
 		}
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				TrmEngine.this.uploadBar
-						.setProgress((int) ((MyJProgressBar.MAX / TrmEngine.this.totalFiles) * TrmEngine.this.transmitedFiles));
+				MainWindow
+						.getInstance()
+						.setUploadProgress(
+								(int) ((MyJProgressBar.MAX / TrmEngine.this.totalFiles) * TrmEngine.this.transmitedFiles));
 			};
 		});
 
@@ -136,8 +145,10 @@ public class TrmEngine extends Thread {
 		this.picTransmitLock.unlock();
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				TrmEngine.this.convertBar
-						.setProgress((int) ((MyJProgressBar.MAX / TrmEngine.this.totalFiles) * TrmEngine.this.convertedFiles));
+				MainWindow
+						.getInstance()
+						.setConvertProgress(
+								(int) ((MyJProgressBar.MAX / TrmEngine.this.totalFiles) * TrmEngine.this.convertedFiles));
 			};
 		});
 	}
@@ -251,9 +262,8 @@ public class TrmEngine extends Thread {
 		return this.transmit.unLockLocation(gal);
 	}
 
-	public void setProgressBars(MyJProgressBar upload, MyJProgressBar convert) {
-		this.uploadBar = upload;
-		this.convertBar = convert;
+	public synchronized Gallery newGallery(String location, String date) {
+		return this.transmit.newGallery(location, date);
 	}
 
 	public boolean isLoggedIn() {
@@ -262,5 +272,10 @@ public class TrmEngine extends Thread {
 
 	public boolean isConnected() {
 		return this.connected;
+	}
+
+	public void setGallery(Gallery gallery) {
+		this.gallery = gallery;
+		this.transmit.setGallery(gallery);
 	}
 }

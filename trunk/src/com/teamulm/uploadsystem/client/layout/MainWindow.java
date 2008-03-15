@@ -15,6 +15,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.WindowConstants;
@@ -25,7 +26,6 @@ import javax.swing.border.EmptyBorder;
 import com.teamulm.uploadsystem.client.layout.comp.FileList;
 import com.teamulm.uploadsystem.client.layout.comp.MyDateEditor;
 import com.teamulm.uploadsystem.client.layout.comp.MyJButton;
-import com.teamulm.uploadsystem.client.layout.comp.MyJComboBox;
 import com.teamulm.uploadsystem.client.layout.comp.MyJProgressBar;
 import com.teamulm.uploadsystem.client.layout.comp.MyJTextField;
 import com.teamulm.uploadsystem.client.layout.comp.StatusList;
@@ -37,6 +37,7 @@ import com.teamulm.uploadsystem.client.listener.al.ALUpdate;
 import com.teamulm.uploadsystem.client.listener.kl.KLEventTitle;
 import com.teamulm.uploadsystem.client.listener.wl.WLMainClose;
 import com.teamulm.uploadsystem.client.transmitEngine.TrmEngine;
+import com.teamulm.uploadsystem.data.Gallery;
 
 @SuppressWarnings("serial")
 public class MainWindow extends JFrame {
@@ -49,19 +50,19 @@ public class MainWindow extends JFrame {
 
 	private FileList fileList;
 
-	private MyJTextField fieldTitle, fieldDesc;
-
-	private MyJComboBox comboLocations;
+	private MyJTextField fieldTitle, fieldDesc, fieldLocations;
 
 	private MyJProgressBar uploadProgress, convertProgress;
 
 	private StatusList statusList;
 
-	private JCheckBox intern;
+	private JCheckBox filedIntern;
 
 	private MyDateEditor eventDate;
 
 	private JLabel selectedPics;
+
+	private Gallery gallery;
 
 	private MainWindow() {
 		this.setTitle("Team-Ulm Fotoupload");
@@ -157,7 +158,7 @@ public class MainWindow extends JFrame {
 		panelConstraints.gridx = 1;
 		panelConstraints.gridy = 2;
 		panelConstraints.insets = leftInsets;
-		JButton galleryLoadButton = new MyJButton("Galerien laden");
+		JButton galleryLoadButton = new MyJButton("Galerien wählen");
 		galleryLoadButton.addActionListener(new ALGalleryLoad());
 		infoPanel.add(galleryLoadButton, panelConstraints);
 
@@ -168,8 +169,9 @@ public class MainWindow extends JFrame {
 		panelConstraints.gridx = 1;
 		panelConstraints.gridy = 3;
 		panelConstraints.insets = leftInsets;
-		this.comboLocations = new MyJComboBox();
-		infoPanel.add(comboLocations, panelConstraints);
+		this.fieldLocations = new MyJTextField(0);
+		this.fieldLocations.setEnabled(false);
+		infoPanel.add(fieldLocations, panelConstraints);
 
 		panelConstraints.gridx = 1;
 		panelConstraints.gridy = 4;
@@ -202,8 +204,8 @@ public class MainWindow extends JFrame {
 		panelConstraints.gridx = 1;
 		panelConstraints.gridy = 7;
 		panelConstraints.insets = leftInsets;
-		this.intern = new JCheckBox("Intern", false);
-		infoPanel.add(this.intern, panelConstraints);
+		this.filedIntern = new JCheckBox("Intern", false);
+		infoPanel.add(this.filedIntern, panelConstraints);
 		constraints.gridy++;
 		panel.add(infoPanel, constraints);
 		return panel;
@@ -254,8 +256,14 @@ public class MainWindow extends JFrame {
 		JButton resetButton = new JButton("Zurücksetzen");
 		resetButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				MainWindow.this.reset();
-				TrmEngine.getInstance().requestStop();
+				if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
+						MainWindow.getInstance(), "Wirklich zurücksetzten?",
+						"Reset?", JOptionPane.YES_NO_OPTION,
+						JOptionPane.QUESTION_MESSAGE)) {
+					MainWindow.this.reset();
+					TrmEngine.kill();
+					System.gc();
+				}
 			}
 		});
 		buttonPanel.add(resetButton, BorderLayout.EAST);
@@ -278,32 +286,12 @@ public class MainWindow extends JFrame {
 		return this.fileList;
 	}
 
-	public String getEventTitle() {
-		return this.fieldTitle.getText();
-	}
-
-	public String getEventDesc() {
-		return this.fieldDesc.getText();
-	}
-
-	public String getEventLocation() {
-		return this.comboLocations.getSelectedLoc();
-	}
-
 	public void addStatusLine(String line) {
 		this.statusList.addStatusLine(line);
 	}
 
 	public MyDateEditor getDateEditor() {
 		return this.eventDate;
-	}
-
-	public MyJComboBox getLocations() {
-		return this.comboLocations;
-	}
-
-	public boolean getIntern() {
-		return this.intern.isSelected();
 	}
 
 	public void setConvertProgress(int progress) {
@@ -332,11 +320,37 @@ public class MainWindow extends JFrame {
 		this.convertProgress.reset();
 		this.uploadProgress.reset();
 		this.fileList.clearAllFiles();
-		this.intern.setSelected(false);
-		this.comboLocations.setSelectedIndex(0);
+		this.filedIntern.setSelected(false);
+		this.fieldLocations.setText("");
 	}
 
-	public void populateFields() {
-		this.comboLocations.setLocationsFile("locations.list");
+	public Gallery getGallery() {
+		if (this.gallery.isNewGallery()) {
+			this.gallery.setTitle(this.fieldTitle.getText());
+			this.gallery.setDesc(this.fieldDesc.getText());
+			this.gallery.setIntern(this.filedIntern.isSelected());
+		}
+		return this.gallery;
+	}
+
+	public void setGallery(Gallery gallery) {
+		if (gallery.isNewGallery()) {
+			this.fieldLocations.setText(gallery.getLocation());
+			this.fieldTitle.setText("");
+			this.fieldDesc.setText("");
+			this.filedIntern.setSelected(false);
+			this.fieldTitle.setEnabled(true);
+			this.fieldDesc.setEnabled(true);
+			this.filedIntern.setEnabled(true);
+		} else {
+			this.fieldLocations.setText(gallery.getLocation());
+			this.fieldTitle.setText(gallery.getTitle());
+			this.fieldDesc.setText(gallery.getDesc());
+			this.filedIntern.setSelected(gallery.isIntern());
+			this.fieldTitle.setEnabled(false);
+			this.fieldDesc.setEnabled(false);
+			this.filedIntern.setEnabled(false);
+		}
+		this.gallery = gallery;
 	}
 }

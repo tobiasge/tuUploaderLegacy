@@ -42,13 +42,16 @@ public class NewGalleryCmd extends Command {
 
 	public NewGalleryCmd(boolean serverResponse) {
 		super(serverResponse);
-	}	public String toString() {
+	}
+
+	public String toString() {
 		String toString = "NewGalleryCmd ";
 		if (this.isServerResponse()) {
 			toString = toString.concat("(Response): commandSucceded() = "
 					+ this.commandSucceded());
 		} else {
-			toString = toString.concat("(Request): for path " + this.getDate());
+			toString = toString.concat("(Request): for path " + this.location
+					+ "/" + this.getDate());
 		}
 		return toString;
 	}

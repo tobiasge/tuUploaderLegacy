@@ -1,19 +1,16 @@
 package com.teamulm.uploadsystem.client.layout.comp;
 
 import java.awt.Dimension;
-import java.awt.Font;
 
 import javax.swing.JComboBox;
 
 import com.teamulm.uploadsystem.client.Helper;
 import com.teamulm.uploadsystem.client.layout.MainWindow;
 
-
 @SuppressWarnings("serial")
 public class MyJComboBox extends JComboBox {
 
 	public MyJComboBox() {
-		this.setFont(new Font("", Font.PLAIN, 12));
 	}
 
 	public String getSelectedLoc() {
