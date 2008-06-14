@@ -133,7 +133,7 @@ public class GalleryDialog extends JDialog {
 		constraints.gridx = 0;
 
 		JButton oldButton = new MyJButton("Locations Update");
-		oldButton.addActionListener(new ALUpdate());
+		oldButton.addActionListener(new ALUpdate(this));
 		buttonPanel.add(oldButton, constraints);
 		locationsBox = new MyJComboBox();
 		locationsBox.setLocationsFile(Helper.getInstance().getFileLocation(
@@ -158,6 +158,10 @@ public class GalleryDialog extends JDialog {
 		this.setVisible(true);
 	}
 
+	public MyJComboBox getLocationsBox() {
+		return this.locationsBox;
+	}
+	
 	private void showGalleries() {
 		this.galTableModel.setRowCount(0);
 		for (Gallery gal : this.myGalleries) {

@@ -18,7 +18,7 @@ public class MyJComboBox extends JComboBox {
 	}
 
 	public void setLocationsFile(String fileName) {
-		String[] loc = Helper.getInstance().readFileData(fileName, true);
+		String[] loc = Helper.getInstance().readLocFile(fileName, true);
 		if (loc != null) {
 			this.removeAllItems();
 			this.addItem("    -- Bitte wählen --");

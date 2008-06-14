@@ -19,9 +19,16 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import com.teamulm.uploadsystem.client.Helper;
+import com.teamulm.uploadsystem.client.gui.GalleryDialog;
 import com.teamulm.uploadsystem.client.gui.MainWindow;
 
 public class ALUpdate implements ActionListener {
+
+	private GalleryDialog parent;
+
+	public ALUpdate(GalleryDialog parent) {
+		this.parent = parent;
+	}
 
 	public void actionPerformed(ActionEvent e) {
 		String fileName = Helper.getInstance()
@@ -40,6 +47,7 @@ public class ALUpdate implements ActionListener {
 			out.write(contentByteArray);
 			out.flush();
 			out.close();
+			this.parent.getLocationsBox().setLocationsFile(fileName);
 			MainWindow.getInstance().addStatusLine("Locations Update fertig");
 		} catch (Exception e2) {
 			MainWindow.getInstance()
