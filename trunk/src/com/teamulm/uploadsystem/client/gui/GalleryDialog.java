@@ -132,10 +132,12 @@ public class GalleryDialog extends JDialog {
 		constraints.gridy = 1;
 		constraints.gridx = 0;
 
-		JButton oldButton = new MyJButton("Locations Update");
-		oldButton.addActionListener(new ALUpdate(this));
-		buttonPanel.add(oldButton, constraints);
+		JButton locUpdateButton = new MyJButton("Locations Update");
+		locUpdateButton.addActionListener(new ALUpdate(this));
+		locUpdateButton.setToolTipText("Lädt eine neue Locationsliste vom Server.");
+		buttonPanel.add(locUpdateButton, constraints);
 		locationsBox = new MyJComboBox();
+		locationsBox .setToolTipText("Hier die Location für eine neue Galerie wählen.");
 		locationsBox.setLocationsFile(Helper.getInstance().getFileLocation(
 				"locations.list"));
 		constraints.gridy = 1;
@@ -145,6 +147,7 @@ public class GalleryDialog extends JDialog {
 		constraints.gridx = 2;
 		JButton newButton = new MyJButton("Galerie erstellen");
 		newButton.addActionListener(new NewGalleryListener());
+		newButton.setToolTipText("Erstellt eine neue Galerie in der gewählten Location.");
 		buttonPanel.add(newButton, constraints);
 
 		constraints.insets = new Insets(4, 0, 0, 2);
@@ -161,7 +164,7 @@ public class GalleryDialog extends JDialog {
 	public MyJComboBox getLocationsBox() {
 		return this.locationsBox;
 	}
-	
+
 	private void showGalleries() {
 		this.galTableModel.setRowCount(0);
 		for (Gallery gal : this.myGalleries) {
@@ -191,7 +194,7 @@ public class GalleryDialog extends JDialog {
 
 	private class NewGalleryListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			if (GalleryDialog.this.locationsBox.getSelectedItem() instanceof String
+			if (GalleryDialog.this.getLocationsBox().getSelectedItem() instanceof String
 					&& ((String) GalleryDialog.this.locationsBox
 							.getSelectedItem())
 							.compareTo("    -- Bitte wählen --") != 0) {
