@@ -13,8 +13,8 @@ import javax.swing.SwingUtilities;
 import org.apache.log4j.Logger;
 
 import com.teamulm.uploadsystem.client.Helper;
-import com.teamulm.uploadsystem.client.layout.MainWindow;
-import com.teamulm.uploadsystem.client.layout.comp.MyJProgressBar;
+import com.teamulm.uploadsystem.client.gui.MainWindow;
+import com.teamulm.uploadsystem.client.gui.comp.MyJProgressBar;
 import com.teamulm.uploadsystem.data.Gallery;
 
 public class TrmEngine extends Thread {
@@ -23,9 +23,7 @@ public class TrmEngine extends Thread {
 
 	private static TrmEngine instance;
 
-	private File savePath;
-
-	public static final String VERSION = "4.5";
+	public static final String VERSION = "4.0";
 
 	private Vector<File> toconvert;
 
@@ -185,7 +183,7 @@ public class TrmEngine extends Thread {
 			return;
 		}
 		for (int i = 0; i < this.converters.length; i++) {
-			this.converters[i] = new Converter(this, this.savePath, i);
+			this.converters[i] = new Converter(this, i);
 			this.converters[i].setPriority(3);
 		}
 		try {

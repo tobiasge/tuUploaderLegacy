@@ -11,6 +11,7 @@
  *******************************************************/
 package com.teamulm.uploadsystem.client;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
@@ -25,7 +26,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
-import com.teamulm.uploadsystem.client.layout.MainWindow;
+import com.teamulm.uploadsystem.client.gui.MainWindow;
 
 public class TeamUlmUpload {
 
@@ -36,6 +37,8 @@ public class TeamUlmUpload {
 	public static final String LOGFILE = "TeamUlm.log";
 
 	private static TeamUlmUpload instance = null;
+
+	private static String appDataDir;
 
 	// Konstruktor
 	private TeamUlmUpload() {
@@ -78,6 +81,10 @@ public class TeamUlmUpload {
 		try {
 			Properties logConf = new Properties();
 			logConf.load(new FileInputStream("client.log4j.properties"));
+			logConf.setProperty("log4j.appender.logfile.File", TeamUlmUpload
+					.getAppDataDir()
+					+ logConf.getProperty("log4j.appender.logfile.File",
+							"TeamUlm.log"));
 			PropertyConfigurator.configure(logConf);
 			UIManager.setLookAndFeel(new Plastic3DLookAndFeel());
 		} catch (Exception e) {
@@ -85,6 +92,32 @@ public class TeamUlmUpload {
 		}
 		System.setProperty("line.separator", "\n");
 		TeamUlmUpload.getInstance();
+	}
 
+	public static String getAppDataDir() {
+		String appData;
+		if (null == TeamUlmUpload.appDataDir
+				|| TeamUlmUpload.appDataDir.isEmpty()) {
+			// Getting Windows AppData directory
+			String appDataRoot = System.getenv("appdata");
+			// if empty non Windows system, trying Mac/Linux user home directory
+			if (appDataRoot.isEmpty()) {
+				appDataRoot = System.getenv("home");
+			}
+			// empty? Should not be, using local install directory 
+			if (appDataRoot.isEmpty()) {
+				TeamUlmUpload.appDataDir = "";
+			} else {
+				// Setting correct sub directory
+				appData = appDataRoot + System.getProperty("file.separator")
+						+ ".TUUploader" + System.getProperty("file.separator");
+				File appDataDir = new File(appData);
+				if (!appDataDir.exists()) {
+					appDataDir.mkdirs();
+				}
+				TeamUlmUpload.appDataDir = appData;
+			}
+		}
+		return TeamUlmUpload.appDataDir;
 	}
 }

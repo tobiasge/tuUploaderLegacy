@@ -1,4 +1,4 @@
-package com.teamulm.uploadsystem.client.layout;
+package com.teamulm.uploadsystem.client.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -23,12 +23,12 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
-import com.teamulm.uploadsystem.client.layout.comp.FileList;
-import com.teamulm.uploadsystem.client.layout.comp.MyDateEditor;
-import com.teamulm.uploadsystem.client.layout.comp.MyJButton;
-import com.teamulm.uploadsystem.client.layout.comp.MyJProgressBar;
-import com.teamulm.uploadsystem.client.layout.comp.MyJTextField;
-import com.teamulm.uploadsystem.client.layout.comp.StatusList;
+import com.teamulm.uploadsystem.client.gui.comp.FileList;
+import com.teamulm.uploadsystem.client.gui.comp.MyDateEditor;
+import com.teamulm.uploadsystem.client.gui.comp.MyJButton;
+import com.teamulm.uploadsystem.client.gui.comp.MyJProgressBar;
+import com.teamulm.uploadsystem.client.gui.comp.MyJTextField;
+import com.teamulm.uploadsystem.client.gui.comp.StatusList;
 import com.teamulm.uploadsystem.client.listener.al.ALChoosePic;
 import com.teamulm.uploadsystem.client.listener.al.ALConAUpl;
 import com.teamulm.uploadsystem.client.listener.al.ALGalleryLoad;

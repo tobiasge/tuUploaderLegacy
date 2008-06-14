@@ -4,7 +4,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
-import com.teamulm.uploadsystem.client.layout.MainWindow;
+import com.teamulm.uploadsystem.client.gui.MainWindow;
 
 public class MyJListListener implements ListDataListener {
 

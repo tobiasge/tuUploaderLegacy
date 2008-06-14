@@ -1,4 +1,4 @@
-package com.teamulm.uploadsystem.client.layout.comp;
+package com.teamulm.uploadsystem.client.gui.comp;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;

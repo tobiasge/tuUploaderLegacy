@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 
 import com.teamulm.uploadsystem.data.Gallery;
 import com.teamulm.uploadsystem.data.User;
+import com.teamulm.uploadsystem.protocol.AuthenticationCmd;
 import com.teamulm.uploadsystem.protocol.Command;
 import com.teamulm.uploadsystem.protocol.GetGalleriesCmd;
 import com.teamulm.uploadsystem.protocol.HelloCmd;
@@ -55,8 +56,6 @@ public class UploadServ extends Thread {
 
 	private boolean active;
 
-	private boolean accepted;
-
 	private boolean hasLock;
 
 	private String baseDir;
@@ -72,7 +71,6 @@ public class UploadServ extends Thread {
 		this.uploaded = 0;
 		this.client = so;
 		this.clientip = so.getInetAddress().getHostAddress();
-		this.accepted = false;
 		this.initServer();
 		try {
 			this.client.setSoTimeout(1000 * 60 * 3);
@@ -105,12 +103,32 @@ public class UploadServ extends Thread {
 		return hexValue.toString();
 	}
 
-	private boolean authUser(String user, String passwd) {
+	private boolean authenticateUser(String user, String passwd) {
+		boolean authenticationOk = false;
 		// encrypt password
 		String encPass = this.compute(passwd);
 		this.user = DBConn.getInstance().getUserForName(user);
-		return (null != passwd) && (null != this.user)
+		authenticationOk = (null != passwd) && (null != this.user)
+				&& (!passwd.isEmpty())
 				&& (encPass.equalsIgnoreCase(this.user.getPassword()));
+		if (authenticationOk)
+			return true;
+		else {
+			this.user = null;
+			return false;
+		}
+	}
+
+	private boolean isAuthenticated() {
+		return null != this.user;
+	}
+
+	private void sendAuthenticationNeeded(String message) throws IOException {
+		AuthenticationCmd response = new AuthenticationCmd(true);
+		response.setSuccess(true);
+		response.setMessage(message);
+		this.output.writeObject(response);
+		this.output.flush();
 	}
 
 	private void ExceptionHandler(Exception exc) {
@@ -245,11 +263,11 @@ public class UploadServ extends Thread {
 			}
 			while (this.active) {
 				cmd = this.readCommand();
-				if (cmd instanceof LoginCmd && !this.accepted) {
+				if (cmd instanceof LoginCmd && !this.isAuthenticated()) {
 					LoginCmd request = (LoginCmd) cmd;
 					log.info(this.clientip + ": " + request.toString());
 					LoginCmd response = new LoginCmd(true);
-					if (!this.authUser(request.getUserName(), request
+					if (!this.authenticateUser(request.getUserName(), request
 							.getPassWord())) {
 						response.setErrorMsg("Wrong username or password for "
 								+ request.getUserName());
@@ -260,7 +278,6 @@ public class UploadServ extends Thread {
 								+ ": Bad user or password; User: "
 								+ request.getUserName());
 					} else {
-						this.accepted = true;
 						response.setSuccess(true);
 						log.info(this.clientip + ": User "
 								+ request.getUserName() + " accepted");
@@ -274,14 +291,28 @@ public class UploadServ extends Thread {
 					response.setSuccess(true);
 					this.output.writeObject(response);
 					this.output.flush();
-				} else if (this.accepted && cmd instanceof SaveFileCmd) {
+				} else if (cmd instanceof SaveFileCmd) {
+					if (!this.isAuthenticated()) {
+						this
+								.sendAuthenticationNeeded("Befehl "
+										+ cmd.getClass()
+										+ " kann nur mit angemeldetem User ausgeführt werden.");
+						continue;
+					}
 					SaveFileCmd request = (SaveFileCmd) cmd;
 					log.info(this.clientip + ": " + request.toString());
 					SaveFileCmd response = new SaveFileCmd(true);
 					response.setSuccess(this.saveFile(request));
 					this.output.writeObject(response);
 					this.output.flush();
-				} else if (this.accepted && cmd instanceof SaveGalleryCmd) {
+				} else if (cmd instanceof SaveGalleryCmd) {
+					if (!this.isAuthenticated()) {
+						this
+								.sendAuthenticationNeeded("Befehl "
+										+ cmd.getClass()
+										+ " kann nur mit angemeldetem User ausgeführt werden.");
+						continue;
+					}
 					SaveGalleryCmd request = (SaveGalleryCmd) cmd;
 					log.info(this.clientip + ": " + request.toString());
 					SaveGalleryCmd response = new SaveGalleryCmd(true);
@@ -312,7 +343,14 @@ public class UploadServ extends Thread {
 						this.output.writeObject(response);
 						this.output.flush();
 					}
-				} else if (this.accepted && cmd instanceof NewGalleryCmd) {
+				} else if (cmd instanceof NewGalleryCmd) {
+					if (!this.isAuthenticated()) {
+						this
+								.sendAuthenticationNeeded("Befehl "
+										+ cmd.getClass()
+										+ " kann nur mit angemeldetem User ausgeführt werden.");
+						continue;
+					}
 					NewGalleryCmd request = (NewGalleryCmd) cmd;
 					log.info(this.clientip + ": " + request.toString());
 					NewGalleryCmd response = new NewGalleryCmd(true);
@@ -326,7 +364,14 @@ public class UploadServ extends Thread {
 					this.output.writeObject(response);
 					this.output.flush();
 					this.gallery = gal;
-				} else if (this.accepted && cmd instanceof GetGalleriesCmd) {
+				} else if (cmd instanceof GetGalleriesCmd) {
+					if (!this.isAuthenticated()) {
+						this
+								.sendAuthenticationNeeded("Befehl "
+										+ cmd.getClass()
+										+ " kann nur mit angemeldetem User ausgeführt werden.");
+						continue;
+					}
 					GetGalleriesCmd request = (GetGalleriesCmd) cmd;
 					log.info(this.clientip + ": " + request.toString());
 					GetGalleriesCmd response = new GetGalleriesCmd(true);
@@ -340,7 +385,14 @@ public class UploadServ extends Thread {
 					response.setGalleries(galleries);
 					this.output.writeObject(response);
 					this.output.flush();
-				} else if (this.accepted && cmd instanceof UnLockPathCmd) {
+				} else if (cmd instanceof UnLockPathCmd) {
+					if (!this.isAuthenticated()) {
+						this
+								.sendAuthenticationNeeded("Befehl "
+										+ cmd.getClass()
+										+ " kann nur mit angemeldetem User ausgeführt werden.");
+						continue;
+					}
 					UnLockPathCmd request = (UnLockPathCmd) cmd;
 					log.info(this.clientip + ": " + request.toString());
 					PicServer.getInstance().unlockLocation(request.getPath());
@@ -348,7 +400,14 @@ public class UploadServ extends Thread {
 					request.setSuccess(true);
 					this.output.writeObject(request);
 					this.output.flush();
-				} else if (this.accepted && cmd instanceof LockPathCmd) {
+				} else if (cmd instanceof LockPathCmd) {
+					if (!this.isAuthenticated()) {
+						this
+								.sendAuthenticationNeeded("Befehl "
+										+ cmd.getClass()
+										+ " kann nur mit angemeldetem User ausgeführt werden.");
+						continue;
+					}
 					LockPathCmd request = (LockPathCmd) cmd;
 					log.info(this.clientip + ": " + request.toString());
 					LockPathCmd response = new LockPathCmd(true);

@@ -7,6 +7,8 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -22,10 +24,11 @@ import javax.swing.table.DefaultTableModel;
 
 import org.apache.log4j.Logger;
 
-import com.teamulm.uploadsystem.client.layout.MainWindow;
-import com.teamulm.uploadsystem.client.layout.comp.MyJButton;
-import com.teamulm.uploadsystem.client.layout.comp.MyJComboBox;
-import com.teamulm.uploadsystem.client.layout.comp.UserPassDialog;
+import com.teamulm.uploadsystem.client.Helper;
+import com.teamulm.uploadsystem.client.gui.MainWindow;
+import com.teamulm.uploadsystem.client.gui.comp.MyJButton;
+import com.teamulm.uploadsystem.client.gui.comp.MyJComboBox;
+import com.teamulm.uploadsystem.client.gui.comp.UserPassDialog;
 import com.teamulm.uploadsystem.client.transmitEngine.TrmEngine;
 import com.teamulm.uploadsystem.data.Gallery;
 
@@ -123,6 +126,7 @@ public class ALGalleryLoad implements ActionListener {
 			this.galTable.getColumnModel().getColumn(0).setPreferredWidth(120);
 			this.galTable.getColumnModel().getColumn(0).setMaxWidth(120);
 			this.galTable.getColumnModel().getColumn(0).setMinWidth(120);
+
 			this.galTable.getColumnModel().getColumn(1).setPreferredWidth(150);
 			this.galTable.getColumnModel().getColumn(1).setMaxWidth(150);
 			this.galTable.getColumnModel().getColumn(1).setMinWidth(150);
@@ -130,9 +134,12 @@ public class ALGalleryLoad implements ActionListener {
 			this.galTable.getColumnModel().getColumn(2).setPreferredWidth(50);
 			this.galTable.getColumnModel().getColumn(2).setMaxWidth(50);
 			this.galTable.getColumnModel().getColumn(2).setMinWidth(50);
+
 			this.galTable.getColumnModel().getColumn(3).setPreferredWidth(50);
 			this.galTable.getColumnModel().getColumn(3).setMaxWidth(50);
 			this.galTable.getColumnModel().getColumn(3).setMinWidth(50);
+
+			this.galTable.addMouseListener(new OldGalleryListener());
 
 			JScrollPane scroller = new JScrollPane(this.galTable) {
 				private static final long serialVersionUID = 0L;
@@ -172,7 +179,8 @@ public class ALGalleryLoad implements ActionListener {
 			oldButton.addActionListener(new OldGalleryListener());
 			buttonPanel.add(oldButton, constraints);
 			locationsBox = new MyJComboBox();
-			locationsBox.setLocationsFile("locations.list");
+			locationsBox.setLocationsFile(Helper.getInstance().getFileLocation(
+					"locations.list"));
 			constraints.gridy = 0;
 			constraints.gridx = 1;
 			buttonPanel.add(locationsBox, constraints);
@@ -230,8 +238,19 @@ public class ALGalleryLoad implements ActionListener {
 			}
 		}
 
-		private class OldGalleryListener implements ActionListener {
+		private class OldGalleryListener extends MouseAdapter implements
+				ActionListener {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2)
+					this.selectOld();
+			}
+
 			public void actionPerformed(ActionEvent e) {
+				this.selectOld();
+			}
+
+			private void selectOld() {
 				if (-1 == GalleryDialog.this.galTable.getSelectedRow()) {
 					JOptionPane.showMessageDialog(GalleryDialog.this,
 							"Bitte eine Galerie auswählen!", "Galerie...",

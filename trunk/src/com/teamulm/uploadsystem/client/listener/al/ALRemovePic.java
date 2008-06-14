@@ -14,7 +14,7 @@ package com.teamulm.uploadsystem.client.listener.al;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import com.teamulm.uploadsystem.client.layout.MainWindow;
+import com.teamulm.uploadsystem.client.gui.MainWindow;
 
 
 

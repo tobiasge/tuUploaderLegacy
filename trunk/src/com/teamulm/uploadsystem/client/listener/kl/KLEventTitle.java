@@ -6,7 +6,7 @@ package com.teamulm.uploadsystem.client.listener.kl;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-import com.teamulm.uploadsystem.client.layout.MainWindow;
+import com.teamulm.uploadsystem.client.gui.MainWindow;
 
 public class KLEventTitle extends KeyAdapter {
 

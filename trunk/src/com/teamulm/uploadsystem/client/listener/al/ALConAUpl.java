@@ -19,8 +19,8 @@ import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
 
-import com.teamulm.uploadsystem.client.layout.MainWindow;
-import com.teamulm.uploadsystem.client.layout.comp.UserPassDialog;
+import com.teamulm.uploadsystem.client.gui.MainWindow;
+import com.teamulm.uploadsystem.client.gui.comp.UserPassDialog;
 import com.teamulm.uploadsystem.client.transmitEngine.TrmEngine;
 
 public class ALConAUpl implements ActionListener {

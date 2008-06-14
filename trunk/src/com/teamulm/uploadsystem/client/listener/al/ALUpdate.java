@@ -19,11 +19,13 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import com.teamulm.uploadsystem.client.Helper;
-import com.teamulm.uploadsystem.client.layout.MainWindow;
+import com.teamulm.uploadsystem.client.gui.MainWindow;
 
 public class ALUpdate implements ActionListener {
 
 	public void actionPerformed(ActionEvent e) {
+		String fileName = Helper.getInstance()
+				.getFileLocation("locations.list");
 		try {
 			URLConnection locationsURL = new URL(
 					"http://www.team-ulm.de/fotos/locations.php")
@@ -34,7 +36,7 @@ public class ALUpdate implements ActionListener {
 			int readBytes = fromServer.read(contentByteArray);
 			if (readBytes != contentLength)
 				throw new Exception("Content not fully read");
-			FileOutputStream out = new FileOutputStream("locations.list");
+			FileOutputStream out = new FileOutputStream(fileName);
 			out.write(contentByteArray);
 			out.flush();
 			out.close();

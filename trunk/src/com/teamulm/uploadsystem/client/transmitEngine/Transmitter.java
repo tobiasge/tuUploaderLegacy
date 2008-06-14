@@ -16,8 +16,10 @@ import org.apache.log4j.Logger;
 
 import com.teamulm.uploadsystem.client.Helper;
 import com.teamulm.uploadsystem.client.TeamUlmUpload;
-import com.teamulm.uploadsystem.client.layout.MainWindow;
+import com.teamulm.uploadsystem.client.gui.MainWindow;
 import com.teamulm.uploadsystem.data.Gallery;
+import com.teamulm.uploadsystem.exception.AuthenticationException;
+import com.teamulm.uploadsystem.protocol.AuthenticationCmd;
 import com.teamulm.uploadsystem.protocol.Command;
 import com.teamulm.uploadsystem.protocol.GetGalleriesCmd;
 import com.teamulm.uploadsystem.protocol.HelloCmd;
@@ -82,11 +84,16 @@ public class Transmitter extends Thread {
 				.schedule(new KeepAliveTimerTask(), 0, 1000 * 60 * 2);
 	}
 
-	private synchronized Command sendAndReadCommand(Command command) {
+	private synchronized Command sendAndRead(Command command)
+			throws AuthenticationException {
 		try {
 			this.output.writeObject(command);
 			this.output.flush();
 			Command retVal = (Command) this.input.readObject();
+			if (retVal instanceof AuthenticationCmd) {
+				AuthenticationCmd cmd = (AuthenticationCmd) retVal;
+				throw new AuthenticationException(cmd.getMessage());
+			}
 			return retVal;
 		} catch (ClassCastException e) {
 			Helper.getInstance().systemCrashHandler(e);
@@ -109,7 +116,7 @@ public class Transmitter extends Thread {
 		cmd.setUserName(username);
 		cmd.setPassWord(passwd);
 		try {
-			Command retVal = this.sendAndReadCommand(cmd);
+			Command retVal = this.sendAndRead(cmd);
 			log.debug("Server said: " + retVal);
 			this.loggedIn = retVal instanceof LoginCmd
 					&& retVal.commandSucceded();
@@ -126,7 +133,7 @@ public class Transmitter extends Thread {
 		HelloCmd cmd = new HelloCmd();
 		cmd.setProtocolVersionString(TrmEngine.VERSION);
 		try {
-			Command retVal = this.sendAndReadCommand(cmd);
+			Command retVal = this.sendAndRead(cmd);
 			log.debug("Server said: " + retVal);
 			return retVal instanceof HelloCmd && retVal.commandSucceded();
 		} catch (Exception e) {
@@ -140,7 +147,7 @@ public class Transmitter extends Thread {
 		cmd.setDate(date);
 		cmd.setLocation(location);
 		try {
-			Command retVal = this.sendAndReadCommand(cmd);
+			Command retVal = this.sendAndRead(cmd);
 			log.debug("Server said: " + retVal);
 			if (retVal instanceof NewGalleryCmd) {
 				NewGalleryCmd response = (NewGalleryCmd) retVal;
@@ -157,7 +164,7 @@ public class Transmitter extends Thread {
 		GetGalleriesCmd cmd = new GetGalleriesCmd();
 		cmd.setDate(date);
 		try {
-			Command retVal = this.sendAndReadCommand(cmd);
+			Command retVal = this.sendAndRead(cmd);
 			log.debug("Server said: " + retVal);
 			if (retVal instanceof GetGalleriesCmd) {
 				GetGalleriesCmd response = (GetGalleriesCmd) retVal;
@@ -203,7 +210,7 @@ public class Transmitter extends Thread {
 			cmd.setDate(gal.getDate());
 			cmd.setLocation(gal.getLocation());
 			cmd.setSuffix(gal.getSuffix());
-			Command retVal = this.sendAndReadCommand(cmd);
+			Command retVal = this.sendAndRead(cmd);
 			log.debug("Server said: " + retVal);
 			if (!(retVal instanceof UnLockPathCmd))
 				return false;
@@ -221,7 +228,7 @@ public class Transmitter extends Thread {
 			cmd.setDate(gal.getDate());
 			cmd.setLocation(gal.getLocation());
 			cmd.setSuffix(gal.getSuffix());
-			Command retVal = this.sendAndReadCommand(cmd);
+			Command retVal = this.sendAndRead(cmd);
 			log.debug("Server said: " + retVal);
 			if (!(retVal instanceof LockPathCmd))
 				return false;
@@ -263,7 +270,7 @@ public class Transmitter extends Thread {
 					cmd.setFileSize((int) this.akt.length());
 					cmd.setFileContent(this.getBytesFromFile(this.akt));
 
-					retVal = this.sendAndReadCommand(cmd);
+					retVal = this.sendAndRead(cmd);
 					log.debug("Server said: " + retVal);
 					if (retVal instanceof SaveFileCmd
 							&& retVal.commandSucceded()) {
@@ -282,7 +289,7 @@ public class Transmitter extends Thread {
 			SaveGalleryCmd cmd = new SaveGalleryCmd();
 			cmd.setGallery(this.gallery);
 
-			retVal = this.sendAndReadCommand(cmd);
+			retVal = this.sendAndRead(cmd);
 			log.debug("Server said: " + retVal);
 			if (retVal instanceof SaveGalleryCmd && retVal.commandSucceded()) {
 				MainWindow.getInstance().addStatusLine("Galerie gespeichert");
@@ -294,6 +301,8 @@ public class Transmitter extends Thread {
 			this.disconnect();
 			MainWindow.getInstance().addStatusLine("Verbindung beendet");
 			sleep(10);
+		} catch (AuthenticationException authEx) {
+			MainWindow.getInstance().addStatusLine(authEx.getMessage());
 		} catch (Exception e) {
 			Helper.getInstance().systemCrashHandler(e);
 			this.Running = false;
@@ -305,7 +314,7 @@ public class Transmitter extends Thread {
 		try {
 			this.keepAliveTimer.cancel();
 			this.Running = false;
-			this.sendAndReadCommand(new QuitCmd());
+			this.sendAndRead(new QuitCmd());
 			this.output.close();
 			this.input.close();
 		} catch (Exception e) {
@@ -333,7 +342,10 @@ public class Transmitter extends Thread {
 		public void run() {
 			if (Transmitter.this.isConnected()) {
 				log.debug("sending PingCmd");
-				Transmitter.this.sendAndReadCommand(new PingCmd());
+				try {
+					Transmitter.this.sendAndRead(new PingCmd());
+				} catch (AuthenticationException authEx) {
+				}
 			}
 		}
 	}

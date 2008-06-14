@@ -19,7 +19,7 @@ import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
 
-import com.teamulm.uploadsystem.client.layout.MainWindow;
+import com.teamulm.uploadsystem.client.gui.MainWindow;
 
 public class Helper {
 
@@ -32,6 +32,10 @@ public class Helper {
 			Helper.instance = new Helper();
 		}
 		return Helper.instance;
+	}
+
+	public String getFileLocation(String fileName) {
+		return TeamUlmUpload.getAppDataDir() + fileName;
 	}
 
 	public String[] readFileData(String fileName, boolean reportError) {

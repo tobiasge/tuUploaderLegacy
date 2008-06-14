@@ -1,11 +1,11 @@
-package com.teamulm.uploadsystem.client.layout.comp;
+package com.teamulm.uploadsystem.client.gui.comp;
 
 import javax.swing.InputVerifier;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
-import com.teamulm.uploadsystem.client.layout.MainWindow;
+import com.teamulm.uploadsystem.client.gui.MainWindow;
 
 @SuppressWarnings("serial")
 public class MyJTextField extends JTextField {

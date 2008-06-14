@@ -1,11 +1,11 @@
-package com.teamulm.uploadsystem.client.layout.comp;
+package com.teamulm.uploadsystem.client.gui.comp;
 
 import java.awt.Dimension;
 
 import javax.swing.JComboBox;
 
 import com.teamulm.uploadsystem.client.Helper;
-import com.teamulm.uploadsystem.client.layout.MainWindow;
+import com.teamulm.uploadsystem.client.gui.MainWindow;
 
 @SuppressWarnings("serial")
 public class MyJComboBox extends JComboBox {

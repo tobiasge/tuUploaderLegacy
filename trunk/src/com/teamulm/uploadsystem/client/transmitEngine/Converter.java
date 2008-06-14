@@ -28,7 +28,7 @@ import javax.imageio.ImageIO;
 import org.apache.log4j.Logger;
 
 import com.teamulm.uploadsystem.client.Helper;
-import com.teamulm.uploadsystem.client.layout.MainWindow;
+import com.teamulm.uploadsystem.client.gui.MainWindow;
 
 public class Converter extends Thread {
 
@@ -54,7 +54,7 @@ public class Converter extends Thread {
 
 	private Point bigPicSize = new Point(575, 431);
 
-	public Converter(TrmEngine chef, File savePath, int ident) {
+	public Converter(TrmEngine chef, int ident) {
 		super();
 		this.setName("Converter " + ident);
 		this.savePath = System.getProperty("java.io.tmpdir");
