@@ -38,7 +38,7 @@ public class Helper {
 		return TeamUlmUpload.getAppDataDir() + fileName;
 	}
 
-	public String[] readLocFile(String fileName, boolean reportError) {
+	public String[] readFileData(String fileName, boolean reportError) {
 		ArrayList<String> listData = new ArrayList<String>();
 		BufferedReader inputStream = null;
 		String inDataStr = null;
@@ -49,8 +49,8 @@ public class Helper {
 				listData.add(inDataStr);
 			inputStream.close();
 		} catch (Exception ex) {
-			log.error("could not read locations file: " + fileName);
-			return new String[] { "Fehler, bitte Locations", "Update durchführen" };
+			log.error("could not read file: " + fileName);
+			return null;
 		}
 		Object[] list = listData.toArray();
 		String[] ret = new String[list.length];
@@ -75,7 +75,8 @@ public class Helper {
 			return;
 		else {
 			MainWindow.getInstance().addStatusLine("Sende Fehlerbericht");
-			String[] lines = this.readLocFile(TeamUlmUpload.LOGFILE, false);
+			String[] lines = this
+					.readFileData(TeamUlmUpload.logFileName, false);
 			String report = "";
 			if (null != lines) {
 				for (String line : lines) {

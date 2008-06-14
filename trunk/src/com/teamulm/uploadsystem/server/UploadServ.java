@@ -109,7 +109,7 @@ public class UploadServ extends Thread {
 		String encPass = this.compute(passwd);
 		this.user = DBConn.getInstance().getUserForName(user);
 		authenticationOk = (null != passwd) && (null != this.user)
-				&& (!passwd.isEmpty())
+				&& (!passwd.equals(""))
 				&& (encPass.equalsIgnoreCase(this.user.getPassword()));
 		if (authenticationOk)
 			return true;

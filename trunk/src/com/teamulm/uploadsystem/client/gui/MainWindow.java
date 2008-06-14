@@ -328,12 +328,11 @@ public class MainWindow extends JFrame {
 	public void setGallery(Gallery gallery) {
 		if (gallery.isNewGallery()) {
 			this.fieldLocations.setText(gallery.getLocation());
-			this.fieldTitle.setText("");
-			this.fieldDesc.setText("");
 			this.filedIntern.setSelected(false);
 			this.fieldTitle.setEnabled(true);
 			this.fieldDesc.setEnabled(true);
 			this.filedIntern.setEnabled(true);
+			this.fieldTitle.requestFocus();
 		} else {
 			this.fieldLocations.setText(gallery.getLocation());
 			this.fieldTitle.setText(gallery.getTitle());

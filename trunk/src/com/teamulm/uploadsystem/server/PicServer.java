@@ -83,10 +83,15 @@ public class PicServer extends Thread {
 				Socket socket = this.listen.accept();
 				log.info("Connection from: "
 						+ socket.getInetAddress().getHostAddress());
-				UploadServ comlink = new UploadServ(this, socket, this.childMap
-						.size() + 1);
-				this.childMap.put(new Integer(comlink.hashCode()), comlink);
-				comlink.start();
+				if (this.isRunning()) {
+					UploadServ comlink = new UploadServ(this, socket,
+							this.childMap.size() + 1);
+					this.childMap.put(new Integer(comlink.hashCode()), comlink);
+					comlink.start();
+				} else {
+					log.warn("Shudown in progress. No new connections are accepted");
+					socket.close();
+				}
 			}
 		} catch (IOException e) {
 			log.error("Could not create communication socket: "

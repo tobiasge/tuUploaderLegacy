@@ -34,12 +34,12 @@ public class TeamUlmUpload {
 
 	public static final String CLIENTCONFFILE = "client.conf";
 
-	public static final String LOGFILE = "TeamUlm.log";
-
 	private static TeamUlmUpload instance = null;
 
 	private static String appDataDir;
 
+	public static String logFileName;
+	
 	// Konstruktor
 	private TeamUlmUpload() {
 		OperatingSystemMXBean sysInfo1 = ManagementFactory
@@ -81,10 +81,11 @@ public class TeamUlmUpload {
 		try {
 			Properties logConf = new Properties();
 			logConf.load(new FileInputStream("client.log4j.properties"));
-			logConf.setProperty("log4j.appender.logfile.File", TeamUlmUpload
-					.getAppDataDir()
-					+ logConf.getProperty("log4j.appender.logfile.File",
-							"TeamUlm.log"));
+			TeamUlmUpload.logFileName = TeamUlmUpload
+			.getAppDataDir()
+			+ logConf.getProperty("log4j.appender.logfile.File",
+					"TeamUlm.log");
+			logConf.setProperty("log4j.appender.logfile.File", TeamUlmUpload.logFileName);
 			PropertyConfigurator.configure(logConf);
 			UIManager.setLookAndFeel(new Plastic3DLookAndFeel());
 		} catch (Exception e) {
