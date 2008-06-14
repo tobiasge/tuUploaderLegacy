@@ -1,29 +1,22 @@
 <allservers>
  <driver>com.mysql.jdbc.Driver</driver>
  <server>
-  <name>Server 1</name>
-  <host>212.211.144.235</host>
+  <name>Lenny</name>
+  <host>212.211.146.101</host>
   <user>tu1</user>
   <pass>gem1n1</pass>
   <base>tu_db</base>
  </server>
  <server>
-  <servername>Server 2</servername>
-  <host>212.211.144.236</host>
+  <servername>Marge</servername>
+  <host>212.211.146.100</host>
   <user>tu1</user>
   <pass>gem1n1</pass>
   <base>tu_db</base>
  </server>
  <server>
-  <servername>Server 3</servername>
-  <host>212.211.144.237</host>
-  <user>tu1</user>
-  <pass>gem1n1</pass>
-  <base>tu_db</base>
- </server>
- <server>
-  <servername>Server 4</servername>
-  <host>212.211.144.238</host>
+  <servername>Burns</servername>
+  <host>212.211.146.104</host>
   <user>tu1</user>
   <pass>gem1n1</pass>
   <base>tu_db</base>
