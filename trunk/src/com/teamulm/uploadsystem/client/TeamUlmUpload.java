@@ -104,7 +104,7 @@ public class TeamUlmUpload {
 			if (appDataRoot.isEmpty()) {
 				appDataRoot = System.getenv("home");
 			}
-			// empty? Should not be, using local install directory 
+			// empty? Should not be, using local install directory
 			if (appDataRoot.isEmpty()) {
 				TeamUlmUpload.appDataDir = "";
 			} else {

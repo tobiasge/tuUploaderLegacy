@@ -33,7 +33,6 @@ import com.teamulm.uploadsystem.client.listener.al.ALChoosePic;
 import com.teamulm.uploadsystem.client.listener.al.ALConAUpl;
 import com.teamulm.uploadsystem.client.listener.al.ALGalleryLoad;
 import com.teamulm.uploadsystem.client.listener.al.ALRemovePic;
-import com.teamulm.uploadsystem.client.listener.al.ALUpdate;
 import com.teamulm.uploadsystem.client.listener.kl.KLEventTitle;
 import com.teamulm.uploadsystem.client.listener.wl.WLMainClose;
 import com.teamulm.uploadsystem.client.transmitEngine.TrmEngine;
@@ -99,17 +98,17 @@ public class MainWindow extends JFrame {
 		JScrollPane scrollPane = new JScrollPane(this.fileList) {
 			@Override
 			public Dimension getPreferredSize() {
-				return new Dimension(300, 200);
+				return new Dimension(300, 210);
 			}
 
 			@Override
 			public Dimension getMinimumSize() {
-				return new Dimension(300, 200);
+				return new Dimension(300, 210);
 			}
 
 			@Override
 			public Dimension getMaximumSize() {
-				return new Dimension(300, 200);
+				return new Dimension(300, 210);
 			}
 		};
 		scrollPane.setWheelScrollingEnabled(true);
@@ -173,36 +172,29 @@ public class MainWindow extends JFrame {
 		this.fieldLocations.setEnabled(false);
 		infoPanel.add(fieldLocations, panelConstraints);
 
-		panelConstraints.gridx = 1;
-		panelConstraints.gridy = 4;
-		panelConstraints.insets = leftInsets;
-		MyJButton updateLocs = new MyJButton("Locations Update");
-		updateLocs.addActionListener(new ALUpdate());
-		infoPanel.add(updateLocs, panelConstraints);
-
 		panelConstraints.gridx = 0;
-		panelConstraints.gridy = 5;
+		panelConstraints.gridy = 4;
 		panelConstraints.insets = rightInsets;
 		infoPanel.add(new JLabel("Eventtitel:"), panelConstraints);
 		panelConstraints.gridx = 1;
-		panelConstraints.gridy = 5;
+		panelConstraints.gridy = 4;
 		panelConstraints.insets = leftInsets;
 		this.fieldTitle = new MyJTextField(MainWindow.TITLEMAXLENGTH);
 		this.fieldTitle.addKeyListener(new KLEventTitle());
 		infoPanel.add(fieldTitle, panelConstraints);
 
 		panelConstraints.gridx = 0;
-		panelConstraints.gridy = 6;
+		panelConstraints.gridy = 5;
 		panelConstraints.insets = rightInsets;
 		infoPanel.add(new JLabel("Eventbeschreibung:"), panelConstraints);
 		panelConstraints.gridx = 1;
-		panelConstraints.gridy = 6;
+		panelConstraints.gridy = 5;
 		panelConstraints.insets = leftInsets;
 		this.fieldDesc = new MyJTextField(MainWindow.DESCRMAXLENGTH);
 		infoPanel.add(this.fieldDesc, panelConstraints);
 
 		panelConstraints.gridx = 1;
-		panelConstraints.gridy = 7;
+		panelConstraints.gridy = 6;
 		panelConstraints.insets = leftInsets;
 		this.filedIntern = new JCheckBox("Intern", false);
 		infoPanel.add(this.filedIntern, panelConstraints);
