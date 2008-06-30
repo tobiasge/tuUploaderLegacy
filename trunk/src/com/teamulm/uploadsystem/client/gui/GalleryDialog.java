@@ -9,9 +9,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -21,12 +27,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 
 import com.teamulm.uploadsystem.client.Helper;
 import com.teamulm.uploadsystem.client.gui.comp.MyJButton;
 import com.teamulm.uploadsystem.client.gui.comp.MyJComboBox;
-import com.teamulm.uploadsystem.client.listener.al.ALUpdate;
 import com.teamulm.uploadsystem.client.transmitEngine.TrmEngine;
 import com.teamulm.uploadsystem.data.Gallery;
 
@@ -40,11 +46,9 @@ public class GalleryDialog extends JDialog {
 	private JTable galTable;
 	private String date;
 
-	public GalleryDialog(ArrayList<Gallery> galleries, String date) {
+	public GalleryDialog(String date) {
 		super(MainWindow.getInstance(), "Galerie auswählen", true);
-		this.myGalleries = galleries;
 		this.date = date;
-		Collections.sort(this.myGalleries, new GallerySorter());
 		this.setPreferredSize(new Dimension(450, 230));
 		this.setMinimumSize(new Dimension(450, 230));
 		this.setResizable(false);
@@ -110,20 +114,21 @@ public class GalleryDialog extends JDialog {
 				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scroller
 				.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		this.showGalleries();
 
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.insets = new Insets(0, 2, 0, 2);
 		constraints.gridx = 0;
 		constraints.gridy = 0;
 		constraints.anchor = GridBagConstraints.LINE_START;
-		JLabel oldGal = new JLabel("Schon vorhandene Galerie wählen (mit Doppelklick):");
+		JLabel oldGal = new JLabel(
+				"Schon vorhandene Galerie wählen (mit Doppelklick):");
 		oldGal.setToolTipText("Per Doppelklick auswählen");
 		this.add(oldGal, constraints);
 		constraints.insets = new Insets(4, 2, 0, 2);
 		constraints.gridx = 0;
 		constraints.gridy = 1;
 		this.add(scroller, constraints);
+		new GalleryLoader(this.date, this).execute();
 
 		JPanel buttonPanel = new JPanel(new GridBagLayout());
 		constraints.gridy = 0;
@@ -132,22 +137,20 @@ public class GalleryDialog extends JDialog {
 		constraints.gridy = 1;
 		constraints.gridx = 0;
 
-		JButton locUpdateButton = new MyJButton("Locations Update");
-		locUpdateButton.addActionListener(new ALUpdate(this));
-		locUpdateButton.setToolTipText("Lädt eine neue Locationsliste vom Server.");
-		buttonPanel.add(locUpdateButton, constraints);
 		locationsBox = new MyJComboBox();
-		locationsBox .setToolTipText("Hier die Location für eine neue Galerie wählen.");
-		locationsBox.setLocationsFile(Helper.getInstance().getFileLocation(
-				"locations.list"));
+
+		locationsBox
+				.setToolTipText("Hier die Location für eine neue Galerie wählen.");
 		constraints.gridy = 1;
 		constraints.gridx = 1;
 		buttonPanel.add(locationsBox, constraints);
+		new LocationsLoader(locationsBox).execute();
 		constraints.gridy = 1;
 		constraints.gridx = 2;
 		JButton newButton = new MyJButton("Galerie erstellen");
 		newButton.addActionListener(new NewGalleryListener());
-		newButton.setToolTipText("Erstellt eine neue Galerie in der gewählten Location.");
+		newButton
+				.setToolTipText("Erstellt eine neue Galerie in der gewählten Location.");
 		buttonPanel.add(newButton, constraints);
 
 		constraints.insets = new Insets(4, 0, 0, 2);
@@ -158,6 +161,7 @@ public class GalleryDialog extends JDialog {
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		this.setLocation((d.width - getSize().width) / 2,
 				(d.height - getSize().height) / 2);
+
 		this.setVisible(true);
 	}
 
@@ -173,6 +177,10 @@ public class GalleryDialog extends JDialog {
 							new Integer(gal.getPictures()),
 							new Boolean(gal.isIntern()) });
 		}
+	}
+
+	public void setGalleries(ArrayList<Gallery> galList) {
+		this.myGalleries = galList;
 	}
 
 	private void setColumnWidth(int column, int width) {
@@ -236,6 +244,83 @@ public class GalleryDialog extends JDialog {
 							"Bitte eine Galerie auswählen!", "Galerie...",
 							JOptionPane.ERROR_MESSAGE, null);
 				}
+			}
+		}
+	}
+
+	private class LocationsLoader extends SwingWorker<Void, Void> {
+
+		private MyJComboBox locationsBox;
+		private String fileName;
+
+		public LocationsLoader(MyJComboBox locationsBox) {
+			this.locationsBox = locationsBox;
+			this.fileName = Helper.getInstance().getFileLocation(
+					"locations.list");
+		}
+
+		@Override
+		protected Void doInBackground() throws Exception {
+			try {
+
+				URLConnection locationsURL = new URL(
+						"http://www.team-ulm.de/fotos/locations.php")
+						.openConnection();
+				int contentLength = locationsURL.getContentLength();
+				byte[] contentByteArray = new byte[contentLength];
+				InputStream fromServer = locationsURL.getInputStream();
+				int readBytes = fromServer.read(contentByteArray);
+				if (readBytes != contentLength)
+					throw new Exception("Content not fully read");
+				FileOutputStream out = new FileOutputStream(fileName);
+				out.write(contentByteArray);
+				out.flush();
+				out.close();
+			} catch (IOException ioEx) {
+				MainWindow.getInstance().addStatusLine(
+						"Konnte Liste nicht updaten");
+				Helper.getInstance().systemCrashHandler(ioEx);
+			}
+			return null;
+		}
+
+		@Override
+		protected void done() {
+			this.locationsBox.setLocationsFile(this.fileName);
+			MainWindow.getInstance().addStatusLine("Locations Update fertig");
+			super.done();
+		}
+	}
+
+	private class GalleryLoader extends SwingWorker<ArrayList<Gallery>, Void> {
+
+		private String date;
+		private GalleryDialog parent;
+
+		public GalleryLoader(String date, GalleryDialog parent) {
+			this.date = date;
+			this.parent = parent;
+		}
+
+		@Override
+		protected ArrayList<Gallery> doInBackground() throws Exception {
+			ArrayList<Gallery> galleryList = TrmEngine.getInstance()
+					.getGalleriesFor(this.date);
+			return galleryList;
+		}
+
+		@Override
+		protected void done() {
+			try {
+				ArrayList<Gallery> list = this.get();
+				Collections.sort(list, new GallerySorter());
+				this.parent.setGalleries(list);
+				this.parent.showGalleries();
+				MainWindow.getInstance().addStatusLine("Galerien laden fertig");
+			} catch (ExecutionException executionException) {
+
+			} catch (InterruptedException interruptedException) {
+
 			}
 		}
 	}

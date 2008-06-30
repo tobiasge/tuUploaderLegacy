@@ -2,7 +2,6 @@ package com.teamulm.uploadsystem.client.listener.al;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
@@ -12,7 +11,6 @@ import com.teamulm.uploadsystem.client.gui.GalleryDialog;
 import com.teamulm.uploadsystem.client.gui.MainWindow;
 import com.teamulm.uploadsystem.client.gui.comp.UserPassDialog;
 import com.teamulm.uploadsystem.client.transmitEngine.TrmEngine;
-import com.teamulm.uploadsystem.data.Gallery;
 
 public class ALGalleryLoad implements ActionListener {
 
@@ -45,15 +43,8 @@ public class ALGalleryLoad implements ActionListener {
 			}
 		}
 
-		ArrayList<Gallery> galleryList = TrmEngine.getInstance()
-				.getGalleriesFor(
-						MainWindow.getInstance().getDateEditor()
-								.getDateString());
-		log.debug("Found " + galleryList.size() + " galleries");
-
-		new GalleryDialog(galleryList, MainWindow.getInstance().getDateEditor()
+		new GalleryDialog(MainWindow.getInstance().getDateEditor()
 				.getDateString());
 	}
 
-	
 }
