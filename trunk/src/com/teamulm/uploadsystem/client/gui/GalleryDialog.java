@@ -248,7 +248,7 @@ public class GalleryDialog extends JDialog {
 		}
 	}
 
-	private class LocationsLoader extends SwingWorker<Void, Void> {
+	private class LocationsLoader extends SwingWorker<byte[], Void> {
 
 		private MyJComboBox locationsBox;
 		private String fileName;
@@ -260,7 +260,7 @@ public class GalleryDialog extends JDialog {
 		}
 
 		@Override
-		protected Void doInBackground() throws Exception {
+		protected byte[] doInBackground() throws Exception {
 			try {
 
 				URLConnection locationsURL = new URL(
@@ -276,6 +276,7 @@ public class GalleryDialog extends JDialog {
 				out.write(contentByteArray);
 				out.flush();
 				out.close();
+				return contentByteArray;
 			} catch (IOException ioEx) {
 				MainWindow.getInstance().addStatusLine(
 						"Konnte Liste nicht updaten");
@@ -286,9 +287,16 @@ public class GalleryDialog extends JDialog {
 
 		@Override
 		protected void done() {
-			this.locationsBox.setLocationsFile(this.fileName);
-			MainWindow.getInstance().addStatusLine("Locations Update fertig");
-			super.done();
+			try {
+				this.locationsBox.setLocations(this.get());
+				MainWindow.getInstance().addStatusLine(
+						"Locations Update fertig");
+				super.done();
+			} catch (ExecutionException executionException) {
+
+			} catch (InterruptedException interruptedException) {
+
+			}
 		}
 	}
 

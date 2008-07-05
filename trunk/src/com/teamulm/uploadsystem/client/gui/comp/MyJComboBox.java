@@ -17,19 +17,34 @@ public class MyJComboBox extends JComboBox {
 		return (String) this.getSelectedItem();
 	}
 
-	public void setLocationsFile(String fileName) {
+	public void setLocations(String fileName) {
 		String[] loc = Helper.getInstance().readFileData(fileName, true);
 		if (loc != null) {
-			this.removeAllItems();
-			this.addItem("    -- Bitte wählen --");
-			for (String element : loc)
-				this.addItem(element);
+			this.setLocations(loc);
 		} else {
 			MainWindow.getInstance().addStatusLine(
 					"Locationsdatei nicht gefunden");
 		}
 	}
+	
+	public void setLocations(byte[] data) {
+		String[] loc = Helper.getInstance().readFileData(data, true);
+		if (loc != null) {
+			this.setLocations(loc);
+		} else {
+			MainWindow.getInstance().addStatusLine(
+					"Fehler im Locationsarray");
+		}
+	}
 
+	private void setLocations(String[] locations) {
+		this.removeAllItems();
+		this.addItem("    -- Bitte wählen --");
+		for (String element : locations)
+			this.addItem(element);
+
+	}
+	
 	@Override
 	public Dimension getPreferredSize() {
 		return new Dimension(140, 20);

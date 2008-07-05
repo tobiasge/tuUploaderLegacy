@@ -1,6 +1,7 @@
 package com.teamulm.uploadsystem.client;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -50,6 +51,26 @@ public class Helper {
 			inputStream.close();
 		} catch (Exception ex) {
 			log.error("could not read file: " + fileName);
+			return null;
+		}
+		Object[] list = listData.toArray();
+		String[] ret = new String[list.length];
+		for (int i = 0; i < ret.length; i++)
+			ret[i] = (String) list[i];
+		return ret;
+	}
+
+	public String[] readFileData(byte[] data, boolean reportError) {
+		ArrayList<String> listData = new ArrayList<String>();
+		BufferedReader inputStream = null;
+		String inDataStr = null;
+		try {
+			inputStream = new BufferedReader(new InputStreamReader(
+					new ByteArrayInputStream(data)));
+			while ((inDataStr = inputStream.readLine()) != null)
+				listData.add(inDataStr);
+			inputStream.close();
+		} catch (Exception ex) {
 			return null;
 		}
 		Object[] list = listData.toArray();
