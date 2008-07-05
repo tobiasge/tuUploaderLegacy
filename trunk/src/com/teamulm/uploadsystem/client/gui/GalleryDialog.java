@@ -39,7 +39,7 @@ import com.teamulm.uploadsystem.data.Gallery;
 public class GalleryDialog extends JDialog {
 
 	private static final long serialVersionUID = -9193707556220629559L;
-
+	private static boolean locationsLoaded = false;
 	private ArrayList<Gallery> myGalleries;
 	private DefaultTableModel galTableModel;
 	private MyJComboBox locationsBox;
@@ -261,41 +261,54 @@ public class GalleryDialog extends JDialog {
 
 		@Override
 		protected byte[] doInBackground() throws Exception {
+			byte[] contentByteArray = null;
+			if (GalleryDialog.locationsLoaded)
+				return null;
 			try {
 
 				URLConnection locationsURL = new URL(
 						"http://www.team-ulm.de/fotos/locations.php")
 						.openConnection();
 				int contentLength = locationsURL.getContentLength();
-				byte[] contentByteArray = new byte[contentLength];
+				contentByteArray = new byte[contentLength];
 				InputStream fromServer = locationsURL.getInputStream();
 				int readBytes = fromServer.read(contentByteArray);
 				if (readBytes != contentLength)
 					throw new Exception("Content not fully read");
-				FileOutputStream out = new FileOutputStream(fileName);
-				out.write(contentByteArray);
-				out.flush();
-				out.close();
-				return contentByteArray;
+				MainWindow.getInstance().addStatusLine(
+						"Locations Update fertig");
+				GalleryDialog.locationsLoaded = true;
 			} catch (IOException ioEx) {
 				MainWindow.getInstance().addStatusLine(
 						"Konnte Liste nicht updaten");
 				Helper.getInstance().systemCrashHandler(ioEx);
+				return null;
 			}
-			return null;
+			try {
+				FileOutputStream out = new FileOutputStream(fileName);
+				out.write(contentByteArray);
+				out.flush();
+				out.close();
+			} catch (IOException ioEx) {
+				MainWindow.getInstance().addStatusLine(
+						"Konnte Liste nicht speichern");
+				Helper.getInstance().systemCrashHandler(ioEx);
+			}
+			return contentByteArray;
 		}
 
 		@Override
 		protected void done() {
+			byte[] locations;
 			try {
-				this.locationsBox.setLocations(this.get());
-				MainWindow.getInstance().addStatusLine(
-						"Locations Update fertig");
-				super.done();
+				locations = this.get();
+				if (null == locations) {
+					this.locationsBox.setLocations(this.fileName);
+				} else {
+					this.locationsBox.setLocations(locations);
+				}
 			} catch (ExecutionException executionException) {
-
 			} catch (InterruptedException interruptedException) {
-
 			}
 		}
 	}
