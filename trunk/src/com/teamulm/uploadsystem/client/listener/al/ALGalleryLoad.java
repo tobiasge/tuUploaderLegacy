@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 
 import com.teamulm.uploadsystem.client.gui.GalleryDialog;
 import com.teamulm.uploadsystem.client.gui.MainWindow;
-import com.teamulm.uploadsystem.client.gui.comp.UserPassDialog;
+import com.teamulm.uploadsystem.client.gui.UserPassDialog;
 import com.teamulm.uploadsystem.client.transmitEngine.TrmEngine;
 
 public class ALGalleryLoad implements ActionListener {

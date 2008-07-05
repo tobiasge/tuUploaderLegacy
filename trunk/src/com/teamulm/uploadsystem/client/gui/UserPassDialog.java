@@ -1,4 +1,4 @@
-package com.teamulm.uploadsystem.client.gui.comp;
+package com.teamulm.uploadsystem.client.gui;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -13,7 +13,6 @@ import javax.swing.JTextField;
 
 import org.apache.log4j.Logger;
 
-import com.teamulm.uploadsystem.client.gui.MainWindow;
 
 public class UserPassDialog {
 

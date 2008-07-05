@@ -20,7 +20,7 @@ import javax.swing.JOptionPane;
 import org.apache.log4j.Logger;
 
 import com.teamulm.uploadsystem.client.gui.MainWindow;
-import com.teamulm.uploadsystem.client.gui.comp.UserPassDialog;
+import com.teamulm.uploadsystem.client.gui.UserPassDialog;
 import com.teamulm.uploadsystem.client.transmitEngine.TrmEngine;
 
 public class ALConAUpl implements ActionListener {
