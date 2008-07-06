@@ -1,5 +1,6 @@
 package com.teamulm.uploadsystem.client.gui;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -7,6 +8,8 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.FileOutputStream;
@@ -20,6 +23,7 @@ import java.util.Comparator;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -33,6 +37,7 @@ import javax.swing.table.DefaultTableModel;
 import com.teamulm.uploadsystem.client.Helper;
 import com.teamulm.uploadsystem.client.gui.comp.MyJButton;
 import com.teamulm.uploadsystem.client.gui.comp.MyJComboBox;
+import com.teamulm.uploadsystem.client.gui.comp.MyJTextField;
 import com.teamulm.uploadsystem.client.transmitEngine.TrmEngine;
 import com.teamulm.uploadsystem.data.Gallery;
 
@@ -43,14 +48,16 @@ public class GalleryDialog extends JDialog {
 	private ArrayList<Gallery> myGalleries;
 	private DefaultTableModel galTableModel;
 	private MyJComboBox locationsBox;
+	private MyJTextField titleField, descField;
 	private JTable galTable;
 	private String date;
 
 	public GalleryDialog(String date) {
-		super(MainWindow.getInstance(), "Galerie auswählen", true);
+		super(MainWindow.getInstance(), "Galerien vom "
+				+ date.replace('-', '.'), true);
 		this.date = date;
-		this.setPreferredSize(new Dimension(450, 230));
-		this.setMinimumSize(new Dimension(450, 230));
+		this.setPreferredSize(new Dimension(450, 260));
+		this.setMinimumSize(new Dimension(450, 260));
 		this.setResizable(false);
 
 		this.setLayout(new GridBagLayout());
@@ -90,26 +97,10 @@ public class GalleryDialog extends JDialog {
 		this.setColumnWidth(3, 50);
 
 		this.galTable.addMouseListener(new OldGalleryListener());
-		this.galTable.setToolTipText("Per Doppelklick auswählen");
 
-		JScrollPane scroller = new JScrollPane(this.galTable) {
-			private static final long serialVersionUID = 0L;
-
-			@Override
-			public Dimension getPreferredSize() {
-				return new Dimension(428, 120);
-			}
-
-			@Override
-			public Dimension getMinimumSize() {
-				return new Dimension(428, 120);
-			}
-
-			@Override
-			public Dimension getMaximumSize() {
-				return new Dimension(428, 120);
-			}
-		};
+		JScrollPane scroller = new JScrollPane(this.galTable);
+		scroller.setPreferredSize(new Dimension(428, 120));
+		scroller.setMinimumSize(new Dimension(428, 120));
 		scroller
 				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scroller
@@ -122,7 +113,6 @@ public class GalleryDialog extends JDialog {
 		constraints.anchor = GridBagConstraints.LINE_START;
 		JLabel oldGal = new JLabel(
 				"Schon vorhandene Galerie wählen (mit Doppelklick):");
-		oldGal.setToolTipText("Per Doppelklick auswählen");
 		this.add(oldGal, constraints);
 		constraints.insets = new Insets(4, 2, 0, 2);
 		constraints.gridx = 0;
@@ -130,33 +120,9 @@ public class GalleryDialog extends JDialog {
 		this.add(scroller, constraints);
 		new GalleryLoader(this.date, this).execute();
 
-		JPanel buttonPanel = new JPanel(new GridBagLayout());
-		constraints.gridy = 0;
-		constraints.gridx = 0;
-		buttonPanel.add(new JLabel("Neue Galerie erstellen:"), constraints);
-		constraints.gridy = 1;
-		constraints.gridx = 0;
-
-		locationsBox = new MyJComboBox();
-
-		locationsBox
-				.setToolTipText("Hier die Location für eine neue Galerie wählen.");
-		constraints.gridy = 1;
-		constraints.gridx = 1;
-		buttonPanel.add(locationsBox, constraints);
-		new LocationsLoader(locationsBox).execute();
-		constraints.gridy = 1;
-		constraints.gridx = 2;
-		JButton newButton = new MyJButton("Galerie erstellen");
-		newButton.addActionListener(new NewGalleryListener());
-		newButton
-				.setToolTipText("Erstellt eine neue Galerie in der gewählten Location.");
-		buttonPanel.add(newButton, constraints);
-
-		constraints.insets = new Insets(4, 0, 0, 2);
 		constraints.gridx = 0;
 		constraints.gridy = 2;
-		this.add(buttonPanel, constraints);
+		this.add(this.buildNewGalPanel(), constraints);
 
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		this.setLocation((d.width - getSize().width) / 2,
@@ -188,6 +154,65 @@ public class GalleryDialog extends JDialog {
 				width);
 		this.galTable.getColumnModel().getColumn(column).setMaxWidth(width);
 		this.galTable.getColumnModel().getColumn(column).setMinWidth(width);
+	}
+
+	private JPanel buildNewGalPanel() {
+		JPanel newPanel = new JPanel();
+		newPanel.setPreferredSize(new Dimension(428, 80));
+		newPanel.setMinimumSize(new Dimension(428, 80));
+		newPanel.setLayout(new GridBagLayout());
+		JPanel line1Panel = new JPanel();
+		line1Panel.setPreferredSize(new Dimension(428, 24));
+		line1Panel.setMinimumSize(new Dimension(428, 24));
+		line1Panel.setLayout(new GridBagLayout());
+		GridBagConstraints cons = new GridBagConstraints();
+		cons.anchor = GridBagConstraints.LINE_START;
+		cons.gridx = 0;
+		cons.gridy = 0;
+		cons.insets = new Insets(0, 0, 0, 5);
+		this.locationsBox = new MyJComboBox();
+		new LocationsLoader(this.locationsBox).execute();
+		line1Panel.add(this.locationsBox, cons);
+
+		cons.gridx = 1;
+		cons.gridy = 0;
+		cons.insets = new Insets(0, 0, 0, 70);
+		this.titleField = new MyJTextField(100);
+		this.titleField.setPreferredSize(new Dimension(170, 20));
+		this.titleField.setMinimumSize(new Dimension(170, 20));
+		this.titleField.setForeground(Color.GRAY);
+		this.titleField.setText("Titel");
+		this.titleField.addFocusListener(new TextFieldFocus("Titel"));
+		line1Panel.add(this.titleField, cons);
+
+		cons.gridx = 2;
+		cons.gridy = 0;
+		cons.anchor = GridBagConstraints.LINE_END;
+		cons.insets = new Insets(0, 0, 0, 42);
+		line1Panel.add(new JCheckBox(), cons);
+
+		cons.gridx = 0;
+		cons.gridy = 0;
+		cons.anchor = GridBagConstraints.LINE_START;
+		cons.insets = new Insets(4, 2, 0, 2);
+		newPanel.add(line1Panel, cons);
+
+		cons.gridx = 0;
+		cons.gridy = 1;
+		this.descField = new MyJTextField(1000);
+		this.descField.setForeground(Color.GRAY);
+		this.descField.setText("Beschreibung");
+		this.descField.addFocusListener(new TextFieldFocus("Beschreibung"));
+		this.descField.setPreferredSize(new Dimension(428, 20));
+		this.descField.setMinimumSize(new Dimension(428, 20));
+		newPanel.add(this.descField, cons);
+
+		cons.gridx = 0;
+		cons.gridy = 2;
+		cons.anchor = GridBagConstraints.LINE_END;
+		newPanel.add(new MyJButton("Übernehmen"), cons);
+
+		return newPanel;
 	}
 
 	private class GallerySorter implements Comparator<Gallery> {
@@ -342,6 +367,36 @@ public class GalleryDialog extends JDialog {
 
 			} catch (InterruptedException interruptedException) {
 
+			}
+		}
+	}
+
+	private class TextFieldFocus implements FocusListener {
+
+		private String defaultString = "";
+
+		TextFieldFocus(String defaultString) {
+			this.defaultString = defaultString;
+		}
+
+		public void focusGained(FocusEvent e) {
+			if (!(e.getSource() instanceof MyJTextField))
+				return;
+			MyJTextField field = (MyJTextField) e.getSource();
+			if (field.getText().equalsIgnoreCase(defaultString)) {
+				field.setText("");
+				field.setForeground(Color.BLACK);
+			}
+		}
+
+		public void focusLost(FocusEvent e) {
+			if (!(e.getSource() instanceof MyJTextField))
+				return;
+			MyJTextField field = (MyJTextField) e.getSource();
+			if (field.getText().equalsIgnoreCase("")
+					|| field.getText().equalsIgnoreCase(this.defaultString)) {
+				field.setForeground(Color.GRAY);
+				field.setText(this.defaultString);
 			}
 		}
 	}

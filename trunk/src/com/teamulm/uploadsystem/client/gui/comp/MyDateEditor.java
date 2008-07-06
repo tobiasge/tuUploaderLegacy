@@ -18,6 +18,9 @@ public class MyDateEditor extends JDateChooser {
 		super(new Date(), "dd.MM.yyyy");
 		this.setLocale(Locale.GERMANY);
 		this.setMaxSelectableDate(new Date());
+		Calendar cal = GregorianCalendar.getInstance();
+		cal.add(Calendar.DATE, -1);
+		this.setDate(cal.getTime());
 	}
 
 	@Override
