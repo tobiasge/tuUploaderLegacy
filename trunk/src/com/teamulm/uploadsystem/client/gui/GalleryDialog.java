@@ -112,7 +112,7 @@ public class GalleryDialog extends JDialog {
 		constraints.gridy = 0;
 		constraints.anchor = GridBagConstraints.LINE_START;
 		JLabel oldGal = new JLabel(
-				"Schon vorhandene Galerie wählen (mit Doppelklick):");
+				"Schon vorhandene Galerie wählen oder neue Galerie erstellen:");
 		this.add(oldGal, constraints);
 		constraints.insets = new Insets(4, 2, 0, 2);
 		constraints.gridx = 0;
