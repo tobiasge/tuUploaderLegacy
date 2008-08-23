@@ -35,6 +35,7 @@ import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 
 import com.teamulm.uploadsystem.client.Helper;
+import com.teamulm.uploadsystem.client.TeamUlmUpload;
 import com.teamulm.uploadsystem.client.gui.comp.MyJButton;
 import com.teamulm.uploadsystem.client.gui.comp.MyJComboBox;
 import com.teamulm.uploadsystem.client.gui.comp.MyJTextField;
@@ -290,10 +291,12 @@ public class GalleryDialog extends JDialog {
 			if (GalleryDialog.locationsLoaded)
 				return null;
 			try {
-
-				URLConnection locationsURL = new URL(
-						"http://www.team-ulm.de/fotos/locations.php")
-						.openConnection();
+				String locURL = TeamUlmUpload.getInstance().getClientConf()
+						.getProperty("locationList");
+				if (locURL.trim().length() == 0) {
+					locURL = "http://www.team-ulm.de/fotos/locations.php";
+				}
+				URLConnection locationsURL = new URL(locURL).openConnection();
 				int contentLength = locationsURL.getContentLength();
 				contentByteArray = new byte[contentLength];
 				InputStream fromServer = locationsURL.getInputStream();
