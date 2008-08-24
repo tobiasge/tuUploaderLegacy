@@ -81,7 +81,7 @@ public class Helper {
 	}
 
 	public void systemCrashHandler(Exception error) {
-		log.error("" + error.getMessage());
+		log.error("", error);
 		StringWriter sw = new StringWriter();
 		error.printStackTrace(new PrintWriter(sw));
 		String stackTrace = sw.toString();
