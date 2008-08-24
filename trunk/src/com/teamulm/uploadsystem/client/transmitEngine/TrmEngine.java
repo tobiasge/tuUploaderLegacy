@@ -23,7 +23,7 @@ public class TrmEngine extends Thread {
 
 	private static TrmEngine instance;
 
-	public static final String VERSION = "4.0";
+	public static final String VERSION = "4.5";
 
 	private Vector<File> toconvert;
 
@@ -219,7 +219,6 @@ public class TrmEngine extends Thread {
 
 	public boolean login(String userName, String passWord) {
 		this.loggedIn = this.transmit.login(userName, passWord);
-		;
 		return this.loggedIn;
 	}
 
