@@ -118,7 +118,7 @@ public class UploadServ extends Thread {
 			log.error(this.clientip + ": Lost Connection to " + this.clientip);
 			this.cleanUp();
 		} else {
-			log.error(this.clientip + ": Unknown Exception: " + exc.getClass());
+			log.error(this.clientip + ": Unknown Exception", exc);
 			exc.printStackTrace(System.err);
 			this.cleanUp();
 		}
