@@ -10,7 +10,6 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Properties;
 
@@ -82,35 +81,12 @@ public class UploadServ extends Thread {
 		}
 	}
 
-	private String compute(String inStr) {
-		MessageDigest md5 = null;
-		try {
-			md5 = MessageDigest.getInstance("MD5");
-		} catch (Exception e) {
-		}
-		char[] charArray = inStr.toCharArray();
-		byte[] byteArray = new byte[charArray.length];
-		for (int i = 0; i < charArray.length; i++)
-			byteArray[i] = (byte) charArray[i];
-		byte[] md5Bytes = md5.digest(byteArray);
-		StringBuffer hexValue = new StringBuffer();
-		for (int i = 0; i < md5Bytes.length; i++) {
-			int val = ((int) md5Bytes[i]) & 0xff;
-			if (val < 16)
-				hexValue.append("0");
-			hexValue.append(Integer.toHexString(val));
-		}
-		return hexValue.toString();
-	}
-
 	private boolean authenticateUser(String user, String passwd) {
 		boolean authenticationOk = false;
-		// encrypt password
-		String encPass = this.compute(passwd);
 		this.user = DBConn.getInstance().getUserForName(user);
 		authenticationOk = (null != passwd) && (null != this.user)
 				&& (!passwd.equals(""))
-				&& (encPass.equalsIgnoreCase(this.user.getPassword()));
+				&& (passwd.equalsIgnoreCase(this.user.getPassword()));
 		if (authenticationOk)
 			return true;
 		else {
