@@ -371,7 +371,8 @@ public class Transmitter extends Thread {
 			if (Transmitter.this.isConnected()) {
 				log.debug("sending PingCmd");
 				try {
-					Transmitter.this.sendAndRead(new PingCmd());
+					log.debug("Server said: "
+							+ Transmitter.this.sendAndRead(new PingCmd()));
 				} catch (AuthenticationException authEx) {
 				}
 			}
