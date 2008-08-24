@@ -47,16 +47,16 @@ public class MyJComboBox extends JComboBox {
 	
 	@Override
 	public Dimension getPreferredSize() {
-		return new Dimension(140, 20);
+		return new Dimension(135, 20);
 	}
 
 	@Override
 	public Dimension getMaximumSize() {
-		return new Dimension(140, 20);
+		return new Dimension(135, 20);
 	}
 
 	@Override
 	public Dimension getMinimumSize() {
-		return new Dimension(140, 20);
+		return new Dimension(135, 20);
 	}
 }

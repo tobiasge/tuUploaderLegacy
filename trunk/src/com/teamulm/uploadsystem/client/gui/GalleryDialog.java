@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.concurrent.ExecutionException;
 
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -92,10 +91,10 @@ public class GalleryDialog extends JDialog {
 		this.galTable.getTableHeader().setReorderingAllowed(false);
 		this.galTable.getTableHeader().setResizingAllowed(false);
 		this.galTable.getColumnModel().setColumnMargin(7);
-		this.setColumnWidth(0, 140);
-		this.setColumnWidth(1, 170);
-		this.setColumnWidth(2, 50);
-		this.setColumnWidth(3, 50);
+		this.setColumnWidth(0, 130);
+		this.setColumnWidth(1, 200);
+		this.setColumnWidth(2, 40);
+		this.setColumnWidth(3, 40);
 
 		this.galTable.addMouseListener(new OldGalleryListener());
 
@@ -177,10 +176,10 @@ public class GalleryDialog extends JDialog {
 
 		cons.gridx = 1;
 		cons.gridy = 0;
-		cons.insets = new Insets(0, 0, 0, 70);
+		cons.insets = new Insets(0, 0, 0, 50);
 		this.titleField = new MyJTextField(100);
-		this.titleField.setPreferredSize(new Dimension(170, 20));
-		this.titleField.setMinimumSize(new Dimension(170, 20));
+		this.titleField.setPreferredSize(new Dimension(200, 20));
+		this.titleField.setMinimumSize(new Dimension(200, 20));
 		this.titleField.setForeground(Color.GRAY);
 		this.titleField.setText("Titel");
 		this.titleField.addFocusListener(new TextFieldFocus("Titel"));
@@ -189,7 +188,7 @@ public class GalleryDialog extends JDialog {
 		cons.gridx = 2;
 		cons.gridy = 0;
 		cons.anchor = GridBagConstraints.LINE_END;
-		cons.insets = new Insets(0, 0, 0, 42);
+		cons.insets = new Insets(0, 0, 0, 36);
 		line1Panel.add(new JCheckBox(), cons);
 
 		cons.gridx = 0;
@@ -248,8 +247,11 @@ public class GalleryDialog extends JDialog {
 	private class OldGalleryListener extends MouseAdapter {
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			if (e.getClickCount() == 2)
+			if (e.getClickCount() == 2) {
 				this.selectOld();
+			} else if (e.getClickCount() == 1) {
+
+			}
 		}
 
 		private void selectOld() {
