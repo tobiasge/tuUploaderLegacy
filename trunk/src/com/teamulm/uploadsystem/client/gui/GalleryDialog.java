@@ -51,10 +51,10 @@ public class GalleryDialog extends JDialog {
 	private MyJTextField titleField, descField;
 	private JTable galTable;
 	private String date;
+	private JCheckBox isIntern;
 
 	public GalleryDialog(String date) {
-		super(MainWindow.getInstance(), "Galerien vom "
-				+ date.replace('-', '.'), true);
+		super(MainWindow.getInstance(), "Galerien vom " + date.replace('-', '.'), true);
 		this.date = date;
 		this.setPreferredSize(new Dimension(450, 260));
 		this.setMinimumSize(new Dimension(450, 260));
@@ -101,18 +101,15 @@ public class GalleryDialog extends JDialog {
 		JScrollPane scroller = new JScrollPane(this.galTable);
 		scroller.setPreferredSize(new Dimension(428, 120));
 		scroller.setMinimumSize(new Dimension(428, 120));
-		scroller
-				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		scroller
-				.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		scroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.insets = new Insets(0, 2, 0, 2);
 		constraints.gridx = 0;
 		constraints.gridy = 0;
 		constraints.anchor = GridBagConstraints.LINE_START;
-		JLabel oldGal = new JLabel(
-				"Schon vorhandene Galerie wählen oder neue Galerie erstellen:");
+		JLabel oldGal = new JLabel("Schon vorhandene Galerie wählen oder neue Galerie erstellen:");
 		this.add(oldGal, constraints);
 		constraints.insets = new Insets(4, 2, 0, 2);
 		constraints.gridx = 0;
@@ -125,8 +122,7 @@ public class GalleryDialog extends JDialog {
 		this.add(this.buildNewGalPanel(), constraints);
 
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-		this.setLocation((d.width - getSize().width) / 2,
-				(d.height - getSize().height) / 2);
+		this.setLocation((d.width - getSize().width) / 2, (d.height - getSize().height) / 2);
 
 		this.setVisible(true);
 	}
@@ -138,10 +134,8 @@ public class GalleryDialog extends JDialog {
 	private void showGalleries() {
 		this.galTableModel.setRowCount(0);
 		for (Gallery gal : this.myGalleries) {
-			this.galTableModel
-					.addRow(new Object[] { gal, gal.getTitle(),
-							new Integer(gal.getPictures()),
-							new Boolean(gal.isIntern()) });
+			this.galTableModel.addRow(new Object[] { gal, gal.getTitle(), new Integer(gal.getPictures()),
+					new Boolean(gal.isIntern()) });
 		}
 	}
 
@@ -150,8 +144,7 @@ public class GalleryDialog extends JDialog {
 	}
 
 	private void setColumnWidth(int column, int width) {
-		this.galTable.getColumnModel().getColumn(column).setPreferredWidth(
-				width);
+		this.galTable.getColumnModel().getColumn(column).setPreferredWidth(width);
 		this.galTable.getColumnModel().getColumn(column).setMaxWidth(width);
 		this.galTable.getColumnModel().getColumn(column).setMinWidth(width);
 	}
@@ -189,7 +182,8 @@ public class GalleryDialog extends JDialog {
 		cons.gridy = 0;
 		cons.anchor = GridBagConstraints.LINE_END;
 		cons.insets = new Insets(0, 0, 0, 36);
-		line1Panel.add(new JCheckBox(), cons);
+		this.isIntern = new JCheckBox();
+		line1Panel.add(this.isIntern, cons);
 
 		cons.gridx = 0;
 		cons.gridy = 0;
@@ -228,17 +222,13 @@ public class GalleryDialog extends JDialog {
 	private class NewGalleryListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			if (GalleryDialog.this.getLocationsBox().getSelectedItem() instanceof String
-					&& ((String) GalleryDialog.this.locationsBox
-							.getSelectedItem())
-							.compareTo("    -- Bitte wählen --") != 0) {
+					&& ((String) GalleryDialog.this.locationsBox.getSelectedItem()).compareTo("    -- Bitte wählen --") != 0) {
 				MainWindow.getInstance().setGallery(
-						TrmEngine.getInstance().newGallery(
-								(String) GalleryDialog.this.locationsBox
-										.getSelectedItem(), date));
+						TrmEngine.getInstance().newGallery((String) GalleryDialog.this.locationsBox.getSelectedItem(),
+								date));
 				GalleryDialog.this.dispose();
 			} else {
-				JOptionPane.showMessageDialog(GalleryDialog.this,
-						"Bitte eine Location auswählen!", "Location...",
+				JOptionPane.showMessageDialog(GalleryDialog.this, "Bitte eine Location auswählen!", "Location...",
 						JOptionPane.ERROR_MESSAGE, null);
 			}
 		}
@@ -256,20 +246,16 @@ public class GalleryDialog extends JDialog {
 
 		private void selectOld() {
 			if (-1 == GalleryDialog.this.galTable.getSelectedRow()) {
-				JOptionPane.showMessageDialog(GalleryDialog.this,
-						"Bitte eine Galerie auswählen!", "Galerie...",
+				JOptionPane.showMessageDialog(GalleryDialog.this, "Bitte eine Galerie auswählen!", "Galerie...",
 						JOptionPane.ERROR_MESSAGE, null);
 			} else {
-				if (GalleryDialog.this.galTable.getValueAt(
-						GalleryDialog.this.galTable.getSelectedRow(), 0) instanceof Gallery) {
+				if (GalleryDialog.this.galTable.getValueAt(GalleryDialog.this.galTable.getSelectedRow(), 0) instanceof Gallery) {
 					MainWindow.getInstance().setGallery(
-							(Gallery) GalleryDialog.this.galTable.getValueAt(
-									GalleryDialog.this.galTable
-											.getSelectedRow(), 0));
+							(Gallery) GalleryDialog.this.galTable.getValueAt(GalleryDialog.this.galTable
+									.getSelectedRow(), 0));
 					GalleryDialog.this.dispose();
 				} else {
-					JOptionPane.showMessageDialog(GalleryDialog.this,
-							"Bitte eine Galerie auswählen!", "Galerie...",
+					JOptionPane.showMessageDialog(GalleryDialog.this, "Bitte eine Galerie auswählen!", "Galerie...",
 							JOptionPane.ERROR_MESSAGE, null);
 				}
 			}
@@ -283,8 +269,7 @@ public class GalleryDialog extends JDialog {
 
 		public LocationsLoader(MyJComboBox locationsBox) {
 			this.locationsBox = locationsBox;
-			this.fileName = Helper.getInstance().getFileLocation(
-					"locations.list");
+			this.fileName = Helper.getInstance().getFileLocation("locations.list");
 		}
 
 		@Override
@@ -293,8 +278,7 @@ public class GalleryDialog extends JDialog {
 			if (GalleryDialog.locationsLoaded)
 				return null;
 			try {
-				String locURL = TeamUlmUpload.getInstance().getClientConf()
-						.getProperty("locationList");
+				String locURL = TeamUlmUpload.getInstance().getClientConf().getProperty("locationList");
 				if (locURL.trim().length() == 0) {
 					locURL = "http://www.team-ulm.de/fotos/locations.php";
 				}
@@ -305,12 +289,10 @@ public class GalleryDialog extends JDialog {
 				int readBytes = fromServer.read(contentByteArray);
 				if (readBytes != contentLength)
 					throw new Exception("Content not fully read");
-				MainWindow.getInstance().addStatusLine(
-						"Locations Update fertig");
+				MainWindow.getInstance().addStatusLine("Locations Update fertig");
 				GalleryDialog.locationsLoaded = true;
 			} catch (IOException ioEx) {
-				MainWindow.getInstance().addStatusLine(
-						"Konnte Liste nicht updaten");
+				MainWindow.getInstance().addStatusLine("Konnte Liste nicht updaten");
 				Helper.getInstance().systemCrashHandler(ioEx);
 				return null;
 			}
@@ -320,8 +302,7 @@ public class GalleryDialog extends JDialog {
 				out.flush();
 				out.close();
 			} catch (IOException ioEx) {
-				MainWindow.getInstance().addStatusLine(
-						"Konnte Liste nicht speichern");
+				MainWindow.getInstance().addStatusLine("Konnte Liste nicht speichern");
 				Helper.getInstance().systemCrashHandler(ioEx);
 			}
 			return contentByteArray;
@@ -355,8 +336,7 @@ public class GalleryDialog extends JDialog {
 
 		@Override
 		protected ArrayList<Gallery> doInBackground() throws Exception {
-			ArrayList<Gallery> galleryList = TrmEngine.getInstance()
-					.getGalleriesFor(this.date);
+			ArrayList<Gallery> galleryList = TrmEngine.getInstance().getGalleriesFor(this.date);
 			return galleryList;
 		}
 
@@ -398,8 +378,7 @@ public class GalleryDialog extends JDialog {
 			if (!(e.getSource() instanceof MyJTextField))
 				return;
 			MyJTextField field = (MyJTextField) e.getSource();
-			if (field.getText().equalsIgnoreCase("")
-					|| field.getText().equalsIgnoreCase(this.defaultString)) {
+			if (field.getText().equalsIgnoreCase("") || field.getText().equalsIgnoreCase(this.defaultString)) {
 				field.setForeground(Color.GRAY);
 				field.setText(this.defaultString);
 			}
