@@ -6,9 +6,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -112,14 +114,18 @@ public class Transmitter extends Thread {
 
 	private String compute(String inStr) {
 		MessageDigest md5 = null;
+		byte[] byteArray = null;
 		try {
 			md5 = MessageDigest.getInstance("MD5");
-		} catch (Exception e) {
+			byteArray = inStr.getBytes("UTF-8");
+		} catch (NoSuchAlgorithmException e) {
+			Helper.getInstance().systemCrashHandler(e);
+			return "";
+		} catch (UnsupportedEncodingException e) {
+			Helper.getInstance().systemCrashHandler(e);
+			return "";
 		}
-		char[] charArray = inStr.toCharArray();
-		byte[] byteArray = new byte[charArray.length];
-		for (int i = 0; i < charArray.length; i++)
-			byteArray[i] = (byte) charArray[i];
+
 		byte[] md5Bytes = md5.digest(byteArray);
 		StringBuffer hexValue = new StringBuffer();
 		for (int i = 0; i < md5Bytes.length; i++) {
