@@ -42,6 +42,7 @@ public class TeamUlmUpload {
 	
 	// Konstruktor
 	private TeamUlmUpload() {
+		Thread.currentThread().setName("Main");
 		OperatingSystemMXBean sysInfo1 = ManagementFactory
 				.getOperatingSystemMXBean();
 		MemoryMXBean sysInfo2 = ManagementFactory.getMemoryMXBean();
