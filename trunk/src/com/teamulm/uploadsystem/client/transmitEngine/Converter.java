@@ -118,6 +118,11 @@ public class Converter extends Thread {
 					outPicName = new File(this.savePath + this.fileSep
 							+ this.bigPicName + number + ".jpg");
 					outPic = this.myImageConverter.createPic(actPic);
+					if (null == outPic) {
+						MainWindow.getInstance().addStatusLine(
+						"Bild ignoriert: Bild hat falsches Format.");
+						continue;
+					}
 					ImageIO.write(outPic, "jpg", outPicName);
 					this.chef.setToTransmit(outPicName);
 					// Großes Bild geschrieben
@@ -195,6 +200,12 @@ class ImageConverter {
 		return diff < (double) 0.05;
 	}
 
+	private boolean isDefaultPicture(BufferedImage pic) {
+		double aspectRatio = (double) pic.getWidth() / (double) pic.getHeight();
+		double diff = Math.abs(aspectRatio - ((double) 4 / (double) 3));
+		return diff < (double) 0.05;
+	}
+	
 	private boolean isUprightPicture(BufferedImage pic) {
 		return pic.getHeight() > pic.getWidth();
 	}
@@ -229,11 +240,13 @@ class ImageConverter {
 			graf.drawImage(temp, xMove, 0, null);
 			graf.dispose();
 			return target;
-		} else {
+		} else if(this.isDefaultPicture(pic)) {
 			log.debug("Normal picture found.");
 			return this.toBufferedImage(pic.getScaledInstance(
 					this.bigPicSize.x, this.bigPicSize.y,
 					BufferedImage.SCALE_SMOOTH));
+		} else {
+			return null;
 		}
 
 	}
