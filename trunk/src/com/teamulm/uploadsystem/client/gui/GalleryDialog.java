@@ -53,6 +53,8 @@ public class GalleryDialog extends JDialog {
 	private String date;
 	private JCheckBox isIntern;
 
+	private Gallery currentGallery;
+
 	public GalleryDialog(String date) {
 		super(MainWindow.getInstance(), "Galerien vom " + date.replace('-', '.'), true);
 		this.date = date;
@@ -237,27 +239,28 @@ public class GalleryDialog extends JDialog {
 	private class OldGalleryListener extends MouseAdapter {
 		@Override
 		public void mouseClicked(MouseEvent e) {
+			this.setCurrentGallley();
 			if (e.getClickCount() == 2) {
 				this.selectOld();
-			} else if (e.getClickCount() == 1) {
+			}
+		}
 
+		private void setCurrentGallley() {
+			if (-1 == GalleryDialog.this.galTable.getSelectedRow())
+				return;
+			if (GalleryDialog.this.galTable.getValueAt(GalleryDialog.this.galTable.getSelectedRow(), 0) instanceof Gallery) {
+				GalleryDialog.this.currentGallery = (Gallery) GalleryDialog.this.galTable.getValueAt(
+						GalleryDialog.this.galTable.getSelectedRow(), 0);
 			}
 		}
 
 		private void selectOld() {
-			if (-1 == GalleryDialog.this.galTable.getSelectedRow()) {
+			if (null == GalleryDialog.this.currentGallery) {
 				JOptionPane.showMessageDialog(GalleryDialog.this, "Bitte eine Galerie auswählen!", "Galerie...",
 						JOptionPane.ERROR_MESSAGE, null);
 			} else {
-				if (GalleryDialog.this.galTable.getValueAt(GalleryDialog.this.galTable.getSelectedRow(), 0) instanceof Gallery) {
-					MainWindow.getInstance().setGallery(
-							(Gallery) GalleryDialog.this.galTable.getValueAt(GalleryDialog.this.galTable
-									.getSelectedRow(), 0));
-					GalleryDialog.this.dispose();
-				} else {
-					JOptionPane.showMessageDialog(GalleryDialog.this, "Bitte eine Galerie auswählen!", "Galerie...",
-							JOptionPane.ERROR_MESSAGE, null);
-				}
+				MainWindow.getInstance().setGallery(GalleryDialog.this.currentGallery);
+				GalleryDialog.this.dispose();
 			}
 		}
 	}
