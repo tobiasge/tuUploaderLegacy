@@ -11,8 +11,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,8 +60,6 @@ public class GalleryDialog extends JDialog {
 	private JCheckBox isIntern;
 	private JRadioButton newGal, oldGal;
 
-	private Gallery currentGallery;
-
 	public GalleryDialog(String date) {
 		super(MainWindow.getInstance(), "Galerien am " + date.replace('-', '.'), true);
 		this.date = date;
@@ -109,8 +105,6 @@ public class GalleryDialog extends JDialog {
 		this.setColumnWidth(1, 200);
 		this.setColumnWidth(2, 40);
 		this.setColumnWidth(3, 40);
-
-		this.galTable.addMouseListener(new OldGalleryListener());
 
 		JScrollPane scroller = new JScrollPane(this.galTable);
 		scroller.setPreferredSize(new Dimension(428, 120));
@@ -267,12 +261,19 @@ public class GalleryDialog extends JDialog {
 	}
 
 	private void selectOldGal() {
-		if (null == GalleryDialog.this.currentGallery) {
+		if (-1 == this.galTable.getSelectedRow()) {
 			JOptionPane.showMessageDialog(GalleryDialog.this, "Bitte eine Galerie auswählen!", "Galerie...",
 					JOptionPane.ERROR_MESSAGE, null);
 		} else {
-			MainWindow.getInstance().setGallery(GalleryDialog.this.currentGallery);
-			GalleryDialog.this.dispose();
+			if (GalleryDialog.this.galTable.getValueAt(GalleryDialog.this.galTable.getSelectedRow(), 0) instanceof Gallery) {
+				MainWindow.getInstance().setGallery(
+						(Gallery) GalleryDialog.this.galTable.getValueAt(GalleryDialog.this.galTable.getSelectedRow(),
+								0));
+				GalleryDialog.this.dispose();
+			} else {
+				JOptionPane.showMessageDialog(GalleryDialog.this, "Bitte eine Galerie auswählen!", "Galerie...",
+						JOptionPane.ERROR_MESSAGE, null);
+			}
 		}
 	}
 
@@ -321,22 +322,6 @@ public class GalleryDialog extends JDialog {
 				GalleryDialog.this.selectOldGal();
 			}
 
-		}
-	}
-
-	private class OldGalleryListener extends MouseAdapter {
-		@Override
-		public void mouseClicked(MouseEvent e) {
-			this.setCurrentGallley();
-		}
-
-		private void setCurrentGallley() {
-			if (-1 == GalleryDialog.this.galTable.getSelectedRow())
-				return;
-			if (GalleryDialog.this.galTable.getValueAt(GalleryDialog.this.galTable.getSelectedRow(), 0) instanceof Gallery) {
-				GalleryDialog.this.currentGallery = (Gallery) GalleryDialog.this.galTable.getValueAt(
-						GalleryDialog.this.galTable.getSelectedRow(), 0);
-			}
 		}
 	}
 
