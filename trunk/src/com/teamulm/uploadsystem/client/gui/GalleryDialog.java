@@ -1,6 +1,7 @@
 package com.teamulm.uploadsystem.client.gui;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -22,9 +23,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.concurrent.ExecutionException;
 
+import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -33,6 +36,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingWorker;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import com.teamulm.uploadsystem.client.Helper;
@@ -95,7 +101,10 @@ public class GalleryDialog extends JDialog {
 		this.galTable.setRowSelectionAllowed(true);
 		this.galTable.getTableHeader().setReorderingAllowed(false);
 		this.galTable.getTableHeader().setResizingAllowed(false);
-		this.galTable.getColumnModel().setColumnMargin(7);
+		// this.galTable.getColumnModel().setColumnMargin(7);
+
+		this.galTable.setDefaultRenderer(Object.class, new MyRenderer());
+
 		this.setColumnWidth(0, 130);
 		this.setColumnWidth(1, 200);
 		this.setColumnWidth(2, 40);
@@ -157,8 +166,12 @@ public class GalleryDialog extends JDialog {
 	private void showGalleries() {
 		this.galTableModel.setRowCount(0);
 		for (Gallery gal : this.myGalleries) {
-			this.galTableModel.addRow(new Object[] { gal, gal.getTitle(), new Integer(gal.getPictures()),
-					new Boolean(gal.isIntern()) });
+			String tmp = "";
+			if (gal.isIntern())
+				tmp = "ja";
+			else
+				tmp = "nein";
+			this.galTableModel.addRow(new Object[] { gal, gal.getTitle(), new Integer(gal.getPictures()), tmp });
 		}
 	}
 
@@ -449,4 +462,29 @@ public class GalleryDialog extends JDialog {
 			}
 		}
 	}
+
+	static class MyRenderer extends DefaultTableCellRenderer {
+
+		private static final long serialVersionUID = -2545639336835517795L;
+
+		private Border CACHED_SEL_BORDER = BorderFactory.createMatteBorder(0, 4, 0, 4, UIManager
+				.getColor("Table.selectionBackground"));
+
+		private Border CACHED_BORDER = BorderFactory.createMatteBorder(0, 4, 0, 4, UIManager
+				.getColor("Table.background"));
+
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+				boolean hasFocus, int row, int column) {
+			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+			Border currentBorder = getBorder();
+			if (isSelected) {
+				((JComponent) this).setBorder(BorderFactory.createCompoundBorder(currentBorder, CACHED_SEL_BORDER));
+			} else {
+				((JComponent) this).setBorder(BorderFactory.createCompoundBorder(currentBorder, CACHED_BORDER));
+			}
+			return this;
+		}
+	}
+
 }
