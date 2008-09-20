@@ -112,7 +112,7 @@ public class GalleryDialog extends JDialog {
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.anchor = GridBagConstraints.LINE_START;
 		ButtonGroup tmp = new ButtonGroup();
-		this.oldGal = new JRadioButton("Vorhande Galerie wählen");
+		this.oldGal = new JRadioButton("Vorhandene Galerie wählen");
 		this.oldGal.addActionListener(new OldOrNewGalleryListener());
 		this.oldGal.setSelected(true);
 
