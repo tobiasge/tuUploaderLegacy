@@ -62,8 +62,8 @@ public class GalleryDialog extends JDialog {
 	public GalleryDialog(String date) {
 		super(MainWindow.getInstance(), "Galerien am " + date.replace('-', '.'), true);
 		this.date = date;
-		this.setPreferredSize(new Dimension(454, 305));
-		this.setMinimumSize(new Dimension(454, 305));
+		this.setPreferredSize(new Dimension(454, 290));
+		this.setMinimumSize(new Dimension(454, 290));
 		this.setResizable(false);
 
 		this.setLayout(new GridBagLayout());
@@ -111,19 +111,13 @@ public class GalleryDialog extends JDialog {
 		scroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
 		GridBagConstraints constraints = new GridBagConstraints();
-		constraints.insets = new Insets(0, 2, 0, 2);
-		constraints.gridx = 0;
-		constraints.gridy = 0;
 		constraints.anchor = GridBagConstraints.LINE_START;
-		JLabel topText = new JLabel("Schon vorhandene Galerie wählen oder neue Galerie erstellen:");
-		this.add(topText, constraints);
-
 		ButtonGroup tmp = new ButtonGroup();
-		this.oldGal = new JRadioButton("wählen");
+		this.oldGal = new JRadioButton("Vorhande Galerie wählen");
 		this.oldGal.addActionListener(new OldOrNewGalleryListener());
 		this.oldGal.setSelected(true);
 
-		this.newGal = new JRadioButton("erstellen");
+		this.newGal = new JRadioButton("Neue Galerie erstellen");
 		this.newGal.addActionListener(new OldOrNewGalleryListener());
 
 		tmp.add(this.oldGal);
@@ -131,23 +125,23 @@ public class GalleryDialog extends JDialog {
 
 		constraints.insets = new Insets(4, 2, 0, 2);
 		constraints.gridx = 0;
-		constraints.gridy = 1;
+		constraints.gridy = 0;
 		this.add(this.oldGal, constraints);
 
 		constraints.insets = new Insets(4, 6, 0, 2);
 		constraints.gridx = 0;
-		constraints.gridy = 2;
+		constraints.gridy = 1;
 		this.add(scroller, constraints);
 		new GalleryLoader(this.date, this).execute();
 
 		constraints.insets = new Insets(4, 2, 0, 2);
 		constraints.gridx = 0;
-		constraints.gridy = 3;
+		constraints.gridy = 2;
 		this.add(this.newGal, constraints);
 
 		constraints.insets = new Insets(2, 6, 0, 2);
 		constraints.gridx = 0;
-		constraints.gridy = 4;
+		constraints.gridy = 3;
 		this.add(this.buildNewGalPanel(), constraints);
 
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
