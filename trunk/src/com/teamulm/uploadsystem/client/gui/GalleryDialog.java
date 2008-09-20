@@ -22,11 +22,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.concurrent.ExecutionException;
 
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -52,14 +55,15 @@ public class GalleryDialog extends JDialog {
 	private JTable galTable;
 	private String date;
 	private JCheckBox isIntern;
+	private JRadioButton newGal, oldGal;
 
 	private Gallery currentGallery;
 
 	public GalleryDialog(String date) {
-		super(MainWindow.getInstance(), "Galerien vom " + date.replace('-', '.'), true);
+		super(MainWindow.getInstance(), "Galerien am " + date.replace('-', '.'), true);
 		this.date = date;
-		this.setPreferredSize(new Dimension(450, 260));
-		this.setMinimumSize(new Dimension(450, 260));
+		this.setPreferredSize(new Dimension(454, 305));
+		this.setMinimumSize(new Dimension(454, 305));
 		this.setResizable(false);
 
 		this.setLayout(new GridBagLayout());
@@ -111,21 +115,45 @@ public class GalleryDialog extends JDialog {
 		constraints.gridx = 0;
 		constraints.gridy = 0;
 		constraints.anchor = GridBagConstraints.LINE_START;
-		JLabel oldGal = new JLabel("Schon vorhandene Galerie wählen oder neue Galerie erstellen:");
-		this.add(oldGal, constraints);
+		JLabel topText = new JLabel("Schon vorhandene Galerie wählen oder neue Galerie erstellen:");
+		this.add(topText, constraints);
+
+		ButtonGroup tmp = new ButtonGroup();
+		this.oldGal = new JRadioButton("wählen");
+		this.oldGal.addActionListener(new OldOrNewGalleryListener());
+		this.oldGal.setSelected(true);
+
+		this.newGal = new JRadioButton("erstellen");
+		this.newGal.addActionListener(new OldOrNewGalleryListener());
+
+		tmp.add(this.oldGal);
+		tmp.add(this.newGal);
+
 		constraints.insets = new Insets(4, 2, 0, 2);
 		constraints.gridx = 0;
 		constraints.gridy = 1;
+		this.add(this.oldGal, constraints);
+
+		constraints.insets = new Insets(4, 6, 0, 2);
+		constraints.gridx = 0;
+		constraints.gridy = 2;
 		this.add(scroller, constraints);
 		new GalleryLoader(this.date, this).execute();
 
+		constraints.insets = new Insets(4, 2, 0, 2);
 		constraints.gridx = 0;
-		constraints.gridy = 2;
+		constraints.gridy = 3;
+		this.add(this.newGal, constraints);
+
+		constraints.insets = new Insets(2, 6, 0, 2);
+		constraints.gridx = 0;
+		constraints.gridy = 4;
 		this.add(this.buildNewGalPanel(), constraints);
 
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		this.setLocation((d.width - getSize().width) / 2, (d.height - getSize().height) / 2);
 
+		this.switchFields(false);
 		this.setVisible(true);
 	}
 
@@ -143,6 +171,25 @@ public class GalleryDialog extends JDialog {
 
 	public void setGalleries(ArrayList<Gallery> galList) {
 		this.myGalleries = galList;
+	}
+
+	private void switchFields(boolean toNewGal) {
+		if (toNewGal) {
+			this.galTable.clearSelection();
+			this.galTable.setEnabled(false);
+
+			this.descField.setEnabled(true);
+			this.titleField.setEnabled(true);
+			this.isIntern.setEnabled(true);
+			this.locationsBox.setEnabled(true);
+		} else {
+			this.galTable.setEnabled(true);
+
+			this.descField.setEnabled(false);
+			this.titleField.setEnabled(false);
+			this.isIntern.setEnabled(false);
+			this.locationsBox.setEnabled(false);
+		}
 	}
 
 	private void setColumnWidth(int column, int width) {
@@ -206,9 +253,47 @@ public class GalleryDialog extends JDialog {
 		cons.gridx = 0;
 		cons.gridy = 2;
 		cons.anchor = GridBagConstraints.LINE_END;
-		newPanel.add(new MyJButton("Übernehmen"), cons);
+		JButton OKButton = new MyJButton("Übernehmen");
+		OKButton.addActionListener(new OkButtonListener());
+		newPanel.add(OKButton, cons);
 
 		return newPanel;
+	}
+
+	private void selectOldGal() {
+		if (null == GalleryDialog.this.currentGallery) {
+			JOptionPane.showMessageDialog(GalleryDialog.this, "Bitte eine Galerie auswählen!", "Galerie...",
+					JOptionPane.ERROR_MESSAGE, null);
+		} else {
+			MainWindow.getInstance().setGallery(GalleryDialog.this.currentGallery);
+			GalleryDialog.this.dispose();
+		}
+	}
+
+	private void selectNewGal() {
+		if (this.getLocationsBox().getSelectedItem() instanceof String
+				&& ((String) this.locationsBox.getSelectedItem()).compareTo("    -- Bitte wählen --") != 0) {
+			Gallery tmpGal = TrmEngine.getInstance().newGallery((String) this.locationsBox.getSelectedItem(), date);
+			tmpGal.setIntern(this.isIntern.isSelected());
+			tmpGal.setDesc(this.descField.getText());
+			tmpGal.setTitle(this.titleField.getText());
+			MainWindow.getInstance().setGallery(tmpGal);
+			GalleryDialog.this.dispose();
+		} else {
+			JOptionPane.showMessageDialog(this, "Bitte eine Location auswählen!", "Location...",
+					JOptionPane.ERROR_MESSAGE, null);
+		}
+
+	}
+
+	private class OldOrNewGalleryListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			if (GalleryDialog.this.newGal.isSelected()) {
+				GalleryDialog.this.switchFields(true);
+			} else if (GalleryDialog.this.oldGal.isSelected()) {
+				GalleryDialog.this.switchFields(false);
+			}
+		}
 	}
 
 	private class GallerySorter implements Comparator<Gallery> {
@@ -221,18 +306,15 @@ public class GalleryDialog extends JDialog {
 		}
 	}
 
-	private class NewGalleryListener implements ActionListener {
+	private class OkButtonListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			if (GalleryDialog.this.getLocationsBox().getSelectedItem() instanceof String
-					&& ((String) GalleryDialog.this.locationsBox.getSelectedItem()).compareTo("    -- Bitte wählen --") != 0) {
-				MainWindow.getInstance().setGallery(
-						TrmEngine.getInstance().newGallery((String) GalleryDialog.this.locationsBox.getSelectedItem(),
-								date));
-				GalleryDialog.this.dispose();
-			} else {
-				JOptionPane.showMessageDialog(GalleryDialog.this, "Bitte eine Location auswählen!", "Location...",
-						JOptionPane.ERROR_MESSAGE, null);
+
+			if (GalleryDialog.this.newGal.isSelected()) {
+				GalleryDialog.this.selectNewGal();
+			} else if (GalleryDialog.this.oldGal.isSelected()) {
+				GalleryDialog.this.selectOldGal();
 			}
+
 		}
 	}
 
@@ -240,9 +322,6 @@ public class GalleryDialog extends JDialog {
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			this.setCurrentGallley();
-			if (e.getClickCount() == 2) {
-				this.selectOld();
-			}
 		}
 
 		private void setCurrentGallley() {
@@ -251,16 +330,6 @@ public class GalleryDialog extends JDialog {
 			if (GalleryDialog.this.galTable.getValueAt(GalleryDialog.this.galTable.getSelectedRow(), 0) instanceof Gallery) {
 				GalleryDialog.this.currentGallery = (Gallery) GalleryDialog.this.galTable.getValueAt(
 						GalleryDialog.this.galTable.getSelectedRow(), 0);
-			}
-		}
-
-		private void selectOld() {
-			if (null == GalleryDialog.this.currentGallery) {
-				JOptionPane.showMessageDialog(GalleryDialog.this, "Bitte eine Galerie auswählen!", "Galerie...",
-						JOptionPane.ERROR_MESSAGE, null);
-			} else {
-				MainWindow.getInstance().setGallery(GalleryDialog.this.currentGallery);
-				GalleryDialog.this.dispose();
 			}
 		}
 	}

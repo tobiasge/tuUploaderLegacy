@@ -74,15 +74,13 @@ public class MainWindow extends JFrame {
 		this.pack();
 		this.setResizable(false);
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-		this.setLocation((d.width - getSize().width) / 2,
-				(d.height - getSize().height) / 2);
+		this.setLocation((d.width - getSize().width) / 2, (d.height - getSize().height) / 2);
 		this.setVisible(true);
 	}
 
 	private JPanel generateLeftPanel(JPanel panel) {
 		panel.setLayout(new GridBagLayout());
-		panel.setBorder(new CompoundBorder(new EmptyBorder(3, 3, 3, 3),
-				new BevelBorder(BevelBorder.RAISED)));
+		panel.setBorder(new CompoundBorder(new EmptyBorder(3, 3, 3, 3), new BevelBorder(BevelBorder.RAISED)));
 		GridBagConstraints constraints = new GridBagConstraints();
 
 		JPanel filePanel = new JPanel(new GridBagLayout());
@@ -112,10 +110,8 @@ public class MainWindow extends JFrame {
 			}
 		};
 		scrollPane.setWheelScrollingEnabled(true);
-		scrollPane
-				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPane
-				.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		filePanel.add(scrollPane, filePanelConstraints);
 		constraints.gridx = 0;
 		constraints.gridy = 0;
@@ -205,8 +201,7 @@ public class MainWindow extends JFrame {
 
 	private JPanel generateRightPanel(JPanel panel) {
 		panel.setLayout(new GridBagLayout());
-		panel.setBorder(new CompoundBorder(new EmptyBorder(3, 3, 3, 3),
-				new BevelBorder(BevelBorder.RAISED)));
+		panel.setBorder(new CompoundBorder(new EmptyBorder(3, 3, 3, 3), new BevelBorder(BevelBorder.RAISED)));
 		GridBagConstraints panelConstraints = new GridBagConstraints();
 		panelConstraints.gridx = 0;
 		panelConstraints.gridy = 0;
@@ -234,10 +229,8 @@ public class MainWindow extends JFrame {
 			}
 		};
 		scrollPane.setWheelScrollingEnabled(true);
-		scrollPane
-				.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPane
-				.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		panel.add(scrollPane, panelConstraints);
 
 		JPanel buttonPanel = new JPanel(new BorderLayout());
@@ -248,10 +241,8 @@ public class MainWindow extends JFrame {
 		JButton resetButton = new JButton("Zurücksetzen");
 		resetButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(
-						MainWindow.getInstance(), "Wirklich zurücksetzten?",
-						"Reset?", JOptionPane.YES_NO_OPTION,
-						JOptionPane.QUESTION_MESSAGE)) {
+				if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(MainWindow.getInstance(),
+						"Wirklich zurücksetzten?", "Reset?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE)) {
 					MainWindow.this.reset();
 					TrmEngine.kill();
 					System.gc();
@@ -326,18 +317,15 @@ public class MainWindow extends JFrame {
 	}
 
 	public void setGallery(Gallery gallery) {
+		this.fieldLocations.setText(gallery.getLocation());
+		this.fieldTitle.setText(gallery.getTitle());
+		this.fieldDesc.setText(gallery.getDesc());
+		this.filedIntern.setSelected(gallery.isIntern());
 		if (gallery.isNewGallery()) {
-			this.fieldLocations.setText(gallery.getLocation());
-			this.filedIntern.setSelected(false);
 			this.fieldTitle.setEnabled(true);
 			this.fieldDesc.setEnabled(true);
 			this.filedIntern.setEnabled(true);
-			this.fieldTitle.requestFocus();
 		} else {
-			this.fieldLocations.setText(gallery.getLocation());
-			this.fieldTitle.setText(gallery.getTitle());
-			this.fieldDesc.setText(gallery.getDesc());
-			this.filedIntern.setSelected(gallery.isIntern());
 			this.fieldTitle.setEnabled(false);
 			this.fieldDesc.setEnabled(false);
 			this.filedIntern.setEnabled(false);
