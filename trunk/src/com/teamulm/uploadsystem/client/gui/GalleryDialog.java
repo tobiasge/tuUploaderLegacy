@@ -278,17 +278,21 @@ public class GalleryDialog extends JDialog {
 	}
 
 	private void selectNewGal() {
-		if (this.getLocationsBox().getSelectedItem() instanceof String
-				&& ((String) this.locationsBox.getSelectedItem()).compareTo("    -- Bitte wählen --") != 0) {
+		if (!(this.getLocationsBox().getSelectedItem() instanceof String)) {
+			return;
+		}
+		if (((String) this.locationsBox.getSelectedItem()).compareTo("    -- Bitte wählen --") == 0
+				|| this.descField.getText().equalsIgnoreCase("Beschreibung")
+				|| this.titleField.getText().equalsIgnoreCase("Titel")) {
+			JOptionPane.showMessageDialog(this, "Bitte alle Felder vollständig ausfüllen!", "Neue Galerie",
+					JOptionPane.ERROR_MESSAGE, null);
+		} else {
 			Gallery tmpGal = TrmEngine.getInstance().newGallery((String) this.locationsBox.getSelectedItem(), date);
 			tmpGal.setIntern(this.isIntern.isSelected());
 			tmpGal.setDesc(this.descField.getText());
 			tmpGal.setTitle(this.titleField.getText());
 			MainWindow.getInstance().setGallery(tmpGal);
 			GalleryDialog.this.dispose();
-		} else {
-			JOptionPane.showMessageDialog(this, "Bitte eine Location auswählen!", "Location...",
-					JOptionPane.ERROR_MESSAGE, null);
 		}
 
 	}
