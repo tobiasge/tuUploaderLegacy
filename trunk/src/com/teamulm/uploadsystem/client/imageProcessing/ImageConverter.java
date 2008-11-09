@@ -5,6 +5,7 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.awt.image.PixelGrabber;
+import java.io.File;
 
 import com.teamulm.uploadsystem.client.Helper;
 
@@ -72,8 +73,8 @@ public abstract class ImageConverter {
 		}
 	}
 
-	public abstract BufferedImage createPic(BufferedImage pic);
+	public abstract boolean createPic(File inFile, File outFile);
 
-	public abstract BufferedImage createPreview(BufferedImage pic);
+	public abstract boolean createPreview(File inFile, File outFile);
 
 }

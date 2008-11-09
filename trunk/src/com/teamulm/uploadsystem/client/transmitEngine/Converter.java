@@ -16,6 +16,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.channels.FileChannel;
 
 import javax.imageio.ImageIO;
@@ -65,19 +66,26 @@ public class Converter extends Thread {
 		this.stopRequest = true;
 	}
 
-	private void copyFile(File in, File out) throws Exception {
-		FileChannel sourceChannel = new FileInputStream(in).getChannel();
-		FileChannel destinationChannel = new FileOutputStream(out).getChannel();
-		sourceChannel.transferTo(0, sourceChannel.size(), destinationChannel);
-		sourceChannel.close();
-		destinationChannel.close();
+	private boolean copyFile(File in, File out) {
+		try {
+			FileChannel sourceChannel = new FileInputStream(in).getChannel();
+			FileChannel destinationChannel = new FileOutputStream(out).getChannel();
+			sourceChannel.transferTo(0, sourceChannel.size(), destinationChannel);
+			sourceChannel.close();
+			destinationChannel.close();
+			return true;
+		} catch (IOException e) {
+			return false;
+		}
 	}
 
 	@Override
 	public void run() {
 		MainWindow.getInstance().addStatusLine("Beginne Konvertierung: " + this.ident);
-		BufferedImage outPic = null;
-		File outPicName = null;
+		File bigPicTmp = null;
+		File smaPicTmp = null;
+		File outBigPicName = null;
+		File outSmaPicName = null;
 		File actFile = null;
 		int number = 0;
 		try {
@@ -88,36 +96,34 @@ public class Converter extends Thread {
 							+ actPic.getWidth() + " Hoch: " + actPic.getHeight());
 					MainWindow.getInstance().addStatusLine("Bild ignoriert: Bild zu klein.");
 				} else if ((actPic.getWidth() == this.bigPicSize.x) && (actPic.getHeight() == this.bigPicSize.y)) {
-					// Bild hat richtige Größe
-					number = this.chef.getNextPicNum();
-					outPicName = new File(this.savePath + this.fileSep + this.bigPicName + number + ".jpg");
-					this.copyFile(actFile, outPicName);
-					this.chef.setToTransmit(outPicName);
-					// Großes Bild geschrieben
-					// Nur kleines Bild erschaffen
-					outPicName = new File(this.savePath + this.fileSep + this.smallPicName + number + ".jpg");
-					outPic = this.myImageConverter.createPreview(actPic);
-					ImageIO.write(outPic, "jpg", outPicName);
-					this.chef.setToTransmit(outPicName);
-					// Kleines Bild geschrieben
-				} else {
-					number = this.chef.getNextPicNum();
-					// Großes Bild erschaffen
-					outPicName = new File(this.savePath + this.fileSep + this.bigPicName + number + ".jpg");
-					outPic = this.myImageConverter.createPic(actPic);
-					if (null == outPic) {
-						MainWindow.getInstance().addStatusLine("Bild ignoriert: Bild hat falsches Format.");
-						continue;
+					// First save to temp files
+					bigPicTmp = File.createTempFile("TU-", ".Big.pic");
+					smaPicTmp = File.createTempFile("TU-", ".Sma.pic");
+					if (this.copyFile(actFile, bigPicTmp) && this.myImageConverter.createPreview(bigPicTmp, smaPicTmp)) {
+						// Conversion is ok, so get number and set to transmit
+						number = this.chef.getNextPicNum();
+						outBigPicName = new File(this.savePath + this.fileSep + this.bigPicName + number + ".jpg");
+						outSmaPicName = new File(this.savePath + this.fileSep + this.smallPicName + number + ".jpg");
+						bigPicTmp.renameTo(outBigPicName);
+						smaPicTmp.renameTo(outSmaPicName);
+						this.chef.setToTransmit(outSmaPicName);
+						this.chef.setToTransmit(outBigPicName);
 					}
-					ImageIO.write(outPic, "jpg", outPicName);
-					this.chef.setToTransmit(outPicName);
-					// Großes Bild geschrieben
-					// Kleines Bild erschaffen
-					outPicName = new File(this.savePath + this.fileSep + this.smallPicName + number + ".jpg");
-					outPic = this.myImageConverter.createPreview(outPic);
-					ImageIO.write(outPic, "jpg", outPicName);
-					this.chef.setToTransmit(outPicName);
-					// Kleines Bild geschrieben
+				} else {
+					// First save to temp files
+					bigPicTmp = File.createTempFile("TU-", ".Big.pic");
+					smaPicTmp = File.createTempFile("TU-", ".Sma.pic");
+					if (this.myImageConverter.createPic(actFile, bigPicTmp)
+							&& this.myImageConverter.createPreview(bigPicTmp, smaPicTmp)) {
+						// Conversion is ok, so get number and set to transmit
+						number = this.chef.getNextPicNum();
+						outBigPicName = new File(this.savePath + this.fileSep + this.bigPicName + number + ".jpg");
+						outSmaPicName = new File(this.savePath + this.fileSep + this.smallPicName + number + ".jpg");
+						bigPicTmp.renameTo(outBigPicName);
+						smaPicTmp.renameTo(outSmaPicName);
+						this.chef.setToTransmit(outSmaPicName);
+						this.chef.setToTransmit(outBigPicName);
+					}
 				}
 			}
 			sleep(5);
