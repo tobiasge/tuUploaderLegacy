@@ -45,6 +45,11 @@ public abstract class ImageConverter {
 		return height > width;
 	}
 
+	public boolean isKownFormat(int width, int height) {
+		return this.isDefaultPicture(width, height) || this.isSLRPicture(width, height)
+				|| this.isUprightPicture(width, height);
+	}
+
 	protected BufferedImage toBufferedImage(Image image) {
 		if (image instanceof BufferedImage)
 			return (BufferedImage) image;

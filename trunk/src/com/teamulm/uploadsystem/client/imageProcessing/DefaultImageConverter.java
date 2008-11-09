@@ -7,8 +7,13 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
 
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.FileImageOutputStream;
 
 import org.apache.log4j.Logger;
 
@@ -74,8 +79,18 @@ public class DefaultImageConverter extends ImageConverter {
 		return ImageIO.read(img);
 	}
 
-	private void writeImage(File imgFile, BufferedImage img) throws IOException {
-		ImageIO.write(img, "jpg", imgFile);
+	private void writeImage(File outFile, BufferedImage img) throws IOException {
+		// ImageIO.write(img, "jpg", imgFile);
+		Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName("jpeg");
+		ImageWriter writer = (ImageWriter) iter.next();
+		ImageWriteParam iwp = writer.getDefaultWriteParam();
+
+		iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+		iwp.setCompressionQuality(1);
+		FileImageOutputStream output = new FileImageOutputStream(outFile);
+		writer.setOutput(output);
+		IIOImage image = new IIOImage(img, null, null);
+		writer.write(null, image, iwp);
 	}
 
 	public boolean createPreview(File inFile, File outFile) {

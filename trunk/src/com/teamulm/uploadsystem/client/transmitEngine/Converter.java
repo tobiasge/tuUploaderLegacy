@@ -82,8 +82,6 @@ public class Converter extends Thread {
 	@Override
 	public void run() {
 		MainWindow.getInstance().addStatusLine("Beginne Konvertierung: " + this.ident);
-		File bigPicTmp = null;
-		File smaPicTmp = null;
 		File outBigPicName = null;
 		File outSmaPicName = null;
 		File actFile = null;
@@ -96,33 +94,30 @@ public class Converter extends Thread {
 							+ actPic.getWidth() + " Hoch: " + actPic.getHeight());
 					MainWindow.getInstance().addStatusLine("Bild ignoriert: Bild zu klein.");
 				} else if ((actPic.getWidth() == this.bigPicSize.x) && (actPic.getHeight() == this.bigPicSize.y)) {
-					// First save to temp files
-					bigPicTmp = File.createTempFile("TU-", ".Big.pic");
-					smaPicTmp = File.createTempFile("TU-", ".Sma.pic");
-					if (this.copyFile(actFile, bigPicTmp) && this.myImageConverter.createPreview(bigPicTmp, smaPicTmp)) {
-						// Conversion is ok, so get number and set to transmit
-						number = this.chef.getNextPicNum();
-						outBigPicName = new File(this.savePath + this.fileSep + this.bigPicName + number + ".jpg");
-						outSmaPicName = new File(this.savePath + this.fileSep + this.smallPicName + number + ".jpg");
-						bigPicTmp.renameTo(outBigPicName);
-						smaPicTmp.renameTo(outSmaPicName);
+					number = this.chef.getNextPicNum();
+					outBigPicName = new File(this.savePath + this.fileSep + this.bigPicName + number + ".jpg");
+					outSmaPicName = new File(this.savePath + this.fileSep + this.smallPicName + number + ".jpg");
+					if (this.copyFile(actFile, outBigPicName)
+							&& this.myImageConverter.createPreview(outBigPicName, outSmaPicName)) {
+
 						this.chef.setToTransmit(outSmaPicName);
 						this.chef.setToTransmit(outBigPicName);
+
 					}
 				} else {
-					// First save to temp files
-					bigPicTmp = File.createTempFile("TU-", ".Big.pic");
-					smaPicTmp = File.createTempFile("TU-", ".Sma.pic");
-					if (this.myImageConverter.createPic(actFile, bigPicTmp)
-							&& this.myImageConverter.createPreview(bigPicTmp, smaPicTmp)) {
-						// Conversion is ok, so get number and set to transmit
-						number = this.chef.getNextPicNum();
-						outBigPicName = new File(this.savePath + this.fileSep + this.bigPicName + number + ".jpg");
-						outSmaPicName = new File(this.savePath + this.fileSep + this.smallPicName + number + ".jpg");
-						bigPicTmp.renameTo(outBigPicName);
-						smaPicTmp.renameTo(outSmaPicName);
+					if (!this.myImageConverter.isKownFormat(actPic.getWidth(), actPic.getHeight())) {
+						MainWindow.getInstance().addStatusLine("Bild ignoriert: Bild hat falsches Format.");
+						this.chef.fileWasIgnored();
+						continue;
+					}
+					number = this.chef.getNextPicNum();
+					outBigPicName = new File(this.savePath + this.fileSep + this.bigPicName + number + ".jpg");
+					outSmaPicName = new File(this.savePath + this.fileSep + this.smallPicName + number + ".jpg");
+					if (this.myImageConverter.createPic(actFile, outBigPicName)
+							&& this.myImageConverter.createPreview(outBigPicName, outSmaPicName)) {
 						this.chef.setToTransmit(outSmaPicName);
 						this.chef.setToTransmit(outBigPicName);
+
 					}
 				}
 			}

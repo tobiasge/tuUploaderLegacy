@@ -82,8 +82,7 @@ public class TrmEngine extends Thread {
 		this.stopRequested = false;
 		this.loggedIn = false;
 		this.connected = false;
-		OperatingSystemMXBean sysInfo1 = ManagementFactory
-				.getOperatingSystemMXBean();
+		OperatingSystemMXBean sysInfo1 = ManagementFactory.getOperatingSystemMXBean();
 		this.converters = new Converter[sysInfo1.getAvailableProcessors()];
 	}
 
@@ -108,8 +107,7 @@ public class TrmEngine extends Thread {
 		File retVal = null;
 		this.picTransmitLock.lock();
 		try {
-			while (this.totransmit.isEmpty()
-					&& this.isThereSomethingToTtansmit()) {
+			while (this.totransmit.isEmpty() && this.isThereSomethingToTtansmit()) {
 				picToTransmit.await();
 			}
 			this.transmitedFiles++;
@@ -121,10 +119,8 @@ public class TrmEngine extends Thread {
 		}
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				MainWindow
-						.getInstance()
-						.setUploadProgress(
-								(int) ((MyJProgressBar.MAX / TrmEngine.this.totalFiles) * TrmEngine.this.transmitedFiles));
+				MainWindow.getInstance().setUploadProgress(
+						(int) ((MyJProgressBar.MAX / TrmEngine.this.totalFiles) * TrmEngine.this.transmitedFiles));
 			};
 		});
 
@@ -143,10 +139,8 @@ public class TrmEngine extends Thread {
 		this.picTransmitLock.unlock();
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				MainWindow
-						.getInstance()
-						.setConvertProgress(
-								(int) ((MyJProgressBar.MAX / TrmEngine.this.totalFiles) * TrmEngine.this.convertedFiles));
+				MainWindow.getInstance().setConvertProgress(
+						(int) ((MyJProgressBar.MAX / TrmEngine.this.totalFiles) * TrmEngine.this.convertedFiles));
 			};
 		});
 	}
@@ -208,6 +202,10 @@ public class TrmEngine extends Thread {
 		} catch (Exception e) {
 			Helper.getInstance().systemCrashHandler(e);
 		}
+	}
+
+	public synchronized void fileWasIgnored() {
+		this.totalFiles = this.totalFiles - 2;
 	}
 
 	public void setFiles(File[] files) {
