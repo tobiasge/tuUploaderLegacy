@@ -26,7 +26,7 @@ public class DefaultImageConverter extends ImageConverter {
 	public boolean createPic(File inFile, File outFile) {
 		try {
 			BufferedImage pic = this.readImage(inFile);
-			if (this.isSLRPicture(pic)) {
+			if (this.isSLRPicture(pic.getWidth(), pic.getHeight())) {
 				log.debug("SLR picture found.");
 				BufferedImage target = new BufferedImage(this.bigPicSize.x, this.bigPicSize.y,
 						BufferedImage.TYPE_INT_RGB);
@@ -40,7 +40,7 @@ public class DefaultImageConverter extends ImageConverter {
 				graf.dispose();
 				this.writeImage(outFile, target);
 				return true;
-			} else if (this.isUprightPicture(pic)) {
+			} else if (this.isUprightPicture(pic.getWidth(), pic.getHeight())) {
 				log.debug("Upright picture found.");
 				BufferedImage target = new BufferedImage(this.bigPicSize.x, this.bigPicSize.y,
 						BufferedImage.TYPE_INT_RGB);
@@ -55,7 +55,7 @@ public class DefaultImageConverter extends ImageConverter {
 				graf.dispose();
 				this.writeImage(outFile, target);
 				return true;
-			} else if (this.isDefaultPicture(pic)) {
+			} else if (this.isDefaultPicture(pic.getWidth(), pic.getHeight())) {
 				log.debug("Normal picture found.");
 				this.writeImage(outFile, this.toBufferedImage(pic.getScaledInstance(this.bigPicSize.x,
 						this.bigPicSize.y, BufferedImage.SCALE_SMOOTH)));

@@ -29,20 +29,20 @@ public abstract class ImageConverter {
 		this.bigSLRPicSize = new Point(bigSLRWidth, bigSLRHeight);
 	}
 
-	protected boolean isSLRPicture(BufferedImage pic) {
-		double aspectRatio = (double) pic.getWidth() / (double) pic.getHeight();
+	protected boolean isSLRPicture(int width, int height) {
+		double aspectRatio = (double) width / (double) height;
 		double diff = Math.abs(aspectRatio - ((double) 3 / (double) 2));
 		return diff < (double) 0.05;
 	}
 
-	protected boolean isDefaultPicture(BufferedImage pic) {
-		double aspectRatio = (double) pic.getWidth() / (double) pic.getHeight();
+	protected boolean isDefaultPicture(int width, int height) {
+		double aspectRatio = (double) width / (double) height;
 		double diff = Math.abs(aspectRatio - ((double) 4 / (double) 3));
 		return diff < (double) 0.05;
 	}
 
-	protected boolean isUprightPicture(BufferedImage pic) {
-		return pic.getHeight() > pic.getWidth();
+	protected boolean isUprightPicture(int width, int height) {
+		return height > width;
 	}
 
 	protected BufferedImage toBufferedImage(Image image) {
