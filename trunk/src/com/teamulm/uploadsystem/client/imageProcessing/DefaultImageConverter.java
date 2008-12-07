@@ -80,13 +80,11 @@ public class DefaultImageConverter extends ImageConverter {
 	}
 
 	private void writeImage(File outFile, BufferedImage img) throws IOException {
-		// ImageIO.write(img, "jpg", imgFile);
 		Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName("jpeg");
 		ImageWriter writer = (ImageWriter) iter.next();
 		ImageWriteParam iwp = writer.getDefaultWriteParam();
-
 		iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-		iwp.setCompressionQuality(1);
+		iwp.setCompressionQuality(0.9F);
 		FileImageOutputStream output = new FileImageOutputStream(outFile);
 		writer.setOutput(output);
 		IIOImage image = new IIOImage(img, null, null);
