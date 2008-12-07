@@ -11,7 +11,7 @@
  *******************************************************/
 package com.teamulm.uploadsystem.client.transmitEngine;
 
-import java.awt.Point;
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,9 +48,9 @@ public class Converter extends Thread {
 
 	private ImageConverter myImageConverter;
 
-	private Point smallPicSize = new Point(134, 100);
+	private Dimension smallPicSize = new Dimension(134, 100);
 
-	private Point bigPicSize = new Point(575, 431);
+	private Dimension bigPicSize = new Dimension(575, 431);
 
 	public Converter(TrmEngine chef, int ident) {
 		super();
@@ -89,11 +89,12 @@ public class Converter extends Thread {
 		try {
 			while (!this.stopRequest && ((actFile = this.chef.getNextToConvert()) != null)) {
 				BufferedImage actPic = ImageIO.read(actFile);
-				if ((actPic.getWidth() < this.bigPicSize.x) && (actPic.getHeight() < this.bigPicSize.y)) {
+				if ((actPic.getWidth() < this.bigPicSize.width) && (actPic.getHeight() < this.bigPicSize.height)) {
 					log.info("Thread: " + this.ident + " Übersprungen wegen Größe " + actFile.getName() + " -> Breit: "
 							+ actPic.getWidth() + " Hoch: " + actPic.getHeight());
 					MainWindow.getInstance().addStatusLine("Bild ignoriert: Bild zu klein.");
-				} else if ((actPic.getWidth() == this.bigPicSize.x) && (actPic.getHeight() == this.bigPicSize.y)) {
+				} else if ((actPic.getWidth() == this.bigPicSize.width)
+						&& (actPic.getHeight() == this.bigPicSize.height)) {
 					number = this.chef.getNextPicNum();
 					outBigPicName = new File(this.savePath + this.fileSep + this.bigPicName + number + ".jpg");
 					outSmaPicName = new File(this.savePath + this.fileSep + this.smallPicName + number + ".jpg");

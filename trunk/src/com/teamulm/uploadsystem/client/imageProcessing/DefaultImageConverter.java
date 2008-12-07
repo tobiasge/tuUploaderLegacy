@@ -1,9 +1,9 @@
 package com.teamulm.uploadsystem.client.imageProcessing;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -24,7 +24,7 @@ public class DefaultImageConverter extends ImageConverter {
 
 	private static final Logger log = Logger.getLogger(DefaultImageConverter.class);
 
-	public DefaultImageConverter(Point smallPicSize, Point bigPicSize) {
+	public DefaultImageConverter(Dimension smallPicSize, Dimension bigPicSize) {
 		super(smallPicSize, bigPicSize);
 	}
 
@@ -33,37 +33,37 @@ public class DefaultImageConverter extends ImageConverter {
 			BufferedImage pic = this.readImage(inFile);
 			if (this.isSLRPicture(pic.getWidth(), pic.getHeight())) {
 				log.debug("SLR picture found.");
-				BufferedImage target = new BufferedImage(this.bigPicSize.x, this.bigPicSize.y,
+				BufferedImage target = new BufferedImage(this.bigPicSize.width, this.bigPicSize.height,
 						BufferedImage.TYPE_INT_RGB);
 				Graphics graf = target.getGraphics();
 				graf.setColor(Color.BLACK);
-				graf.drawRect(0, 0, this.bigPicSize.x, this.bigPicSize.y);
-				Image temp = pic.getScaledInstance(this.bigSLRPicSize.x, this.bigSLRPicSize.y,
+				graf.drawRect(0, 0, this.bigPicSize.width, this.bigPicSize.height);
+				Image temp = pic.getScaledInstance(this.bigSLRPicSize.width, this.bigSLRPicSize.height,
 						BufferedImage.SCALE_SMOOTH);
-				int yMove = (int) (((double) bigPicSize.y - (double) bigSLRPicSize.y) / (double) 2);
+				int yMove = (int) (((double) bigPicSize.height - (double) bigSLRPicSize.height) / (double) 2);
 				graf.drawImage(temp, 0, yMove, null);
 				graf.dispose();
 				this.writeImage(outFile, target);
 				return true;
 			} else if (this.isUprightPicture(pic.getWidth(), pic.getHeight())) {
 				log.debug("Upright picture found.");
-				BufferedImage target = new BufferedImage(this.bigPicSize.x, this.bigPicSize.y,
+				BufferedImage target = new BufferedImage(this.bigPicSize.width, this.bigPicSize.height,
 						BufferedImage.TYPE_INT_RGB);
-				double downRatio = (double) this.bigPicSize.y / (double) pic.getHeight();
+				double downRatio = (double) this.bigPicSize.height / (double) pic.getHeight();
 				int newWidth = (int) ((double) pic.getWidth() * downRatio);
 				Graphics graf = target.getGraphics();
 				graf.setColor(Color.BLACK);
-				graf.drawRect(0, 0, this.bigPicSize.x, this.bigPicSize.y);
-				Image temp = pic.getScaledInstance(newWidth, this.bigPicSize.y, BufferedImage.SCALE_SMOOTH);
-				int xMove = (int) (((double) bigPicSize.x - newWidth) / (double) 2);
+				graf.drawRect(0, 0, this.bigPicSize.width, this.bigPicSize.height);
+				Image temp = pic.getScaledInstance(newWidth, this.bigPicSize.height, BufferedImage.SCALE_SMOOTH);
+				int xMove = (int) (((double) bigPicSize.width - newWidth) / (double) 2);
 				graf.drawImage(temp, xMove, 0, null);
 				graf.dispose();
 				this.writeImage(outFile, target);
 				return true;
 			} else if (this.isDefaultPicture(pic.getWidth(), pic.getHeight())) {
 				log.debug("Normal picture found.");
-				this.writeImage(outFile, this.toBufferedImage(pic.getScaledInstance(this.bigPicSize.x,
-						this.bigPicSize.y, BufferedImage.SCALE_SMOOTH)));
+				this.writeImage(outFile, this.toBufferedImage(pic.getScaledInstance(this.bigPicSize.width,
+						this.bigPicSize.height, BufferedImage.SCALE_SMOOTH)));
 				return true;
 			} else {
 				MainWindow.getInstance().addStatusLine("Bild ignoriert: Bild hat falsches Format.");
@@ -93,8 +93,8 @@ public class DefaultImageConverter extends ImageConverter {
 
 	public boolean createPreview(File inFile, File outFile) {
 		try {
-			this.writeImage(outFile, this.toBufferedImage(this.readImage(inFile).getScaledInstance(this.smallPicSize.x,
-					this.smallPicSize.y, BufferedImage.SCALE_SMOOTH)));
+			this.writeImage(outFile, this.toBufferedImage(this.readImage(inFile).getScaledInstance(
+					this.smallPicSize.width, this.smallPicSize.height, BufferedImage.SCALE_SMOOTH)));
 			return true;
 		} catch (IOException e) {
 			Helper.getInstance().systemCrashHandler(e);
