@@ -50,7 +50,7 @@ public class Converter extends Thread {
 
 	private Dimension smallPicSize = new Dimension(134, 100);
 
-	private Dimension bigPicSize = new Dimension(575, 431);
+	private Dimension bigPicSize = new Dimension(596, 447);
 
 	public Converter(TrmEngine chef, int ident) {
 		super();
