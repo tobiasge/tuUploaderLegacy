@@ -347,7 +347,7 @@ public class GalleryDialog extends JDialog {
 			try {
 				String locURL = TeamUlmUpload.getInstance().getClientConf().getProperty("locationList");
 				if (locURL.trim().length() == 0) {
-					locURL = "http://www.team-ulm.de/fotos/locations.php";
+					locURL = "http://www.team-ulm.de/fotos/parties/locations.php";
 				}
 				URLConnection locationsURL = new URL(locURL).openConnection();
 				int contentLength = locationsURL.getContentLength();
