@@ -13,16 +13,16 @@ import javax.swing.JTextField;
 
 import org.apache.log4j.Logger;
 
-
 public class UserPassDialog {
 
+	@SuppressWarnings("unused")
 	private static final Logger log = Logger.getLogger(UserPassDialog.class);
 
-	private JTextField userName;
+	private JTextField userName = null;
 
-	private JPasswordField passWord;
+	private JPasswordField passWord = null;
 
-	private JButton chButton, okButton;
+	private JButton chButton = null, okButton = null;
 
 	private int userSaidValue = -1;
 
@@ -32,7 +32,6 @@ public class UserPassDialog {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (KeyEvent.VK_ENTER == e.getKeyCode()) {
-					log.debug("return in username");
 					UserPassDialog.this.passWord.requestFocusInWindow();
 				}
 			}
@@ -42,7 +41,6 @@ public class UserPassDialog {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (KeyEvent.VK_ENTER == e.getKeyCode()) {
-					log.debug("return in password");
 					UserPassDialog.this.okButton.doClick();
 				}
 			}
@@ -58,6 +56,14 @@ public class UserPassDialog {
 				optPane.setValue(new Integer(JOptionPane.OK_OPTION));
 			}
 		});
+		okButton.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (KeyEvent.VK_ENTER == e.getKeyCode()) {
+					UserPassDialog.this.okButton.doClick();
+				}
+			}
+		});
 		chButton = new JButton("Abbrechen");
 		chButton.setPreferredSize(new Dimension(90, 23));
 		chButton.addActionListener(new ActionListener() {
@@ -69,16 +75,22 @@ public class UserPassDialog {
 				optPane.setValue(new Integer(JOptionPane.NO_OPTION));
 			}
 		});
+		chButton.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if (KeyEvent.VK_ENTER == e.getKeyCode()) {
+					UserPassDialog.this.chButton.doClick();
+				}
+			}
+		});
 	}
 
 	public int passDialog() {
 
 		Object[] options = { this.okButton, this.chButton };
+		Object[] input = new Object[] { "Username:", this.userName, "Passwort:", this.passWord };
 
-		Object[] input = new Object[] { "Username:", this.userName,
-				"Passwort:", this.passWord };
-		JOptionPane.showOptionDialog(MainWindow.getInstance(), input,
-				"Passwort...?", JOptionPane.YES_NO_OPTION,
+		JOptionPane.showOptionDialog(MainWindow.getInstance(), input, "Passwort...?", JOptionPane.YES_NO_OPTION,
 				JOptionPane.QUESTION_MESSAGE, null, options, this.userName);
 		return this.userSaidValue;
 	}
