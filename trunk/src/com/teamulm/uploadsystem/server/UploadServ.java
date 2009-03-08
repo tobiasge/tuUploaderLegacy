@@ -308,9 +308,10 @@ public class UploadServ extends Thread {
 					log.info(this.clientip + ": " + request.toString());
 					NewGalleryCmd response = new NewGalleryCmd(true);
 					Gallery gal = new Gallery();
-					gal.setLocation(request.getLocation());
-					gal.setDate(request.getDate());
-					gal.setSuffix(DBConn.getInstance().getNextSuffixFor(request.getLocation(), request.getDate()));
+					gal.setLocation(request.getGallery().getLocation());
+					gal.setDate(request.getGallery().getDate());
+					gal.setSuffix(DBConn.getInstance().getNextSuffixFor(request.getGallery().getLocation(),
+						request.getGallery().getDate()));
 					response.setGallery(gal);
 					response.setSuccess(true);
 					this.output.writeObject(response);

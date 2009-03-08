@@ -169,8 +169,10 @@ public class Transmitter extends Thread {
 
 	public synchronized Gallery newGallery(String location, String date) {
 		NewGalleryCmd cmd = new NewGalleryCmd();
-		cmd.setDate(date);
-		cmd.setLocation(location);
+		Gallery requestGallery = new Gallery();
+		requestGallery.setDate(date);
+		requestGallery.setLocation(location);
+		cmd.setGallery(requestGallery);
 		try {
 			Command retVal = this.sendAndRead(cmd);
 			log.debug("Server said: " + retVal);

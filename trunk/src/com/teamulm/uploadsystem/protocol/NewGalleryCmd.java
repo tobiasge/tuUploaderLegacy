@@ -1,32 +1,15 @@
 package com.teamulm.uploadsystem.protocol;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 import com.teamulm.uploadsystem.data.Gallery;
 
 public class NewGalleryCmd extends Command {
 
 	private static final long serialVersionUID = 750758930754656727L;
 
-	private String location;
-
-	private String date;
-
 	private Gallery gallery;
-
-	public String getLocation() {
-		return location;
-	}
-
-	public void setLocation(String location) {
-		this.location = location;
-	}
-
-	public String getDate() {
-		return date;
-	}
-
-	public void setDate(String date) {
-		this.date = date;
-	}
 
 	public Gallery getGallery() {
 		return gallery;
@@ -44,15 +27,9 @@ public class NewGalleryCmd extends Command {
 		super(serverResponse);
 	}
 
+	@Override
 	public String toString() {
-		String toString = "NewGalleryCmd ";
-		if (this.isServerResponse()) {
-			toString = toString.concat("(Response): commandSucceded() = "
-					+ this.commandSucceded());
-		} else {
-			toString = toString.concat("(Request): for path " + this.location
-					+ "/" + this.getDate());
-		}
-		return toString;
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).appendSuper(super.toString()).append(
+			"Gallery", this.gallery).toString();
 	}
 }
