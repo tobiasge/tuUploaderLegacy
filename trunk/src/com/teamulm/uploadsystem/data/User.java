@@ -2,6 +2,9 @@ package com.teamulm.uploadsystem.data;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 public class User implements Serializable {
 
 	private static final long serialVersionUID = 6277405439383266829L;
@@ -42,4 +45,9 @@ public class User implements Serializable {
 		this.username = username;
 	}
 
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("UserId", this.userid).append(
+			"UserName", this.username).toString();
+	}
 }
