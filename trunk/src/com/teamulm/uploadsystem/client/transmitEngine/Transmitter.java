@@ -12,6 +12,7 @@ import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -21,10 +22,12 @@ import com.teamulm.uploadsystem.client.Helper;
 import com.teamulm.uploadsystem.client.TeamUlmUpload;
 import com.teamulm.uploadsystem.client.gui.MainWindow;
 import com.teamulm.uploadsystem.data.Gallery;
+import com.teamulm.uploadsystem.data.Location;
 import com.teamulm.uploadsystem.exception.AuthenticationException;
 import com.teamulm.uploadsystem.protocol.AuthenticationCmd;
 import com.teamulm.uploadsystem.protocol.Command;
 import com.teamulm.uploadsystem.protocol.GetGalleriesCmd;
+import com.teamulm.uploadsystem.protocol.GetLocationsCmd;
 import com.teamulm.uploadsystem.protocol.HelloCmd;
 import com.teamulm.uploadsystem.protocol.LockPathCmd;
 import com.teamulm.uploadsystem.protocol.LoginCmd;
@@ -66,15 +69,12 @@ public class Transmitter extends Thread {
 		this.Running = true;
 		this.loggedIn = false;
 		try {
-			int serverPort = Integer.parseInt(TeamUlmUpload.getInstance()
-					.getClientConf().getProperty("serverPort"));
-			String serverName = TeamUlmUpload.getInstance().getClientConf()
-					.getProperty("serverName", "tmp");
+			int serverPort = Integer.parseInt(TeamUlmUpload.getInstance().getClientConf().getProperty("serverPort"));
+			String serverName = TeamUlmUpload.getInstance().getClientConf().getProperty("serverName", "tmp");
 			this.serverAdress = InetAddress.getByName(serverName);
 			this.server = new Socket(this.serverAdress, serverPort);
 			if (this.server.isConnected()) {
-				this.output = new ObjectOutputStream(this.server
-						.getOutputStream());
+				this.output = new ObjectOutputStream(this.server.getOutputStream());
 				this.input = new ObjectInputStream(this.server.getInputStream());
 				this.connected = true;
 			}
@@ -83,12 +83,10 @@ public class Transmitter extends Thread {
 			Helper.getInstance().systemCrashHandler(e);
 		}
 		this.keepAliveTimer = new Timer("KeepAliveTimer", true);
-		this.keepAliveTimer
-				.schedule(new KeepAliveTimerTask(), 0, 1000 * 60 * 2);
+		this.keepAliveTimer.schedule(new KeepAliveTimerTask(), 0, 1000 * 60 * 2);
 	}
 
-	private synchronized Command sendAndRead(Command command)
-			throws AuthenticationException {
+	private synchronized Command sendAndRead(Command command) throws AuthenticationException {
 		try {
 			this.output.writeObject(command);
 			this.output.flush();
@@ -146,8 +144,7 @@ public class Transmitter extends Thread {
 		try {
 			Command retVal = this.sendAndRead(cmd);
 			log.debug("Server said: " + retVal);
-			this.loggedIn = retVal instanceof LoginCmd
-					&& retVal.commandSucceded();
+			this.loggedIn = retVal instanceof LoginCmd && retVal.commandSucceded();
 			return this.loggedIn;
 		} catch (Exception e) {
 			Helper.getInstance().systemCrashHandler(e);
@@ -188,6 +185,22 @@ public class Transmitter extends Thread {
 		}
 	}
 
+	public synchronized List<Location> getLocations() {
+		GetLocationsCmd cmd = new GetLocationsCmd();
+		try {
+			Command retVal = this.sendAndRead(cmd);
+			log.debug("Server said: " + retVal);
+			if (retVal instanceof GetLocationsCmd) {
+				GetLocationsCmd response = (GetLocationsCmd) retVal;
+				return response.getLocations();
+			}
+			return null;
+		} catch (Exception e) {
+			Helper.getInstance().systemCrashHandler(e);
+			return null;
+		}
+	}
+
 	protected synchronized ArrayList<Gallery> getGalleriesFor(String date) {
 		GetGalleriesCmd cmd = new GetGalleriesCmd();
 		cmd.setDate(date);
@@ -216,13 +229,11 @@ public class Transmitter extends Thread {
 		byte[] bytes = new byte[(int) length];
 		int offset = 0;
 		int numRead = 0;
-		while ((offset < bytes.length)
-				&& ((numRead = is.read(bytes, offset, bytes.length - offset)) >= 0)) {
+		while ((offset < bytes.length) && ((numRead = is.read(bytes, offset, bytes.length - offset)) >= 0)) {
 			offset += numRead;
 		}
 		if (offset < bytes.length) {
-			throw new IOException("Could not completely read file "
-					+ file.getName());
+			throw new IOException("Could not completely read file " + file.getName());
 		}
 		is.close();
 		return bytes;
@@ -271,8 +282,7 @@ public class Transmitter extends Thread {
 				MainWindow.getInstance().addStatusLine("Ungültige Location.");
 				return false;
 			} else if (resp.getErrorCode() == LockPathCmd.ERROR_LOC_NOTFREE) {
-				MainWindow.getInstance()
-						.addStatusLine("Location in Benutzung.");
+				MainWindow.getInstance().addStatusLine("Location in Benutzung.");
 				return false;
 			} else
 				return false;
@@ -300,17 +310,12 @@ public class Transmitter extends Thread {
 
 					retVal = this.sendAndRead(cmd);
 					log.debug("Server said: " + retVal);
-					if (retVal instanceof SaveFileCmd
-							&& retVal.commandSucceded()) {
-						log.info("Datei " + this.akt.getAbsolutePath()
-								+ " gesendet");
+					if (retVal instanceof SaveFileCmd && retVal.commandSucceded()) {
+						log.info("Datei " + this.akt.getAbsolutePath() + " gesendet");
 						this.akt.delete();
 					} else {
-						log.info("Datei " + this.akt.getName()
-								+ " nicht gesendet");
-						MainWindow.getInstance().addStatusLine(
-								"Konnte " + this.akt.getName()
-										+ " nicht senden");
+						log.info("Datei " + this.akt.getName() + " nicht gesendet");
+						MainWindow.getInstance().addStatusLine("Konnte " + this.akt.getName() + " nicht senden");
 					}
 				}
 			}
@@ -322,8 +327,7 @@ public class Transmitter extends Thread {
 			if (retVal instanceof SaveGalleryCmd && retVal.commandSucceded()) {
 				MainWindow.getInstance().addStatusLine("Galerie gespeichert");
 			} else {
-				MainWindow.getInstance().addStatusLine(
-						"Fehler bei Datenbankeintrag");
+				MainWindow.getInstance().addStatusLine("Fehler bei Datenbankeintrag");
 			}
 			MainWindow.getInstance().addStatusLine("Beende Übertragung");
 			this.disconnect();
@@ -371,8 +375,7 @@ public class Transmitter extends Thread {
 			if (Transmitter.this.isConnected()) {
 				log.debug("sending PingCmd");
 				try {
-					log.debug("Server said: "
-							+ Transmitter.this.sendAndRead(new PingCmd()));
+					log.debug("Server said: " + Transmitter.this.sendAndRead(new PingCmd()));
 				} catch (AuthenticationException authEx) {
 				}
 			}

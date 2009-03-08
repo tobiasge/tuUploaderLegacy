@@ -11,15 +11,18 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
 import com.teamulm.uploadsystem.data.Gallery;
+import com.teamulm.uploadsystem.data.Location;
 import com.teamulm.uploadsystem.data.User;
 import com.teamulm.uploadsystem.protocol.AuthenticationCmd;
 import com.teamulm.uploadsystem.protocol.Command;
 import com.teamulm.uploadsystem.protocol.GetGalleriesCmd;
+import com.teamulm.uploadsystem.protocol.GetLocationsCmd;
 import com.teamulm.uploadsystem.protocol.HelloCmd;
 import com.teamulm.uploadsystem.protocol.LockPathCmd;
 import com.teamulm.uploadsystem.protocol.LoginCmd;
@@ -84,9 +87,8 @@ public class UploadServ extends Thread {
 	private boolean authenticateUser(String user, String passwd) {
 		boolean authenticationOk = false;
 		this.user = DBConn.getInstance().getUserForName(user);
-		authenticationOk = (null != passwd) && (null != this.user)
-				&& (!passwd.equals(""))
-				&& (passwd.equalsIgnoreCase(this.user.getPassword()));
+		authenticationOk = (null != passwd) && (null != this.user) && (!passwd.equals(""))
+			&& (passwd.equalsIgnoreCase(this.user.getPassword()));
 		if (authenticationOk)
 			return true;
 		else {
@@ -136,8 +138,7 @@ public class UploadServ extends Thread {
 
 	public Gallery getGallery(String location, String date, int suffix) {
 		Gallery retVal;
-		File dir = new File(this.baseDir
-				+ Gallery.getPath(location, date, suffix));
+		File dir = new File(this.baseDir + Gallery.getPath(location, date, suffix));
 		if (!dir.exists()) {
 			dir.mkdirs();
 			log.info("New Location dir created " + dir.getAbsolutePath());
@@ -154,21 +155,18 @@ public class UploadServ extends Thread {
 
 	private boolean saveFile(SaveFileCmd cmd) {
 		try {
-			DataOutputStream out = new DataOutputStream(
-					new BufferedOutputStream(new FileOutputStream(this.baseDir
-							+ this.gallery.getPath() + cmd.getFileName())));
+			DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(this.baseDir
+				+ this.gallery.getPath() + cmd.getFileName())));
 			out.write(cmd.getFileContent(), 0, cmd.getFileSize());
 			out.flush();
 			out.close();
 			this.uploaded++;
-			log.info(this.clientip + ": File " + this.gallery.getPath()
-					+ cmd.getFileName() + " with size " + cmd.getFileSize()
-					+ " saved");
+			log.info(this.clientip + ": File " + this.gallery.getPath() + cmd.getFileName() + " with size "
+				+ cmd.getFileSize() + " saved");
 			return true;
 		} catch (Exception e) {
-			log.error(this.clientip + ": File " + this.gallery.getPath()
-					+ cmd.getFileName() + " with size " + cmd.getFileSize()
-					+ " not saved");
+			log.error(this.clientip + ": File " + this.gallery.getPath() + cmd.getFileName() + " with size "
+				+ cmd.getFileSize() + " not saved");
 			this.ExceptionHandler(e);
 			return false;
 		}
@@ -191,17 +189,13 @@ public class UploadServ extends Thread {
 			Command retVal = (Command) this.input.readObject();
 			return retVal;
 		} catch (ClassCastException e) {
-			log.error(this.clientip
-					+ ": readCommand(): failed with class problem");
+			log.error(this.clientip + ": readCommand(): failed with class problem");
 			this.ExceptionHandler(e);
 		} catch (ClassNotFoundException e) {
-			log.error(this.clientip
-					+ ": readCommand(): failed with class loader problem");
+			log.error(this.clientip + ": readCommand(): failed with class loader problem");
 			this.ExceptionHandler(e);
 		} catch (IOException e) {
-			log
-					.error(this.clientip
-							+ ": readCommand(): failed with IO problem");
+			log.error(this.clientip + ": readCommand(): failed with IO problem");
 			this.ExceptionHandler(e);
 		}
 		return null;
@@ -216,11 +210,9 @@ public class UploadServ extends Thread {
 			if (cmd instanceof HelloCmd) {
 				HelloCmd request = (HelloCmd) cmd;
 				HelloCmd response = new HelloCmd(true);
-				if (!request.getProtocolVersionString().equalsIgnoreCase(
-						UploadServ.VER)) {
-					log.error(this.clientip
-							+ ": Tried to connect with bad version: "
-							+ request.getProtocolVersionString());
+				if (!request.getProtocolVersionString().equalsIgnoreCase(UploadServ.VER)) {
+					log.error(this.clientip + ": Tried to connect with bad version: "
+						+ request.getProtocolVersionString());
 					response.setErrorMsg("Protocolversion missmatch");
 					response.setSuccess(false);
 					this.output.writeObject(response);
@@ -233,8 +225,7 @@ public class UploadServ extends Thread {
 					this.output.flush();
 				}
 			} else {
-				log.error(this.clientip
-						+ ": Client did not send HELLO with version");
+				log.error(this.clientip + ": Client did not send HELLO with version");
 				this.cleanUp();
 			}
 			while (this.active) {
@@ -243,20 +234,15 @@ public class UploadServ extends Thread {
 					LoginCmd request = (LoginCmd) cmd;
 					log.info(this.clientip + ": " + request.toString());
 					LoginCmd response = new LoginCmd(true);
-					if (!this.authenticateUser(request.getUserName(), request
-							.getPassWord())) {
-						response.setErrorMsg("Wrong username or password for "
-								+ request.getUserName());
+					if (!this.authenticateUser(request.getUserName(), request.getPassWord())) {
+						response.setErrorMsg("Wrong username or password for " + request.getUserName());
 						response.setSuccess(false);
 						this.output.writeObject(response);
 						this.output.flush();
-						log.info(this.clientip
-								+ ": Bad user or password; User: "
-								+ request.getUserName());
+						log.info(this.clientip + ": Bad user or password; User: " + request.getUserName());
 					} else {
 						response.setSuccess(true);
-						log.info(this.clientip + ": User "
-								+ request.getUserName() + " accepted");
+						log.info(this.clientip + ": User " + request.getUserName() + " accepted");
 						this.output.writeObject(response);
 						this.output.flush();
 					}
@@ -269,10 +255,8 @@ public class UploadServ extends Thread {
 					this.output.flush();
 				} else if (cmd instanceof SaveFileCmd) {
 					if (!this.isAuthenticated()) {
-						this
-								.sendAuthenticationNeeded("Befehl "
-										+ cmd.getClass()
-										+ " kann nur mit angemeldetem User ausgeführt werden.");
+						this.sendAuthenticationNeeded("Befehl " + cmd.getClass()
+							+ " kann nur mit angemeldetem User ausgeführt werden.");
 						continue;
 					}
 					SaveFileCmd request = (SaveFileCmd) cmd;
@@ -283,17 +267,14 @@ public class UploadServ extends Thread {
 					this.output.flush();
 				} else if (cmd instanceof SaveGalleryCmd) {
 					if (!this.isAuthenticated()) {
-						this
-								.sendAuthenticationNeeded("Befehl "
-										+ cmd.getClass()
-										+ " kann nur mit angemeldetem User ausgeführt werden.");
+						this.sendAuthenticationNeeded("Befehl " + cmd.getClass()
+							+ " kann nur mit angemeldetem User ausgeführt werden.");
 						continue;
 					}
 					SaveGalleryCmd request = (SaveGalleryCmd) cmd;
 					log.info(this.clientip + ": " + request.toString());
 					SaveGalleryCmd response = new SaveGalleryCmd(true);
-					this.gallery.setPictures((this.uploaded / 2 + this.gallery
-							.getPictures()));
+					this.gallery.setPictures((this.uploaded / 2 + this.gallery.getPictures()));
 					if (request.getGallery().isNewGallery()) {
 						this.gallery.setDesc(request.getGallery().getDesc());
 						this.gallery.setTitle(request.getGallery().getTitle());
@@ -301,10 +282,8 @@ public class UploadServ extends Thread {
 					}
 					if (this.makeDBEntry()) {
 						if (this.uploaded > 2) {
-							PicServer.getInstance().logLastUpload(
-									this.user.getUserid(), this.uploaded / 2,
-									this.gallery.getDate(),
-									this.gallery.getLocation());
+							PicServer.getInstance().logLastUpload(this.user.getUserid(), this.uploaded / 2,
+								this.gallery.getDate(), this.gallery.getLocation());
 						}
 						log.info(this.clientip + ": DB Entry done");
 						response.setSuccess(true);
@@ -321,10 +300,8 @@ public class UploadServ extends Thread {
 					}
 				} else if (cmd instanceof NewGalleryCmd) {
 					if (!this.isAuthenticated()) {
-						this
-								.sendAuthenticationNeeded("Befehl "
-										+ cmd.getClass()
-										+ " kann nur mit angemeldetem User ausgeführt werden.");
+						this.sendAuthenticationNeeded("Befehl " + cmd.getClass()
+							+ " kann nur mit angemeldetem User ausgeführt werden.");
 						continue;
 					}
 					NewGalleryCmd request = (NewGalleryCmd) cmd;
@@ -333,8 +310,7 @@ public class UploadServ extends Thread {
 					Gallery gal = new Gallery();
 					gal.setLocation(request.getLocation());
 					gal.setDate(request.getDate());
-					gal.setSuffix(DBConn.getInstance().getNextSuffixFor(
-							request.getLocation(), request.getDate()));
+					gal.setSuffix(DBConn.getInstance().getNextSuffixFor(request.getLocation(), request.getDate()));
 					response.setGallery(gal);
 					response.setSuccess(true);
 					this.output.writeObject(response);
@@ -342,18 +318,15 @@ public class UploadServ extends Thread {
 					this.gallery = gal;
 				} else if (cmd instanceof GetGalleriesCmd) {
 					if (!this.isAuthenticated()) {
-						this
-								.sendAuthenticationNeeded("Befehl "
-										+ cmd.getClass()
-										+ " kann nur mit angemeldetem User ausgeführt werden.");
+						this.sendAuthenticationNeeded("Befehl " + cmd.getClass()
+							+ " kann nur mit angemeldetem User ausgeführt werden.");
 						continue;
 					}
 					GetGalleriesCmd request = (GetGalleriesCmd) cmd;
 					log.info(this.clientip + ": " + request.toString());
 					GetGalleriesCmd response = new GetGalleriesCmd(true);
 					ArrayList<Gallery> galleries = new ArrayList<Gallery>();
-					if (DBConn.getInstance().getGalleries(request.getDate(),
-							galleries)) {
+					if (DBConn.getInstance().getGalleries(request.getDate(), galleries)) {
 						response.setSuccess(true);
 					} else {
 						response.setSuccess(false);
@@ -363,10 +336,8 @@ public class UploadServ extends Thread {
 					this.output.flush();
 				} else if (cmd instanceof UnLockPathCmd) {
 					if (!this.isAuthenticated()) {
-						this
-								.sendAuthenticationNeeded("Befehl "
-										+ cmd.getClass()
-										+ " kann nur mit angemeldetem User ausgeführt werden.");
+						this.sendAuthenticationNeeded("Befehl " + cmd.getClass()
+							+ " kann nur mit angemeldetem User ausgeführt werden.");
 						continue;
 					}
 					UnLockPathCmd request = (UnLockPathCmd) cmd;
@@ -378,29 +349,24 @@ public class UploadServ extends Thread {
 					this.output.flush();
 				} else if (cmd instanceof LockPathCmd) {
 					if (!this.isAuthenticated()) {
-						this
-								.sendAuthenticationNeeded("Befehl "
-										+ cmd.getClass()
-										+ " kann nur mit angemeldetem User ausgeführt werden.");
+						this.sendAuthenticationNeeded("Befehl " + cmd.getClass()
+							+ " kann nur mit angemeldetem User ausgeführt werden.");
 						continue;
 					}
 					LockPathCmd request = (LockPathCmd) cmd;
 					log.info(this.clientip + ": " + request.toString());
 					LockPathCmd response = new LockPathCmd(true);
-					if (!DBConn.getInstance().checkLocation(
-							request.getLocation())) {
+					if (!DBConn.getInstance().checkLocation(request.getLocation())) {
 						response.setErrorCode(LockPathCmd.ERROR_LOC_BADLOC);
 						response.setErrorMsg("location not valid");
 						response.setSuccess(false);
 						this.output.writeObject(response);
 						this.output.flush();
 						log.info(this.clientip + ": invalid location selected");
-					} else if (PicServer.getInstance().lockLocation(
-							request.getPath(), this.user.getUsername())) {
+					} else if (PicServer.getInstance().lockLocation(request.getPath(), this.user.getUsername())) {
 						response.setSuccess(true);
 						this.hasLock = true;
-						this.gallery = this.getGallery(request.getLocation(),
-								request.getDate(), request.getSuffix());
+						this.gallery = this.getGallery(request.getLocation(), request.getDate(), request.getSuffix());
 						response.setStartNumber(this.gallery.getPictures() + 1);
 						this.output.writeObject(response);
 						this.output.flush();
@@ -412,6 +378,19 @@ public class UploadServ extends Thread {
 						this.output.flush();
 						log.info(this.clientip + ": selected location is used");
 					}
+				} else if (cmd instanceof GetLocationsCmd) {
+					GetLocationsCmd request = (GetLocationsCmd) cmd;
+					log.info(this.clientip + ": " + request.toString());
+					GetLocationsCmd response = new GetLocationsCmd(true);
+					List<Location> locations = DBConn.getInstance().getLocations();
+					if (null != locations) {
+						response.setLocations(locations);
+						response.setSuccess(true);
+					} else {
+						response.setSuccess(false);
+					}
+					this.output.writeObject(response);
+					this.output.flush();
 				} else if (cmd instanceof QuitCmd) {
 					log.info(this.clientip + ": client closed connection");
 					QuitCmd response = new QuitCmd(true);
@@ -424,8 +403,7 @@ public class UploadServ extends Thread {
 					if (null == cmd) {
 						log.error(this.clientip + ": client command was null");
 					} else {
-						log.error(this.clientip + ": client used bad command: "
-								+ cmd.getClass());
+						log.error(this.clientip + ": client used bad command: " + cmd.getClass());
 					}
 				}
 			}

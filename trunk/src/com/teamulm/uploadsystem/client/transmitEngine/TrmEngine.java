@@ -4,6 +4,7 @@ import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -16,6 +17,7 @@ import com.teamulm.uploadsystem.client.Helper;
 import com.teamulm.uploadsystem.client.gui.MainWindow;
 import com.teamulm.uploadsystem.client.gui.comp.MyJProgressBar;
 import com.teamulm.uploadsystem.data.Gallery;
+import com.teamulm.uploadsystem.data.Location;
 
 public class TrmEngine extends Thread {
 
@@ -120,7 +122,7 @@ public class TrmEngine extends Thread {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				MainWindow.getInstance().setUploadProgress(
-						(int) ((MyJProgressBar.MAX / TrmEngine.this.totalFiles) * TrmEngine.this.transmitedFiles));
+					(int) ((MyJProgressBar.MAX / TrmEngine.this.totalFiles) * TrmEngine.this.transmitedFiles));
 			};
 		});
 
@@ -140,7 +142,7 @@ public class TrmEngine extends Thread {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				MainWindow.getInstance().setConvertProgress(
-						(int) ((MyJProgressBar.MAX / TrmEngine.this.totalFiles) * TrmEngine.this.convertedFiles));
+					(int) ((MyJProgressBar.MAX / TrmEngine.this.totalFiles) * TrmEngine.this.convertedFiles));
 			};
 		});
 	}
@@ -238,6 +240,13 @@ public class TrmEngine extends Thread {
 			return new ArrayList<Gallery>();
 		}
 		return this.transmit.getGalleriesFor(date);
+	}
+
+	public synchronized List<Location> getLocations() {
+		if (null == this.transmit || !this.transmit.isConnected()) {
+			return new ArrayList<Location>();
+		}
+		return this.transmit.getLocations();
 	}
 
 	public synchronized boolean lockLocation(Gallery gal) {

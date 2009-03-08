@@ -11,14 +11,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.BorderFactory;
@@ -39,18 +35,17 @@ import javax.swing.border.Border;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
-import com.teamulm.uploadsystem.client.Helper;
-import com.teamulm.uploadsystem.client.TeamUlmUpload;
 import com.teamulm.uploadsystem.client.gui.comp.MyJButton;
 import com.teamulm.uploadsystem.client.gui.comp.MyJComboBox;
 import com.teamulm.uploadsystem.client.gui.comp.MyJTextField;
 import com.teamulm.uploadsystem.client.transmitEngine.TrmEngine;
 import com.teamulm.uploadsystem.data.Gallery;
+import com.teamulm.uploadsystem.data.Location;
 
 public class GalleryDialog extends JDialog {
 
 	private static final long serialVersionUID = -9193707556220629559L;
-	private static boolean locationsLoaded = false;
+
 	private ArrayList<Gallery> myGalleries;
 	private DefaultTableModel galTableModel;
 	private MyJComboBox locationsBox;
@@ -263,16 +258,15 @@ public class GalleryDialog extends JDialog {
 	private void selectOldGal() {
 		if (-1 == this.galTable.getSelectedRow()) {
 			JOptionPane.showMessageDialog(GalleryDialog.this, "Bitte eine Galerie auswählen!", "Galerie...",
-					JOptionPane.ERROR_MESSAGE, null);
+				JOptionPane.ERROR_MESSAGE, null);
 		} else {
 			if (GalleryDialog.this.galTable.getValueAt(GalleryDialog.this.galTable.getSelectedRow(), 0) instanceof Gallery) {
 				MainWindow.getInstance().setGallery(
-						(Gallery) GalleryDialog.this.galTable.getValueAt(GalleryDialog.this.galTable.getSelectedRow(),
-								0));
+					(Gallery) GalleryDialog.this.galTable.getValueAt(GalleryDialog.this.galTable.getSelectedRow(), 0));
 				GalleryDialog.this.dispose();
 			} else {
 				JOptionPane.showMessageDialog(GalleryDialog.this, "Bitte eine Galerie auswählen!", "Galerie...",
-						JOptionPane.ERROR_MESSAGE, null);
+					JOptionPane.ERROR_MESSAGE, null);
 			}
 		}
 	}
@@ -282,10 +276,10 @@ public class GalleryDialog extends JDialog {
 			return;
 		}
 		if (((String) this.locationsBox.getSelectedItem()).compareTo("    -- Bitte wählen --") == 0
-				|| this.descField.getText().equalsIgnoreCase("Beschreibung")
-				|| this.titleField.getText().equalsIgnoreCase("Titel")) {
+			|| this.descField.getText().equalsIgnoreCase("Beschreibung")
+			|| this.titleField.getText().equalsIgnoreCase("Titel")) {
 			JOptionPane.showMessageDialog(this, "Bitte alle Felder vollständig ausfüllen!", "Neue Galerie",
-					JOptionPane.ERROR_MESSAGE, null);
+				JOptionPane.ERROR_MESSAGE, null);
 		} else {
 			Gallery tmpGal = TrmEngine.getInstance().newGallery((String) this.locationsBox.getSelectedItem(), date);
 			tmpGal.setIntern(this.isIntern.isSelected());
@@ -329,59 +323,25 @@ public class GalleryDialog extends JDialog {
 		}
 	}
 
-	private class LocationsLoader extends SwingWorker<byte[], Void> {
+	private class LocationsLoader extends SwingWorker<List<Location>, Void> {
 
 		private MyJComboBox locationsBox;
-		private String fileName;
 
 		public LocationsLoader(MyJComboBox locationsBox) {
 			this.locationsBox = locationsBox;
-			this.fileName = Helper.getInstance().getFileLocation("locations.list");
 		}
 
 		@Override
-		protected byte[] doInBackground() throws Exception {
-			byte[] contentByteArray = null;
-			if (GalleryDialog.locationsLoaded)
-				return null;
-			try {
-				String locURL = TeamUlmUpload.getInstance().getClientConf().getProperty("locationList");
-				if (locURL.trim().length() == 0) {
-					locURL = "http://www.team-ulm.de/fotos/parties/locations.php";
-				}
-				URLConnection locationsURL = new URL(locURL).openConnection();
-				int contentLength = locationsURL.getContentLength();
-				contentByteArray = new byte[contentLength];
-				InputStream fromServer = locationsURL.getInputStream();
-				int readBytes = fromServer.read(contentByteArray);
-				if (readBytes != contentLength)
-					throw new Exception("Content not fully read");
-				MainWindow.getInstance().addStatusLine("Locations Update fertig");
-				GalleryDialog.locationsLoaded = true;
-			} catch (IOException ioEx) {
-				MainWindow.getInstance().addStatusLine("Konnte Liste nicht updaten");
-				Helper.getInstance().systemCrashHandler(ioEx);
-				return null;
-			}
-			try {
-				FileOutputStream out = new FileOutputStream(fileName);
-				out.write(contentByteArray);
-				out.flush();
-				out.close();
-			} catch (IOException ioEx) {
-				MainWindow.getInstance().addStatusLine("Konnte Liste nicht speichern");
-				Helper.getInstance().systemCrashHandler(ioEx);
-			}
-			return contentByteArray;
+		protected List<Location> doInBackground() throws Exception {
+			return TrmEngine.getInstance().getLocations();
 		}
 
 		@Override
 		protected void done() {
-			byte[] locations;
 			try {
-				locations = this.get();
+				List<Location> locations = this.get();
 				if (null == locations) {
-					this.locationsBox.setLocations(this.fileName);
+					MainWindow.getInstance().addStatusLine("Locationsliste nicht geladen");
 				} else {
 					this.locationsBox.setLocations(locations);
 				}
@@ -457,13 +417,13 @@ public class GalleryDialog extends JDialog {
 		private static final long serialVersionUID = -2545639336835517795L;
 
 		private Border CACHED_SEL_BORDER = BorderFactory.createMatteBorder(0, 4, 0, 4, UIManager
-				.getColor("Table.selectionBackground"));
+			.getColor("Table.selectionBackground"));
 
 		private Border CACHED_BORDER = BorderFactory.createMatteBorder(0, 4, 0, 4, UIManager
-				.getColor("Table.background"));
+			.getColor("Table.background"));
 
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-				boolean hasFocus, int row, int column) {
+			boolean hasFocus, int row, int column) {
 			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
 			Border currentBorder = getBorder();

@@ -3,10 +3,12 @@ package com.teamulm.uploadsystem.server;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import com.teamulm.uploadsystem.data.Gallery;
+import com.teamulm.uploadsystem.data.Location;
 import com.teamulm.uploadsystem.data.User;
 import com.teamulm.uploadsystem.server.dbControl.DataBaseControler;
 
@@ -31,8 +33,7 @@ public class DBConn {
 		ResultSet result;
 		User retVal = null;
 		com.teamulm.uploadsystem.server.dbControl.DBConn connection = null;
-		if (null == (connection = DataBaseControler.getInstance()
-				.getDataBaseForTable("tu_users_login"))) {
+		if (null == (connection = DataBaseControler.getInstance().getDataBaseForTable("tu_users_login"))) {
 			return retVal;
 		}
 		try {
@@ -41,11 +42,9 @@ public class DBConn {
 			request.setString(1, username);
 			result = request.executeQuery();
 			result.first();
-			retVal = new User(result.getInt("userid"), result
-					.getString("passwort_enc"), result.getString("username"));
+			retVal = new User(result.getInt("userid"), result.getString("passwort_enc"), result.getString("username"));
 		} catch (Exception e) {
-			log.error("Failure in getUserForName(): " + e.getClass());
-			log.error("Failure in getUserForName(): " + e.getMessage());
+			log.error("Failure in getUserForName(): ", e);
 		}
 		return retVal;
 	}
@@ -55,12 +54,11 @@ public class DBConn {
 		ResultSet result;
 		Gallery retVal = null;
 		com.teamulm.uploadsystem.server.dbControl.DBConn connection = null;
-		if (null == (connection = DataBaseControler.getInstance()
-				.getDataBaseForTable("tu_fotos"))) {
+		if (null == (connection = DataBaseControler.getInstance().getDataBaseForTable("tu_fotos"))) {
 			return retVal;
 		}
 		String query = "SELECT galid, pictures, suffix, title, description,intern FROM tu_fotos WHERE location = ? "
-				+ "AND date_gal = STR_TO_DATE(?, '%d-%m-%Y') AND suffix = ?";
+			+ "AND date_gal = STR_TO_DATE(?, '%d-%m-%Y') AND suffix = ?";
 		try {
 			request = connection.prepareStatement(query);
 			request.setString(1, location);
@@ -80,8 +78,7 @@ public class DBConn {
 			retVal.setIntern(result.getBoolean("intern"));
 			retVal.setNewGallery(false);
 		} catch (Exception e) {
-			log.error("Failure in getGallery(): " + e.getClass());
-			log.error("Failure in getGallery(): " + e.getMessage());
+			log.error("Failure in getGallery(): ", e);
 		}
 		return retVal;
 	}
@@ -90,12 +87,11 @@ public class DBConn {
 		PreparedStatement request;
 		ResultSet result;
 		com.teamulm.uploadsystem.server.dbControl.DBConn connection = null;
-		if (null == (connection = DataBaseControler.getInstance()
-				.getDataBaseForTable("tu_fotos"))) {
+		if (null == (connection = DataBaseControler.getInstance().getDataBaseForTable("tu_fotos"))) {
 			return 0;
 		}
 		String query = "SELECT IF(MAX(suffix) IS NULL, -1, MAX(suffix)) AS suffix FROM tu_fotos WHERE location = ? "
-				+ "AND date_gal = STR_TO_DATE(?, '%d-%m-%Y')";
+			+ "AND date_gal = STR_TO_DATE(?, '%d-%m-%Y')";
 		try {
 			request = connection.prepareStatement(query);
 			request.setString(1, location);
@@ -105,8 +101,7 @@ public class DBConn {
 				return 0;
 			return result.getInt("suffix") + 1;
 		} catch (Exception e) {
-			log.error("Failure in getNextSuffixFor(): " + e.getClass());
-			log.error("Failure in getNextSuffixFor(): " + e.getMessage());
+			log.error("Failure in getNextSuffixFor(): ", e);
 		}
 		return 0;
 	}
@@ -115,12 +110,11 @@ public class DBConn {
 		PreparedStatement request;
 		ResultSet result;
 		com.teamulm.uploadsystem.server.dbControl.DBConn connection = null;
-		if (null == (connection = DataBaseControler.getInstance()
-				.getDataBaseForTable("tu_fotos"))) {
+		if (null == (connection = DataBaseControler.getInstance().getDataBaseForTable("tu_fotos"))) {
 			return false;
 		}
 		String query = "SELECT galid, pictures, suffix, location, description, title, intern FROM tu_fotos WHERE "
-				+ "date_gal = STR_TO_DATE(?, '%d-%m-%Y')";
+			+ "date_gal = STR_TO_DATE(?, '%d-%m-%Y')";
 		try {
 			request = connection.prepareStatement(query);
 			request.setString(1, date);
@@ -139,8 +133,7 @@ public class DBConn {
 				galleries.add(tmpGal);
 			}
 		} catch (Exception e) {
-			log.error("Failure in getGalleries(): " + e.getClass());
-			log.error("Failure in getGalleries(): " + e.getMessage());
+			log.error("Failure in getGalleries(): ", e);
 			return false;
 		}
 		return true;
@@ -151,8 +144,7 @@ public class DBConn {
 		ResultSet result;
 		boolean retVal = false;
 		com.teamulm.uploadsystem.server.dbControl.DBConn connection = null;
-		if (null == (connection = DataBaseControler.getInstance()
-				.getDataBaseForTable("tu_fotos_locations"))) {
+		if (null == (connection = DataBaseControler.getInstance().getDataBaseForTable("tu_fotos_locations"))) {
 			return retVal;
 		}
 		String query = "SELECT COUNT(*) AS number FROM tu_fotos_locations WHERE locName = ?";
@@ -163,23 +155,20 @@ public class DBConn {
 			result.first();
 			retVal = (result.getInt("number") == 1);
 		} catch (Exception e) {
-			log.error("Failure in checkLocation(): " + e.getClass());
-			log.error("Failure in checkLocation(): " + e.getMessage());
+			log.error("Failure in checkLocation(): ", e);
 		}
 		return retVal;
 	}
 
-	public boolean saveLastUploadLogEntry(long userid, long uploadedPictures,
-			String galDate, String galLoc) {
+	public boolean saveLastUploadLogEntry(long userid, long uploadedPictures, String galDate, String galLoc) {
 		PreparedStatement request;
 		com.teamulm.uploadsystem.server.dbControl.DBConn connection = null;
-		if (null == (connection = DataBaseControler.getInstance()
-				.getDataBaseForTable("tu_fotos_lastUpload"))) {
+		if (null == (connection = DataBaseControler.getInstance().getDataBaseForTable("tu_fotos_lastUpload"))) {
 			return false;
 		}
 		try {
 			String query = "INSERT INTO tu_fotos_lastUpload(userid,galleryDate,galleryLocation,pictures) "
-					+ "VALUES(?,STR_TO_DATE(?, '%d-%m-%Y'),?,?)";
+				+ "VALUES(?,STR_TO_DATE(?, '%d-%m-%Y'),?,?)";
 			request = connection.prepareStatement(query);
 			request.setLong(1, userid);
 			request.setString(2, galDate);
@@ -187,8 +176,7 @@ public class DBConn {
 			request.setLong(4, uploadedPictures);
 			request.executeUpdate();
 		} catch (Exception e) {
-			log.error("Failure in saveLastUploadLogEntry(): " + e.getClass());
-			log.error("Failure in saveLastUploadLogEntry(): " + e.getMessage());
+			log.error("Failure in saveLastUploadLogEntry(): ", e);
 			return false;
 		}
 		return true;
@@ -197,15 +185,14 @@ public class DBConn {
 	public boolean saveGalleryToDataBase(Gallery gallery, User user) {
 		PreparedStatement request;
 		com.teamulm.uploadsystem.server.dbControl.DBConn connection = null;
-		if (null == (connection = DataBaseControler.getInstance()
-				.getDataBaseForTable("tu_fotos"))) {
+		if (null == (connection = DataBaseControler.getInstance().getDataBaseForTable("tu_fotos"))) {
 			return false;
 		}
 		try {
 			if (-1 == gallery.getGalid()) { // Save new gallery
 				String query = "INSERT INTO tu_fotos(location,description,suffix,"
-						+ "title,userids,pictures,date_gal,intern)"
-						+ " VALUES (?, ?, ?, ?, ?, ?, STR_TO_DATE(?, '%d-%m-%Y'), ?)";
+					+ "title,userids,pictures,date_gal,intern)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, STR_TO_DATE(?, '%d-%m-%Y'), ?)";
 				request = connection.prepareStatement(query);
 				request.setString(1, gallery.getLocation());
 				request.setString(2, gallery.getDesc());
@@ -229,10 +216,32 @@ public class DBConn {
 				request.executeUpdate();
 			}
 		} catch (Exception e) {
-			log.error("Failure in saveGalleryToDataBase(): " + e.getClass());
-			log.error("Failure in saveGalleryToDataBase(): " + e.getMessage());
+			log.error("Failure in saveGalleryToDataBase(): ", e);
 			return false;
 		}
 		return true;
+	}
+
+	public List<Location> getLocations() {
+		PreparedStatement request;
+		ResultSet result;
+		com.teamulm.uploadsystem.server.dbControl.DBConn connection = null;
+		if (null == (connection = DataBaseControler.getInstance().getDataBaseForTable("tu_fotos_locations"))) {
+			return null;
+		}
+		List<Location> locations = new ArrayList<Location>();
+		try {
+			String query = "SELECT locID, locName FROM tu_fotos_locations";
+			request = connection.prepareStatement(query);
+			result = request.executeQuery();
+			while (result.next()) {
+				Location tmpLocation = new Location(result.getInt("locID"), result.getString("locName"));
+				locations.add(tmpLocation);
+			}
+		} catch (Exception e) {
+			log.error("Failure in getLocations(): ", e);
+			return null;
+		}
+		return locations;
 	}
 }
