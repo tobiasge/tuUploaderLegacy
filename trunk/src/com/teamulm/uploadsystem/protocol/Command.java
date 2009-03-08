@@ -2,6 +2,9 @@ package com.teamulm.uploadsystem.protocol;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 public abstract class Command implements Serializable {
 
 	private static final long serialVersionUID = 5593609768805163288L;
@@ -58,5 +61,11 @@ public abstract class Command implements Serializable {
 
 	public void setErrorCode(int errorCode) {
 		this.errorCode = errorCode;
+	}
+
+	@Override
+	public String toString() {
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+			.append("ServerResponse", this.serverResponse).append("Success", this.success).toString();
 	}
 }

@@ -2,6 +2,9 @@ package com.teamulm.uploadsystem.protocol;
 
 import java.util.ArrayList;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 import com.teamulm.uploadsystem.data.Gallery;
 
 public class GetGalleriesCmd extends Command {
@@ -38,15 +41,9 @@ public class GetGalleriesCmd extends Command {
 		}
 		return null;
 	}
-	
+
 	public String toString() {
-		String toString = "GetGalleriesCmd ";
-		if (this.isServerResponse()) {
-			toString = toString.concat("(Response): commandSucceded() = "
-					+ this.commandSucceded());
-		} else {
-			toString = toString.concat("(Request): for date " + this.getDate());
-		}
-		return toString;
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).appendSuper(super.toString()).append(
+			"GalDate", this.galDate).toString();
 	}
 }

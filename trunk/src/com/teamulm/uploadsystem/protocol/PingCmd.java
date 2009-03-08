@@ -1,5 +1,8 @@
 package com.teamulm.uploadsystem.protocol;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 public class PingCmd extends Command {
 
 	private static final long serialVersionUID = 488184457320981227L;
@@ -17,13 +20,7 @@ public class PingCmd extends Command {
 	}
 
 	public String toString() {
-		String toString = "PingCmd ";
-		if (this.isServerResponse()) {
-			toString = toString.concat("(Response): commandSucceded() = "
-					+ this.commandSucceded() + " at " + this.millis);
-		} else {
-			toString = toString.concat("(Request) at " + this.millis);
-		}
-		return toString;
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).appendSuper(super.toString()).append(
+			"Millis", this.millis).toString();
 	}
 }

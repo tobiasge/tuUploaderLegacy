@@ -1,5 +1,8 @@
 package com.teamulm.uploadsystem.protocol;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 public class LoginCmd extends Command {
 
 	private static final long serialVersionUID = -3858622134307879471L;
@@ -33,14 +36,7 @@ public class LoginCmd extends Command {
 	}
 
 	public String toString() {
-		String toString = "LoginCmd ";
-		if (this.isServerResponse()) {
-			toString = toString.concat("(Response): commandSucceded() = "
-					+ this.commandSucceded());
-		} else {
-			toString = toString
-					.concat("(Request): username = " + this.userName);
-		}
-		return toString;
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).appendSuper(super.toString()).append(
+			"UserName", this.userName).toString();
 	}
 }
