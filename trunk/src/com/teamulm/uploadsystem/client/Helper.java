@@ -20,8 +20,6 @@ import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
 
-import com.teamulm.uploadsystem.client.gui.MainWindow;
-
 public class Helper {
 
 	private static final Logger log = Logger.getLogger(Helper.class);
@@ -44,8 +42,7 @@ public class Helper {
 		BufferedReader inputStream = null;
 		String inDataStr = null;
 		try {
-			inputStream = new BufferedReader(new InputStreamReader(
-					new FileInputStream(fileName)));
+			inputStream = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)));
 			while ((inDataStr = inputStream.readLine()) != null)
 				listData.add(inDataStr);
 			inputStream.close();
@@ -65,8 +62,7 @@ public class Helper {
 		BufferedReader inputStream = null;
 		String inDataStr = null;
 		try {
-			inputStream = new BufferedReader(new InputStreamReader(
-					new ByteArrayInputStream(data)));
+			inputStream = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(data)));
 			while ((inDataStr = inputStream.readLine()) != null)
 				listData.add(inDataStr);
 			inputStream.close();
@@ -87,17 +83,13 @@ public class Helper {
 		String stackTrace = sw.toString();
 
 		Object[] options = { "Ja", "Nein" };
-		if (JOptionPane.NO_OPTION == JOptionPane
-				.showOptionDialog(
-						null,
-						"Es ist ein Fehler aufgetreten. Soll ein Report erstellt werden?",
-						"Fehlerreport...?", JOptionPane.YES_NO_OPTION,
-						JOptionPane.ERROR_MESSAGE, null, options, options[1]))
+		if (JOptionPane.NO_OPTION == JOptionPane.showOptionDialog(null,
+			"Es ist ein Fehler aufgetreten. Soll ein Report erstellt werden?", "Fehlerreport...?",
+			JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[1]))
 			return;
 		else {
-			MainWindow.getInstance().addStatusLine("Sende Fehlerbericht");
-			String[] lines = this
-					.readFileData(TeamUlmUpload.logFileName, false);
+			TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Sende Fehlerbericht");
+			String[] lines = this.readFileData(TeamUlmUpload.logFileName, false);
 			String report = "";
 			if (null != lines) {
 				for (String line : lines) {
@@ -108,10 +100,8 @@ public class Helper {
 			}
 			try {
 				Properties mailProperties = new Properties();
-				mailProperties.setProperty("mail.smtp.host",
-						"hermes.nb.team-ulm.de");
-				Session mailSession = Session
-						.getDefaultInstance(mailProperties);
+				mailProperties.setProperty("mail.smtp.host", "hermes.nb.team-ulm.de");
+				Session mailSession = Session.getDefaultInstance(mailProperties);
 				MimeMessage mailMessage = new MimeMessage(mailSession);
 				InternetAddress from = new InternetAddress();
 				from.setAddress("uploaderror@team-ulm.de");
@@ -122,16 +112,14 @@ public class Helper {
 				mailMessage.addFrom(new Address[] { from });
 				mailMessage.addRecipient(Message.RecipientType.TO, to);
 				mailMessage.setSubject("Error: " + error.getClass());
-				mailMessage.setText(stackTrace + "\n\nLogfile:" + report,
-						"UTF-8", "plain");
+				mailMessage.setText(stackTrace + "\n\nLogfile:" + report, "UTF-8", "plain");
 				mailMessage.setHeader("X-Mailer", "TU-Uploader");
 				mailMessage.setSentDate(new Date());
 				Transport.send(mailMessage);
 			} catch (Exception e) {
 				System.out.println(e.getClass() + ": " + e.getMessage());
-				JOptionPane.showMessageDialog(null,
-						"Bericht konnte nicht gesendet werden.", "Fehler...",
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, "Bericht konnte nicht gesendet werden.", "Fehler...",
+					JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}

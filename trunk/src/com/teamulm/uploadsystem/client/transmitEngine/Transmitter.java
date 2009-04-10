@@ -20,7 +20,6 @@ import org.apache.log4j.Logger;
 
 import com.teamulm.uploadsystem.client.Helper;
 import com.teamulm.uploadsystem.client.TeamUlmUpload;
-import com.teamulm.uploadsystem.client.gui.MainWindow;
 import com.teamulm.uploadsystem.data.Gallery;
 import com.teamulm.uploadsystem.data.Location;
 import com.teamulm.uploadsystem.exception.AuthenticationException;
@@ -281,10 +280,10 @@ public class Transmitter extends Thread {
 				this.chef.setStartNumber(resp.getStartNumber());
 				return true;
 			} else if (resp.getErrorCode() == LockPathCmd.ERROR_LOC_BADLOC) {
-				MainWindow.getInstance().addStatusLine("Ungültige Location.");
+				TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Ungültige Location.");
 				return false;
 			} else if (resp.getErrorCode() == LockPathCmd.ERROR_LOC_NOTFREE) {
-				MainWindow.getInstance().addStatusLine("Location in Benutzung.");
+				TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Location in Benutzung.");
 				return false;
 			} else
 				return false;
@@ -296,8 +295,8 @@ public class Transmitter extends Thread {
 
 	@Override
 	public void run() {
-		MainWindow.getInstance().addStatusLine("Beginne Übertragung");
-		MainWindow.getInstance().setUploadProgress(0);
+		TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Beginne Übertragung");
+		TeamUlmUpload.getInstance().getMainWindow().setUploadProgress(0);
 		Command retVal;
 		try {
 			while (this.Running && this.chef.isThereSomethingToTtansmit()) {
@@ -317,7 +316,7 @@ public class Transmitter extends Thread {
 						this.akt.delete();
 					} else {
 						log.info("Datei " + this.akt.getName() + " nicht gesendet");
-						MainWindow.getInstance().addStatusLine("Konnte " + this.akt.getName() + " nicht senden");
+						TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Konnte " + this.akt.getName() + " nicht senden");
 					}
 				}
 			}
@@ -327,21 +326,21 @@ public class Transmitter extends Thread {
 			retVal = this.sendAndRead(cmd);
 			log.debug("Server said: " + retVal);
 			if (retVal instanceof SaveGalleryCmd && retVal.commandSucceded()) {
-				MainWindow.getInstance().addStatusLine("Galerie gespeichert");
+				TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Galerie gespeichert");
 			} else {
-				MainWindow.getInstance().addStatusLine("Fehler bei Datenbankeintrag");
+				TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Fehler bei Datenbankeintrag");
 			}
-			MainWindow.getInstance().addStatusLine("Beende Übertragung");
+			TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Beende Übertragung");
 			this.disconnect();
-			MainWindow.getInstance().addStatusLine("Verbindung beendet");
+			TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Verbindung beendet");
 			sleep(10);
 		} catch (AuthenticationException authEx) {
-			MainWindow.getInstance().addStatusLine(authEx.getMessage());
+			TeamUlmUpload.getInstance().getMainWindow().addStatusLine(authEx.getMessage());
 		} catch (Exception e) {
 			Helper.getInstance().systemCrashHandler(e);
 			this.Running = false;
 		}
-		MainWindow.getInstance().setUploadProgress(1000);
+		TeamUlmUpload.getInstance().getMainWindow().setUploadProgress(1000);
 	}
 
 	public synchronized void disconnect() {

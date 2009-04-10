@@ -24,7 +24,7 @@ import javax.imageio.ImageIO;
 import org.apache.log4j.Logger;
 
 import com.teamulm.uploadsystem.client.Helper;
-import com.teamulm.uploadsystem.client.gui.MainWindow;
+import com.teamulm.uploadsystem.client.TeamUlmUpload;
 import com.teamulm.uploadsystem.client.imageProcessing.ImageConverter;
 import com.teamulm.uploadsystem.client.imageProcessing.ImageConverterFactory;
 
@@ -81,7 +81,7 @@ public class Converter extends Thread {
 
 	@Override
 	public void run() {
-		MainWindow.getInstance().addStatusLine("Beginne Konvertierung: " + this.ident);
+		TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Beginne Konvertierung: " + this.ident);
 		File outBigPicName = null;
 		File outSmaPicName = null;
 		File actFile = null;
@@ -91,15 +91,15 @@ public class Converter extends Thread {
 				BufferedImage actPic = ImageIO.read(actFile);
 				if ((actPic.getWidth() < this.bigPicSize.width) && (actPic.getHeight() < this.bigPicSize.height)) {
 					log.info("Thread: " + this.ident + " Übersprungen wegen Größe " + actFile.getName() + " -> Breit: "
-							+ actPic.getWidth() + " Hoch: " + actPic.getHeight());
-					MainWindow.getInstance().addStatusLine("Bild ignoriert: Bild zu klein.");
+						+ actPic.getWidth() + " Hoch: " + actPic.getHeight());
+					TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Bild ignoriert: Bild zu klein.");
 				} else if ((actPic.getWidth() == this.bigPicSize.width)
-						&& (actPic.getHeight() == this.bigPicSize.height)) {
+					&& (actPic.getHeight() == this.bigPicSize.height)) {
 					number = this.chef.getNextPicNum();
 					outBigPicName = new File(this.savePath + this.fileSep + this.bigPicName + number + ".jpg");
 					outSmaPicName = new File(this.savePath + this.fileSep + this.smallPicName + number + ".jpg");
 					if (this.copyFile(actFile, outBigPicName)
-							&& this.myImageConverter.createPreview(outBigPicName, outSmaPicName)) {
+						&& this.myImageConverter.createPreview(outBigPicName, outSmaPicName)) {
 
 						this.chef.setToTransmit(outSmaPicName);
 						this.chef.setToTransmit(outBigPicName);
@@ -107,7 +107,8 @@ public class Converter extends Thread {
 					}
 				} else {
 					if (!this.myImageConverter.isKownFormat(actPic.getWidth(), actPic.getHeight())) {
-						MainWindow.getInstance().addStatusLine("Bild ignoriert: Bild hat falsches Format.");
+						TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
+							"Bild ignoriert: Bild hat falsches Format.");
 						this.chef.fileWasIgnored();
 						continue;
 					}
@@ -115,7 +116,7 @@ public class Converter extends Thread {
 					outBigPicName = new File(this.savePath + this.fileSep + this.bigPicName + number + ".jpg");
 					outSmaPicName = new File(this.savePath + this.fileSep + this.smallPicName + number + ".jpg");
 					if (this.myImageConverter.createPic(actFile, outBigPicName)
-							&& this.myImageConverter.createPreview(outBigPicName, outSmaPicName)) {
+						&& this.myImageConverter.createPreview(outBigPicName, outSmaPicName)) {
 						this.chef.setToTransmit(outSmaPicName);
 						this.chef.setToTransmit(outBigPicName);
 
@@ -124,8 +125,8 @@ public class Converter extends Thread {
 			}
 			sleep(5);
 		} catch (Exception e) {
-			MainWindow.getInstance().addStatusLine(
-					"Thread: " + this.ident + " Konnte " + actFile.getName() + " nicht konvertieren");
+			TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
+				"Thread: " + this.ident + " Konnte " + actFile.getName() + " nicht konvertieren");
 			Helper.getInstance().systemCrashHandler(e);
 		}
 	}

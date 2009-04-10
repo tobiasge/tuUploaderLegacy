@@ -19,13 +19,10 @@ import java.lang.management.MemoryMXBean;
 import java.lang.management.OperatingSystemMXBean;
 import java.util.Properties;
 
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+import org.eclipse.swt.widgets.Display;
 
-import com.jgoodies.looks.plastic.Plastic3DLookAndFeel;
 import com.teamulm.uploadsystem.client.gui.MainWindow;
 import com.teamulm.uploadsystem.client.transmitEngine.TrmEngine;
 
@@ -41,6 +38,8 @@ public class TeamUlmUpload {
 
 	public static String logFileName;
 
+	private MainWindow mainWindow;
+
 	// Konstruktor
 	private TeamUlmUpload() {
 		Thread.currentThread().setName("Main");
@@ -49,16 +48,14 @@ public class TeamUlmUpload {
 		log.info("Program Startup - Version " + TrmEngine.VERSION);
 		log.info("Running on: " + sysInfo1.getName() + " " + sysInfo1.getVersion());
 		log
-				.info("Systemtype is " + sysInfo1.getArch() + " working on " + sysInfo1.getAvailableProcessors()
-						+ " CPU(s)");
+			.info("Systemtype is " + sysInfo1.getArch() + " working on " + sysInfo1.getAvailableProcessors()
+				+ " CPU(s)");
 		log.info("Memory Usage is: " + sysInfo2.getHeapMemoryUsage());
-		SwingUtilities.invokeLater(new Runnable() {
 
-			public void run() {
-				Thread.currentThread().setName("EventQueue");
-				MainWindow.getInstance();
-			}
-		});
+		this.mainWindow = new MainWindow();
+		this.mainWindow.setBlockOnOpen(true);
+		this.mainWindow.open();
+		Display.getCurrent().dispose();
 	}
 
 	public static TeamUlmUpload getInstance() {
@@ -82,15 +79,22 @@ public class TeamUlmUpload {
 			Properties logConf = new Properties();
 			logConf.load(new FileInputStream("client.log4j.properties"));
 			TeamUlmUpload.logFileName = TeamUlmUpload.getAppDataDir()
-					+ logConf.getProperty("log4j.appender.logfile.File", "TeamUlm.log");
+				+ logConf.getProperty("log4j.appender.logfile.File", "TeamUlm.log");
 			logConf.setProperty("log4j.appender.logfile.File", TeamUlmUpload.logFileName);
 			PropertyConfigurator.configure(logConf);
-			UIManager.setLookAndFeel(new Plastic3DLookAndFeel());
 		} catch (Exception e) {
 			Helper.getInstance().systemCrashHandler(e);
 		}
 		System.setProperty("line.separator", "\n");
 		TeamUlmUpload.getInstance();
+	}
+
+	public MainWindow getMainWindow() {
+		return mainWindow;
+	}
+
+	public void setMainWindow(MainWindow mainWindow) {
+		this.mainWindow = mainWindow;
 	}
 
 	public static String getAppDataDir() {
@@ -108,7 +112,7 @@ public class TeamUlmUpload {
 			} else {
 				// Setting correct sub directory
 				appData = appDataRoot + System.getProperty("file.separator") + ".TUUploader"
-						+ System.getProperty("file.separator");
+					+ System.getProperty("file.separator");
 				File appDataDir = new File(appData);
 				if (!appDataDir.exists()) {
 					appDataDir.mkdirs();

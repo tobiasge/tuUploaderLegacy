@@ -18,7 +18,7 @@ import javax.imageio.stream.FileImageOutputStream;
 import org.apache.log4j.Logger;
 
 import com.teamulm.uploadsystem.client.Helper;
-import com.teamulm.uploadsystem.client.gui.MainWindow;
+import com.teamulm.uploadsystem.client.TeamUlmUpload;
 
 public class DefaultImageConverter extends ImageConverter {
 
@@ -34,12 +34,12 @@ public class DefaultImageConverter extends ImageConverter {
 			if (this.isSLRPicture(pic.getWidth(), pic.getHeight())) {
 				log.debug("SLR picture found.");
 				BufferedImage target = new BufferedImage(this.bigPicSize.width, this.bigPicSize.height,
-						BufferedImage.TYPE_INT_RGB);
+					BufferedImage.TYPE_INT_RGB);
 				Graphics graf = target.getGraphics();
 				graf.setColor(Color.BLACK);
 				graf.drawRect(0, 0, this.bigPicSize.width, this.bigPicSize.height);
 				Image temp = pic.getScaledInstance(this.bigSLRPicSize.width, this.bigSLRPicSize.height,
-						BufferedImage.SCALE_SMOOTH);
+					BufferedImage.SCALE_SMOOTH);
 				int yMove = (int) (((double) bigPicSize.height - (double) bigSLRPicSize.height) / (double) 2);
 				graf.drawImage(temp, 0, yMove, null);
 				graf.dispose();
@@ -48,7 +48,7 @@ public class DefaultImageConverter extends ImageConverter {
 			} else if (this.isUprightPicture(pic.getWidth(), pic.getHeight())) {
 				log.debug("Upright picture found.");
 				BufferedImage target = new BufferedImage(this.bigPicSize.width, this.bigPicSize.height,
-						BufferedImage.TYPE_INT_RGB);
+					BufferedImage.TYPE_INT_RGB);
 				double downRatio = (double) this.bigPicSize.height / (double) pic.getHeight();
 				int newWidth = (int) ((double) pic.getWidth() * downRatio);
 				Graphics graf = target.getGraphics();
@@ -63,10 +63,10 @@ public class DefaultImageConverter extends ImageConverter {
 			} else if (this.isDefaultPicture(pic.getWidth(), pic.getHeight())) {
 				log.debug("Normal picture found.");
 				this.writeImage(outFile, this.toBufferedImage(pic.getScaledInstance(this.bigPicSize.width,
-						this.bigPicSize.height, BufferedImage.SCALE_SMOOTH)));
+					this.bigPicSize.height, BufferedImage.SCALE_SMOOTH)));
 				return true;
 			} else {
-				MainWindow.getInstance().addStatusLine("Bild ignoriert: Bild hat falsches Format.");
+				TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Bild ignoriert: Bild hat falsches Format.");
 				return false;
 			}
 		} catch (IOException e) {
@@ -94,7 +94,7 @@ public class DefaultImageConverter extends ImageConverter {
 	public boolean createPreview(File inFile, File outFile) {
 		try {
 			this.writeImage(outFile, this.toBufferedImage(this.readImage(inFile).getScaledInstance(
-					this.smallPicSize.width, this.smallPicSize.height, BufferedImage.SCALE_SMOOTH)));
+				this.smallPicSize.width, this.smallPicSize.height, BufferedImage.SCALE_SMOOTH)));
 			return true;
 		} catch (IOException e) {
 			Helper.getInstance().systemCrashHandler(e);

@@ -4,24 +4,38 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Insets;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.WindowConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.window.ApplicationWindow;
+import org.eclipse.jface.window.Window;
+import org.eclipse.nebula.widgets.cdatetime.CDT;
+import org.eclipse.nebula.widgets.cdatetime.CDateTime;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.ProgressBar;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 import com.teamulm.uploadsystem.client.gui.comp.FileList;
 import com.teamulm.uploadsystem.client.gui.comp.MyDateEditor;
@@ -34,18 +48,15 @@ import com.teamulm.uploadsystem.client.listener.al.ALConAUpl;
 import com.teamulm.uploadsystem.client.listener.al.ALGalleryLoad;
 import com.teamulm.uploadsystem.client.listener.al.ALRemovePic;
 import com.teamulm.uploadsystem.client.listener.kl.KLEventTitle;
-import com.teamulm.uploadsystem.client.listener.wl.WLMainClose;
 import com.teamulm.uploadsystem.client.transmitEngine.TrmEngine;
 import com.teamulm.uploadsystem.data.Gallery;
 
 @SuppressWarnings("serial")
-public class MainWindow extends JFrame {
+public class MainWindow extends Window {
 
 	private static final int TITLEMAXLENGTH = 33;
 
 	private static final int DESCRMAXLENGTH = 180;
-
-	private static MainWindow instance;
 
 	private FileList fileList;
 
@@ -63,140 +74,136 @@ public class MainWindow extends JFrame {
 
 	private Gallery gallery;
 
-	private MainWindow() {
-		this.setTitle("Team-Ulm Fotoupload");
-		this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		this.addWindowListener(new WLMainClose());
-		this.setIconImage(new ImageIcon("icon.gif").getImage());
-		this.setLayout(new GridLayout(1, 2));
-		this.add(this.generateLeftPanel(new JPanel()));
-		this.add(this.generateRightPanel(new JPanel()));
-		this.pack();
-		this.setResizable(false);
-		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-		this.setLocation((d.width - getSize().width) / 2, (d.height - getSize().height) / 2);
-		this.setVisible(true);
+	public MainWindow() {
+		super((Shell) null);
+		int style = this.getShellStyle();
+		style &= ~(SWT.MAX | SWT.MIN | SWT.RESIZE);
+		this.setShellStyle(style);
 	}
 
-	private JPanel generateLeftPanel(JPanel panel) {
-		panel.setLayout(new GridBagLayout());
-		panel.setBorder(new CompoundBorder(new EmptyBorder(3, 3, 3, 3), new BevelBorder(BevelBorder.RAISED)));
-		GridBagConstraints constraints = new GridBagConstraints();
+	@Override
+	protected void configureShell(Shell newShell) {
+		super.configureShell(newShell);
+		newShell.setImage(new Image(Display.getCurrent(), "misc/icon.png"));
+		newShell.setText("Team-Ulm.de Fotoupload");
+	}
 
-		JPanel filePanel = new JPanel(new GridBagLayout());
-		GridBagConstraints filePanelConstraints = new GridBagConstraints();
-		filePanelConstraints.gridx = 0;
-		filePanelConstraints.gridy = 0;
-		filePanelConstraints.insets = new Insets(2, 2, 2, 2);
-		filePanelConstraints.anchor = GridBagConstraints.WEST;
-		this.selectedPics = new JLabel("Ausgewählte Bilder (0):");
-		filePanel.add(this.selectedPics, filePanelConstraints);
-		filePanelConstraints.gridy++;
-		this.fileList = new FileList();
-		JScrollPane scrollPane = new JScrollPane(this.fileList) {
-			@Override
-			public Dimension getPreferredSize() {
-				return new Dimension(300, 210);
-			}
+	@Override
+	protected Control createContents(Composite parent) {
+		Composite composite = (Composite) super.createContents(parent);
+		GridLayoutFactory.fillDefaults().numColumns(2).equalWidth(true).margins(5, 5).applyTo(composite);
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(this.leftComposite(composite));
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(this.rightComposite(composite));
+		return composite;
+	}
 
-			@Override
-			public Dimension getMinimumSize() {
-				return new Dimension(300, 210);
-			}
+	private Composite leftComposite(Composite parent) {
+		Composite composite = new Composite(parent, SWT.NONE);
+		GridLayoutFactory.fillDefaults().numColumns(2).equalWidth(true).applyTo(composite);
+		Label selectedPics = new Label(composite, SWT.NONE);
+		selectedPics.setText("Ausgewählte Bilder (0):");
+		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(selectedPics);
 
-			@Override
-			public Dimension getMaximumSize() {
-				return new Dimension(300, 210);
-			}
-		};
-		scrollPane.setWheelScrollingEnabled(true);
-		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		filePanel.add(scrollPane, filePanelConstraints);
-		constraints.gridx = 0;
-		constraints.gridy = 0;
-		constraints.anchor = GridBagConstraints.WEST;
-		constraints.fill = GridBagConstraints.HORIZONTAL;
-		constraints.insets = new Insets(2, 2, 2, 2);
-		panel.add(filePanel, constraints);
+		List selectedPicList = new List(composite, SWT.BORDER | SWT.V_SCROLL);
+		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).hint(300, 210).applyTo(selectedPicList);
 
-		JPanel infoPanel = new JPanel(new GridBagLayout());
-		GridBagConstraints panelConstraints = new GridBagConstraints();
-		panelConstraints.anchor = GridBagConstraints.NORTHWEST;
-		panelConstraints.fill = GridBagConstraints.HORIZONTAL;
-		Insets rightInsets = new Insets(2, 0, 2, 5);
-		Insets leftInsets = new Insets(2, 5, 2, 0);
+		Button selectPics = new Button(composite, SWT.PUSH);
+		selectPics.setText("Bilder wählen");
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(selectPics);
 
-		panelConstraints.gridx = 0;
-		panelConstraints.gridy = 0;
-		panelConstraints.insets = rightInsets;
-		MyJButton buttonChoosePic = new MyJButton("Bilder wählen");
-		buttonChoosePic.addActionListener(new ALChoosePic());
-		infoPanel.add(buttonChoosePic, panelConstraints);
-		panelConstraints.gridx = 1;
-		panelConstraints.gridy = 0;
-		panelConstraints.insets = leftInsets;
-		MyJButton deleteSelection = new MyJButton("Auswahl löschen");
-		deleteSelection.addActionListener(new ALRemovePic());
-		infoPanel.add(deleteSelection, panelConstraints);
+		Button deletedPictures = new Button(composite, SWT.PUSH);
+		deletedPictures.setText("Auswahl löschen");
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(deletedPictures);
 
-		panelConstraints.gridx = 0;
-		panelConstraints.gridy = 1;
-		panelConstraints.insets = rightInsets;
-		infoPanel.add(new JLabel("Eventdatum:"), panelConstraints);
-		panelConstraints.gridx = 1;
-		panelConstraints.gridy = 1;
-		panelConstraints.insets = leftInsets;
-		this.eventDate = new MyDateEditor();
-		infoPanel.add(this.eventDate, panelConstraints);
+		Label labelEvenDate = new Label(composite, SWT.NONE);
+		labelEvenDate.setText("Eventdatum");
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelEvenDate);
 
-		panelConstraints.gridx = 1;
-		panelConstraints.gridy = 2;
-		panelConstraints.insets = leftInsets;
-		JButton galleryLoadButton = new MyJButton("Galerien wählen");
-		galleryLoadButton.addActionListener(new ALGalleryLoad());
-		infoPanel.add(galleryLoadButton, panelConstraints);
+		CDateTime gallerDate = new CDateTime(composite, CDT.BORDER | CDT.DROP_DOWN | CDT.DATE_MEDIUM);
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(gallerDate);
 
-		panelConstraints.gridx = 0;
-		panelConstraints.gridy = 3;
-		panelConstraints.insets = rightInsets;
-		infoPanel.add(new JLabel("Eventlocation:"), panelConstraints);
-		panelConstraints.gridx = 1;
-		panelConstraints.gridy = 3;
-		panelConstraints.insets = leftInsets;
-		this.fieldLocations = new MyJTextField(0);
-		this.fieldLocations.setEnabled(false);
-		infoPanel.add(fieldLocations, panelConstraints);
+		Label labelTmp = new Label(composite, SWT.NONE);
+		labelTmp.setText("");
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelTmp);
 
-		panelConstraints.gridx = 0;
-		panelConstraints.gridy = 4;
-		panelConstraints.insets = rightInsets;
-		infoPanel.add(new JLabel("Eventtitel:"), panelConstraints);
-		panelConstraints.gridx = 1;
-		panelConstraints.gridy = 4;
-		panelConstraints.insets = leftInsets;
-		this.fieldTitle = new MyJTextField(MainWindow.TITLEMAXLENGTH);
-		this.fieldTitle.addKeyListener(new KLEventTitle());
-		infoPanel.add(fieldTitle, panelConstraints);
+		Button selectGallery = new Button(composite, SWT.PUSH);
+		selectGallery.setText("Galerie wählen");
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(selectGallery);
 
-		panelConstraints.gridx = 0;
-		panelConstraints.gridy = 5;
-		panelConstraints.insets = rightInsets;
-		infoPanel.add(new JLabel("Eventbeschreibung:"), panelConstraints);
-		panelConstraints.gridx = 1;
-		panelConstraints.gridy = 5;
-		panelConstraints.insets = leftInsets;
-		this.fieldDesc = new MyJTextField(MainWindow.DESCRMAXLENGTH);
-		infoPanel.add(this.fieldDesc, panelConstraints);
+		Label labelEventLocation = new Label(composite, SWT.NONE);
+		labelEventLocation.setText("Eventlocation:");
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelEventLocation);
 
-		panelConstraints.gridx = 1;
-		panelConstraints.gridy = 6;
-		panelConstraints.insets = leftInsets;
-		this.filedIntern = new JCheckBox("Intern", false);
-		infoPanel.add(this.filedIntern, panelConstraints);
-		constraints.gridy++;
-		panel.add(infoPanel, constraints);
-		return panel;
+		Text textEventLocation = new Text(composite, SWT.BORDER);
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(textEventLocation);
+
+		Label labelEventTitle = new Label(composite, SWT.NONE);
+		labelEventTitle.setText("EventTitel:");
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelEventTitle);
+
+		Text textEventTitle = new Text(composite, SWT.BORDER);
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(textEventTitle);
+
+		Label labelEventDescription = new Label(composite, SWT.NONE);
+		labelEventDescription.setText("EventBeschreibung:");
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelEventDescription);
+
+		Text textEventDescription = new Text(composite, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).hint(120, 60).applyTo(textEventDescription);
+
+		labelTmp = new Label(composite, SWT.NONE);
+		labelTmp.setText("");
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelTmp);
+
+		Button buttonIntern = new Button(composite, SWT.CHECK);
+		buttonIntern.setText("Intern");
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(buttonIntern);
+		return composite;
+	}
+
+	private Composite rightComposite(Composite parent) {
+		Composite composite = new Composite(parent, SWT.NONE);
+		GridLayoutFactory.fillDefaults().numColumns(1).equalWidth(false).applyTo(composite);
+
+		Label labelConvertProgress = new Label(composite, SWT.NONE);
+		labelConvertProgress.setText("Konvertier-Fortschritt:");
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelConvertProgress);
+
+		ProgressBar convertProgressBar = new ProgressBar(composite, SWT.HORIZONTAL | SWT.BORDER);
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(convertProgressBar);
+
+		Label labelUploadProgress = new Label(composite, SWT.NONE);
+		labelUploadProgress.setText("Upload-Fortschritt:");
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelUploadProgress);
+
+		ProgressBar uploadProgressBar = new ProgressBar(composite, SWT.HORIZONTAL | SWT.BORDER);
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(uploadProgressBar);
+
+		List statusList = new List(composite, SWT.V_SCROLL | SWT.BORDER);
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).hint(290, 340).applyTo(statusList);
+		statusList.add("Copyright by ibTEC Team-Ulm GbR");
+		for (int i = 0; i < 30; i++) {
+			statusList.add("Eintrag " + i);
+
+		}
+
+		Composite buttonComposite = new Composite(composite, SWT.NONE);
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(buttonComposite);
+		GridLayoutFactory.fillDefaults().equalWidth(false).numColumns(3).applyTo(buttonComposite);
+
+		Button buttonUpload = new Button(buttonComposite, SWT.PUSH);
+		buttonUpload.setText("Konvertieren / hochladen");
+		GridDataFactory.fillDefaults().span(1, 1).grab(false, false).applyTo(buttonUpload);
+
+		Label tmpLabel = new Label(buttonComposite, SWT.NONE);
+		tmpLabel.setText("  ");
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(tmpLabel);
+
+		Button buttonReset = new Button(buttonComposite, SWT.PUSH);
+		buttonReset.setText("Zurücksetzten");
+		GridDataFactory.fillDefaults().span(1, 1).grab(false, false).applyTo(buttonReset);
+
+		return composite;
 	}
 
 	private JPanel generateRightPanel(JPanel panel) {
@@ -235,14 +242,14 @@ public class MainWindow extends JFrame {
 
 		JPanel buttonPanel = new JPanel(new BorderLayout());
 		JButton convertButton = new JButton(
-				"<html><body><center>Konvertieren <br>&amp; Hochladen</center></body></html>");
+			"<html><body><center>Konvertieren <br>&amp; Hochladen</center></body></html>");
 		convertButton.addActionListener(new ALConAUpl());
 		buttonPanel.add(convertButton, BorderLayout.WEST);
 		JButton resetButton = new JButton("Zurücksetzen");
 		resetButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(MainWindow.getInstance(),
-						"Wirklich zurücksetzten?", "Reset?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE)) {
+					"Wirklich zurücksetzten?", "Reset?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE)) {
 					MainWindow.this.reset();
 					TrmEngine.kill();
 					System.gc();
@@ -256,13 +263,6 @@ public class MainWindow extends JFrame {
 		panelConstraints.fill = GridBagConstraints.HORIZONTAL;
 		panel.add(buttonPanel, panelConstraints);
 		return panel;
-	}
-
-	public static MainWindow getInstance() {
-		if (null == MainWindow.instance) {
-			MainWindow.instance = new MainWindow();
-		}
-		return MainWindow.instance;
 	}
 
 	public FileList getFileList() {
@@ -332,4 +332,5 @@ public class MainWindow extends JFrame {
 		}
 		this.gallery = gallery;
 	}
+
 }
