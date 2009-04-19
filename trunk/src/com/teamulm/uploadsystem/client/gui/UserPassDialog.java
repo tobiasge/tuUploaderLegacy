@@ -1,105 +1,74 @@
 package com.teamulm.uploadsystem.client.gui;
 
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.TraverseEvent;
+import org.eclipse.swt.events.TraverseListener;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
-import javax.swing.JButton;
-import javax.swing.JOptionPane;
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
+public class UserPassDialog extends Dialog {
 
-import org.apache.log4j.Logger;
+	private Text textUserName = null;
 
-public class UserPassDialog {
+	private Text textPassWord = null;
 
-	@SuppressWarnings("unused")
-	private static final Logger log = Logger.getLogger(UserPassDialog.class);
+	private String userName = null;
 
-	private JTextField userName = null;
+	private String passWord = null;
 
-	private JPasswordField passWord = null;
-
-	private JButton chButton = null, okButton = null;
-
-	private int userSaidValue = -1;
-
-	public UserPassDialog() {
-		this.userName = new JTextField();
-		this.userName.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (KeyEvent.VK_ENTER == e.getKeyCode()) {
-					UserPassDialog.this.passWord.requestFocusInWindow();
-				}
-			}
-		});
-		this.passWord = new JPasswordField();
-		this.passWord.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (KeyEvent.VK_ENTER == e.getKeyCode()) {
-					UserPassDialog.this.okButton.doClick();
-				}
-			}
-		});
-		okButton = new JButton("Ok");
-		okButton.setPreferredSize(new Dimension(90, 23));
-		okButton.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				JButton src = (JButton) e.getSource();
-				JOptionPane optPane = (JOptionPane) src.getParent().getParent();
-				UserPassDialog.this.userSaidValue = JOptionPane.OK_OPTION;
-				optPane.setValue(new Integer(JOptionPane.OK_OPTION));
-			}
-		});
-		okButton.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (KeyEvent.VK_ENTER == e.getKeyCode()) {
-					UserPassDialog.this.okButton.doClick();
-				}
-			}
-		});
-		chButton = new JButton("Abbrechen");
-		chButton.setPreferredSize(new Dimension(90, 23));
-		chButton.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
-				JButton src = (JButton) e.getSource();
-				JOptionPane optPane = (JOptionPane) src.getParent().getParent();
-				UserPassDialog.this.userSaidValue = JOptionPane.NO_OPTION;
-				optPane.setValue(new Integer(JOptionPane.NO_OPTION));
-			}
-		});
-		chButton.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (KeyEvent.VK_ENTER == e.getKeyCode()) {
-					UserPassDialog.this.chButton.doClick();
-				}
-			}
-		});
+	public UserPassDialog(Shell parentShell) {
+		super(parentShell);
 	}
 
-	public int passDialog() {
+	@Override
+	protected Control createDialogArea(Composite parent) {
+		Composite composite = (Composite) super.createDialogArea(parent);
+		this.getShell().setText(Messages.getString("userPassDialog.dialog.title"));
+		GridLayoutFactory.fillDefaults().numColumns(2).equalWidth(false).margins(5, 5).applyTo(composite);
+		Label labelUserName = new Label(composite, SWT.NONE);
+		labelUserName.setText(Messages.getString("userPassDialog.label.username"));
+		GridDataFactory.fillDefaults().applyTo(labelUserName);
 
-		Object[] options = { this.okButton, this.chButton };
-		Object[] input = new Object[] { "Username:", this.userName, "Passwort:", this.passWord };
+		this.textUserName = new Text(composite, SWT.BORDER);
+		GridDataFactory.fillDefaults().grab(true, false).hint(100, SWT.DEFAULT).applyTo(this.textUserName);
+		this.textUserName.addTraverseListener(new TraverseListener() {
+			@Override
+			public void keyTraversed(TraverseEvent traverseEvent) {
+				if (SWT.CR == traverseEvent.character) {
+					traverseEvent.doit = false;
+					UserPassDialog.this.textPassWord.setFocus();
+				}
+			}
+		});
 
-		JOptionPane.showOptionDialog(MainWindow.getInstance(), input, "Passwort...?", JOptionPane.YES_NO_OPTION,
-				JOptionPane.QUESTION_MESSAGE, null, options, this.userName);
-		return this.userSaidValue;
+		Label labelpassWord = new Label(composite, SWT.NONE);
+		labelpassWord.setText(Messages.getString("userPassDialog.label.password"));
+		GridDataFactory.fillDefaults().grab(true, false).applyTo(labelpassWord);
+
+		this.textPassWord = new Text(composite, SWT.BORDER | SWT.PASSWORD);
+		GridDataFactory.fillDefaults().applyTo(this.textPassWord);
+
+		return composite;
 	}
 
-	public String getUser() {
-		return this.userName.getText();
+	public String getUserName() {
+		return userName;
 	}
 
-	public String getPass() {
-		return new String(this.passWord.getPassword());
+	public String getPassWord() {
+		return passWord;
+	}
+
+	@Override
+	protected void okPressed() {
+		this.passWord = this.textPassWord.getText();
+		this.userName = this.textUserName.getText();
+		super.okPressed();
 	}
 }
