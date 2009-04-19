@@ -1,6 +1,8 @@
 package com.teamulm.uploadsystem.data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Gallery implements Serializable {
 
@@ -24,12 +26,15 @@ public class Gallery implements Serializable {
 
 	private boolean newGallery;
 
+	private List<Integer> deletedPictures = null;
+
 	public Gallery() {
 		this.galid = -1;
 		this.intern = false;
 		this.pictures = 0;
 		this.suffix = 0;
 		this.newGallery = true;
+		this.deletedPictures = new ArrayList<Integer>();
 	}
 
 	public String getDate() {
@@ -88,14 +93,35 @@ public class Gallery implements Serializable {
 		this.title = title;
 	}
 
+	public List<Integer> getDeletedPictures() {
+		return deletedPictures;
+	}
+
+	public void setDeletedPictures(List<Integer> deletedPictures) {
+		this.deletedPictures = deletedPictures;
+	}
+
+	public void deletedPicture(int picture) {
+		if (null == this.deletedPictures) {
+			this.deletedPictures = new ArrayList<Integer>();
+		}
+		this.deletedPictures.add(Integer.valueOf(picture));
+	}
+
+	public void restorePicture(int picture) {
+		if (null == this.deletedPictures) {
+			return;
+		}
+		this.deletedPictures.remove(Integer.valueOf(picture));
+	}
+
 	public String getPath() {
 		if (this.suffix == 0) {
-			return this.location + System.getProperty("file.separator")
-					+ this.date + System.getProperty("file.separator");
+			return this.location + System.getProperty("file.separator") + this.date
+				+ System.getProperty("file.separator");
 		} else {
-			return this.location + System.getProperty("file.separator")
-					+ this.date + "-" + this.suffix
-					+ System.getProperty("file.separator");
+			return this.location + System.getProperty("file.separator") + this.date + "-" + this.suffix
+				+ System.getProperty("file.separator");
 		}
 	}
 
@@ -117,11 +143,10 @@ public class Gallery implements Serializable {
 
 	public static String getPath(String location, String date, int suffix) {
 		if (suffix == 0) {
-			return location + System.getProperty("file.separator") + date
-					+ System.getProperty("file.separator");
+			return location + System.getProperty("file.separator") + date + System.getProperty("file.separator");
 		} else {
-			return location + System.getProperty("file.separator") + date + "-"
-					+ suffix + System.getProperty("file.separator");
+			return location + System.getProperty("file.separator") + date + "-" + suffix
+				+ System.getProperty("file.separator");
 		}
 	}
 
