@@ -40,7 +40,6 @@ public class TeamUlmUpload {
 
 	private MainWindow mainWindow;
 
-	// Konstruktor
 	private TeamUlmUpload() {
 		Thread.currentThread().setName("Main");
 		OperatingSystemMXBean sysInfo1 = ManagementFactory.getOperatingSystemMXBean();
@@ -51,11 +50,6 @@ public class TeamUlmUpload {
 			.info("Systemtype is " + sysInfo1.getArch() + " working on " + sysInfo1.getAvailableProcessors()
 				+ " CPU(s)");
 		log.info("Memory Usage is: " + sysInfo2.getHeapMemoryUsage());
-
-		this.mainWindow = new MainWindow();
-		this.mainWindow.setBlockOnOpen(true);
-		this.mainWindow.open();
-		Display.getCurrent().dispose();
 	}
 
 	public static TeamUlmUpload getInstance() {
@@ -85,8 +79,14 @@ public class TeamUlmUpload {
 		} catch (Exception e) {
 			Helper.getInstance().systemCrashHandler(e);
 		}
-		System.setProperty("line.separator", "\n");
-		TeamUlmUpload.getInstance();
+		TeamUlmUpload.getInstance().start();
+	}
+
+	private void start() {
+		this.mainWindow = new MainWindow();
+		this.mainWindow.setBlockOnOpen(true);
+		this.mainWindow.open();
+		Display.getCurrent().dispose();
 	}
 
 	public MainWindow getMainWindow() {
