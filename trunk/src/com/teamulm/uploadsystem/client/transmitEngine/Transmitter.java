@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 
 import com.teamulm.uploadsystem.client.Helper;
 import com.teamulm.uploadsystem.client.TeamUlmUpload;
+import com.teamulm.uploadsystem.client.gui.MainWindow;
 import com.teamulm.uploadsystem.data.Gallery;
 import com.teamulm.uploadsystem.data.Location;
 import com.teamulm.uploadsystem.exception.AuthenticationException;
@@ -316,7 +317,8 @@ public class Transmitter extends Thread {
 						this.akt.delete();
 					} else {
 						log.info("Datei " + this.akt.getName() + " nicht gesendet");
-						TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Konnte " + this.akt.getName() + " nicht senden");
+						TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
+							"Konnte " + this.akt.getName() + " nicht senden");
 					}
 				}
 			}
@@ -340,7 +342,7 @@ public class Transmitter extends Thread {
 			Helper.getInstance().systemCrashHandler(e);
 			this.Running = false;
 		}
-		TeamUlmUpload.getInstance().getMainWindow().setUploadProgress(1000);
+		TeamUlmUpload.getInstance().getMainWindow().setUploadProgress(MainWindow.PROGRESS_BAR_MAX);
 	}
 
 	public synchronized void disconnect() {

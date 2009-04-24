@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 
 import com.teamulm.uploadsystem.client.Helper;
 import com.teamulm.uploadsystem.client.TeamUlmUpload;
+import com.teamulm.uploadsystem.client.gui.MainWindow;
 import com.teamulm.uploadsystem.client.imageProcessing.ImageConverter;
 import com.teamulm.uploadsystem.client.imageProcessing.ImageConverterFactory;
 
@@ -129,5 +130,6 @@ public class Converter extends Thread {
 				"Thread: " + this.ident + " Konnte " + actFile.getName() + " nicht konvertieren");
 			Helper.getInstance().systemCrashHandler(e);
 		}
+		TeamUlmUpload.getInstance().getMainWindow().setConvertProgress(MainWindow.PROGRESS_BAR_MAX);
 	}
 }

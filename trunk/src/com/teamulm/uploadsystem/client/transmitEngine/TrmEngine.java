@@ -10,11 +10,10 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
-import org.eclipse.swt.widgets.Display;
 
 import com.teamulm.uploadsystem.client.Helper;
 import com.teamulm.uploadsystem.client.TeamUlmUpload;
-import com.teamulm.uploadsystem.client.gui.comp.MyJProgressBar;
+import com.teamulm.uploadsystem.client.gui.MainWindow;
 import com.teamulm.uploadsystem.data.Gallery;
 import com.teamulm.uploadsystem.data.Location;
 
@@ -118,13 +117,8 @@ public class TrmEngine extends Thread {
 		} finally {
 			this.picTransmitLock.unlock();
 		}
-		Display.getCurrent().asyncExec(new Runnable() {
-			public void run() {
-				TeamUlmUpload.getInstance().getMainWindow().setUploadProgress(
-					(int) ((MyJProgressBar.MAX / TrmEngine.this.totalFiles) * TrmEngine.this.transmitedFiles));
-			};
-		});
-
+		TeamUlmUpload.getInstance().getMainWindow().setUploadProgress(
+			(int) ((MainWindow.PROGRESS_BAR_MAX / TrmEngine.this.totalFiles) * TrmEngine.this.transmitedFiles));
 		return retVal;
 	}
 
@@ -138,12 +132,8 @@ public class TrmEngine extends Thread {
 		this.convertedFiles++;
 		this.picToTransmit.signal();
 		this.picTransmitLock.unlock();
-		Display.getCurrent().asyncExec(new Runnable() {
-			public void run() {
-				TeamUlmUpload.getInstance().getMainWindow().setConvertProgress(
-					(int) ((MyJProgressBar.MAX / TrmEngine.this.totalFiles) * TrmEngine.this.convertedFiles));
-			};
-		});
+		TeamUlmUpload.getInstance().getMainWindow().setConvertProgress(
+			(int) ((MainWindow.PROGRESS_BAR_MAX / TrmEngine.this.totalFiles) * TrmEngine.this.convertedFiles));
 	}
 
 	protected void setStartNumber(int start) {
