@@ -36,17 +36,18 @@ import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.teamulm.uploadsystem.client.gui.comp.MyJProgressBar;
 import com.teamulm.uploadsystem.client.transmitEngine.TrmEngine;
 import com.teamulm.uploadsystem.data.Gallery;
 
 public class MainWindow extends Window {
 
+	public static final int PROGRESS_BAR_MAX = 1000;
+
 	private List fileList = null, statusList = null;
 
 	private Text fieldTitle = null, fieldDesc = null, fieldLocation = null;
 
-	private MyJProgressBar uploadProgress, convertProgress;
+	private ProgressBar uploadProgressBar = null, convertProgressBar = null;
 
 	private Button fieldIntern = null;
 
@@ -247,15 +248,17 @@ public class MainWindow extends Window {
 		labelConvertProgress.setText("Konvertier-Fortschritt:");
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelConvertProgress);
 
-		ProgressBar convertProgressBar = new ProgressBar(composite, SWT.HORIZONTAL | SWT.BORDER);
-		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(convertProgressBar);
+		this.convertProgressBar = new ProgressBar(composite, SWT.HORIZONTAL | SWT.BORDER);
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(this.convertProgressBar);
+		this.convertProgressBar.setMaximum(PROGRESS_BAR_MAX);
 
 		Label labelUploadProgress = new Label(composite, SWT.NONE);
 		labelUploadProgress.setText("Upload-Fortschritt:");
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelUploadProgress);
 
-		ProgressBar uploadProgressBar = new ProgressBar(composite, SWT.HORIZONTAL | SWT.BORDER);
-		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(uploadProgressBar);
+		this.uploadProgressBar = new ProgressBar(composite, SWT.HORIZONTAL | SWT.BORDER);
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(this.uploadProgressBar);
+		this.uploadProgressBar.setMaximum(PROGRESS_BAR_MAX);
 
 		this.statusList = new List(composite, SWT.V_SCROLL | SWT.BORDER);
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).hint(290, 340).applyTo(this.statusList);
@@ -317,16 +320,23 @@ public class MainWindow extends Window {
 		return format.format(this.eventDate.getSelection());
 	}
 
-	public void setConvertProgress(int progress) {
-		this.convertProgress.setProgress(progress);
+	public void setConvertProgress(final int progress) {
+		this.getShell().getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				MainWindow.this.convertProgressBar.setSelection(progress);
+			}
+		});
+
 	}
 
-	public void setUploadProgress(int progress) {
-		this.uploadProgress.setProgress(progress);
-	}
-
-	public void setSelectedPicText(String text) {
-		this.selectedPics.setText(text);
+	public void setUploadProgress(final int progress) {
+		this.getShell().getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				MainWindow.this.convertProgressBar.setSelection(progress);
+			}
+		});
 	}
 
 	private void reset() {
