@@ -46,6 +46,7 @@ public class Gallery implements Serializable {
 		this.suffix = 0;
 		this.newGallery = true;
 		this.deletedPictures = new ArrayList<Integer>();
+		this.photographers = new ArrayList<User>();
 	}
 
 	public void deletedPicture(int picture) {
