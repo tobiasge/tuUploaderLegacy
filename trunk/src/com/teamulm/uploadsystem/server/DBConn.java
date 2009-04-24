@@ -87,7 +87,7 @@ public class DBConn {
 		if (null == (connection = DataBaseControler.getInstance().getDataBaseForTable("tu_fotos"))) {
 			return retVal;
 		}
-		String query = "SELECT " + GALLERY_FIELDS_TO_SELECT + " FROM tu_fotos WHERE location = ? "
+		String query = "SELECT " + DBConn.GALLERY_FIELDS_TO_SELECT + " FROM tu_fotos WHERE location = ? "
 			+ "AND date_gal = STR_TO_DATE(?, '%d-%m-%Y') AND suffix = ?";
 		try {
 			request = connection.prepareStatement(query);
@@ -267,11 +267,11 @@ public class DBConn {
 		gallery.setTitle(result.getString("title"));
 		gallery.setDesc(result.getString("description"));
 		gallery.setIntern(result.getBoolean("intern"));
-		String[] userids = StringUtils.split(result.getString("description"), '&');
+		String[] userids = StringUtils.split(result.getString("userids"), '&');
 		for (String userid : userids) {
 			gallery.getPhotographers().add(this.getUserForId(Integer.valueOf(userid).intValue()));
 		}
-		String[] censoredPictures = StringUtils.split(result.getString("description"), ',');
+		String[] censoredPictures = StringUtils.split(result.getString("censored"), ',');
 		for (String censoredPicture : censoredPictures) {
 			gallery.getDeletedPictures().add(Integer.valueOf(censoredPicture));
 		}
