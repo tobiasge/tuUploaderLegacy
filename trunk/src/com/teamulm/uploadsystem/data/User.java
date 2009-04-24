@@ -9,11 +9,11 @@ public class User implements Serializable {
 
 	private static final long serialVersionUID = 6277405439383266829L;
 
+	private String password;
+
 	private int userid;
 
 	private String username;
-
-	private String password;
 
 	public User(int userID, String passWord, String userName) {
 		this.userid = userID;
@@ -25,20 +25,20 @@ public class User implements Serializable {
 		return password;
 	}
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
 	public int getUserid() {
 		return userid;
 	}
 
-	public void setUserid(int userid) {
-		this.userid = userid;
-	}
-
 	public String getUsername() {
 		return username;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public void setUserid(int userid) {
+		this.userid = userid;
 	}
 
 	public void setUsername(String username) {

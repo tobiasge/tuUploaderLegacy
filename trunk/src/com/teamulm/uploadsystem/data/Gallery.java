@@ -8,25 +8,36 @@ public class Gallery implements Serializable {
 
 	private static final long serialVersionUID = -9028890879729734915L;
 
-	private String location;
-
-	private String desc;
-
-	private String title;
+	public static String getPath(String location, String date, int suffix) {
+		if (suffix == 0) {
+			return location + System.getProperty("file.separator") + date + System.getProperty("file.separator");
+		} else {
+			return location + System.getProperty("file.separator") + date + "-" + suffix
+				+ System.getProperty("file.separator");
+		}
+	}
 
 	private String date;
 
+	private List<Integer> deletedPictures = null;
+
+	private String desc;
+
 	private int galid;
+
+	private boolean intern;
+
+	private String location;
+
+	private boolean newGallery;
+
+	private List<User> photographers = null;
 
 	private int pictures;
 
 	private int suffix;
 
-	private boolean intern;
-
-	private boolean newGallery;
-
-	private List<Integer> deletedPictures = null;
+	private String title;
 
 	public Gallery() {
 		this.galid = -1;
@@ -37,70 +48,6 @@ public class Gallery implements Serializable {
 		this.deletedPictures = new ArrayList<Integer>();
 	}
 
-	public String getDate() {
-		return date;
-	}
-
-	public void setDate(String date) {
-		this.date = date;
-	}
-
-	public String getDesc() {
-		return desc;
-	}
-
-	public void setDesc(String desc) {
-		this.desc = desc;
-	}
-
-	public int getGalid() {
-		return galid;
-	}
-
-	public void setGalid(int galid) {
-		this.galid = galid;
-	}
-
-	public boolean isIntern() {
-		return intern;
-	}
-
-	public void setIntern(boolean intern) {
-		this.intern = intern;
-	}
-
-	public String getLocation() {
-		return location;
-	}
-
-	public void setLocation(String location) {
-		this.location = location;
-	}
-
-	public int getPictures() {
-		return pictures;
-	}
-
-	public void setPictures(int pictures) {
-		this.pictures = pictures;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public List<Integer> getDeletedPictures() {
-		return deletedPictures;
-	}
-
-	public void setDeletedPictures(List<Integer> deletedPictures) {
-		this.deletedPictures = deletedPictures;
-	}
-
 	public void deletedPicture(int picture) {
 		if (null == this.deletedPictures) {
 			this.deletedPictures = new ArrayList<Integer>();
@@ -108,11 +55,24 @@ public class Gallery implements Serializable {
 		this.deletedPictures.add(Integer.valueOf(picture));
 	}
 
-	public void restorePicture(int picture) {
-		if (null == this.deletedPictures) {
-			return;
-		}
-		this.deletedPictures.remove(Integer.valueOf(picture));
+	public String getDate() {
+		return date;
+	}
+
+	public List<Integer> getDeletedPictures() {
+		return deletedPictures;
+	}
+
+	public String getDesc() {
+		return desc;
+	}
+
+	public int getGalid() {
+		return galid;
+	}
+
+	public String getLocation() {
+		return location;
 	}
 
 	public String getPath() {
@@ -125,29 +85,79 @@ public class Gallery implements Serializable {
 		}
 	}
 
+	public List<User> getPhotographers() {
+		return photographers;
+	}
+
+	public int getPictures() {
+		return pictures;
+	}
+
 	public int getSuffix() {
 		return suffix;
 	}
 
-	public void setSuffix(int suffix) {
-		this.suffix = suffix;
+	public String getTitle() {
+		return title;
+	}
+
+	public boolean isIntern() {
+		return intern;
 	}
 
 	public boolean isNewGallery() {
 		return this.newGallery;
 	}
 
+	public void restorePicture(int picture) {
+		if (null == this.deletedPictures) {
+			return;
+		}
+		this.deletedPictures.remove(Integer.valueOf(picture));
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+
+	public void setDeletedPictures(List<Integer> deletedPictures) {
+		this.deletedPictures = deletedPictures;
+	}
+
+	public void setDesc(String desc) {
+		this.desc = desc;
+	}
+
+	public void setGalid(int galid) {
+		this.galid = galid;
+	}
+
+	public void setIntern(boolean intern) {
+		this.intern = intern;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
+	}
+
 	public void setNewGallery(boolean newGallery) {
 		this.newGallery = newGallery;
 	}
 
-	public static String getPath(String location, String date, int suffix) {
-		if (suffix == 0) {
-			return location + System.getProperty("file.separator") + date + System.getProperty("file.separator");
-		} else {
-			return location + System.getProperty("file.separator") + date + "-" + suffix
-				+ System.getProperty("file.separator");
-		}
+	public void setPhotographers(List<User> photographers) {
+		this.photographers = photographers;
+	}
+
+	public void setPictures(int pictures) {
+		this.pictures = pictures;
+	}
+
+	public void setSuffix(int suffix) {
+		this.suffix = suffix;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 	public String toString() {
