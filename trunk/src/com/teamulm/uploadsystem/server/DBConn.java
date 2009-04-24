@@ -2,9 +2,14 @@ package com.teamulm.uploadsystem.server;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.teamulm.uploadsystem.data.Gallery;
@@ -15,6 +20,10 @@ import com.teamulm.uploadsystem.server.dbControl.DataBaseControler;
 public class DBConn {
 
 	private static final Logger log = Logger.getLogger(DBConn.class);
+
+	private static final String GALLERY_FIELDS_TO_SELECT = "galid, pictures, suffix, location, description, title, intern, censored, userids, date_gal";
+
+	private static final DateFormat GALLERY_DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
 
 	private static DBConn instance;
 
@@ -49,6 +58,27 @@ public class DBConn {
 		return retVal;
 	}
 
+	private User getUserForId(int userId) {
+		PreparedStatement request;
+		ResultSet result;
+		User retVal = null;
+		com.teamulm.uploadsystem.server.dbControl.DBConn connection = null;
+		if (null == (connection = DataBaseControler.getInstance().getDataBaseForTable("tu_users_login"))) {
+			return retVal;
+		}
+		try {
+			String query = "SELECT userid, passwort_enc, username FROM tu_users_login WHERE userid = ?";
+			request = connection.prepareStatement(query);
+			request.setInt(1, userId);
+			result = request.executeQuery();
+			result.first();
+			retVal = new User(result.getInt("userid"), result.getString("passwort_enc"), result.getString("username"));
+		} catch (Exception e) {
+			log.error("Failure in getUserForId(): ", e);
+		}
+		return retVal;
+	}
+
 	public Gallery getGallery(String location, String date, int suffix) {
 		PreparedStatement request;
 		ResultSet result;
@@ -57,7 +87,7 @@ public class DBConn {
 		if (null == (connection = DataBaseControler.getInstance().getDataBaseForTable("tu_fotos"))) {
 			return retVal;
 		}
-		String query = "SELECT galid, pictures, suffix, title, description,intern FROM tu_fotos WHERE location = ? "
+		String query = "SELECT " + GALLERY_FIELDS_TO_SELECT + " FROM tu_fotos WHERE location = ? "
 			+ "AND date_gal = STR_TO_DATE(?, '%d-%m-%Y') AND suffix = ?";
 		try {
 			request = connection.prepareStatement(query);
@@ -65,18 +95,10 @@ public class DBConn {
 			request.setString(2, date);
 			request.setInt(3, suffix);
 			result = request.executeQuery();
-			if (!result.first())
+			if (!result.first()) {
 				return retVal;
-			retVal = new Gallery();
-			retVal.setDate(date);
-			retVal.setLocation(location);
-			retVal.setGalid(result.getInt("galid"));
-			retVal.setPictures(result.getInt("pictures"));
-			retVal.setSuffix(result.getInt("suffix"));
-			retVal.setTitle(result.getString("title"));
-			retVal.setDesc(result.getString("description"));
-			retVal.setIntern(result.getBoolean("intern"));
-			retVal.setNewGallery(false);
+			}
+			retVal = this.getFromRow(result);
 		} catch (Exception e) {
 			log.error("Failure in getGallery(): ", e);
 		}
@@ -113,24 +135,14 @@ public class DBConn {
 		if (null == (connection = DataBaseControler.getInstance().getDataBaseForTable("tu_fotos"))) {
 			return false;
 		}
-		String query = "SELECT galid, pictures, suffix, location, description, title, intern FROM tu_fotos WHERE "
+		String query = "SELECT " + DBConn.GALLERY_FIELDS_TO_SELECT + " FROM tu_fotos WHERE "
 			+ "date_gal = STR_TO_DATE(?, '%d-%m-%Y')";
 		try {
 			request = connection.prepareStatement(query);
 			request.setString(1, date);
 			result = request.executeQuery();
 			while (result.next()) {
-				Gallery tmpGal = new Gallery();
-				tmpGal.setDate(date);
-				tmpGal.setLocation(result.getString("location"));
-				tmpGal.setPictures(result.getInt("pictures"));
-				tmpGal.setGalid(result.getInt("galid"));
-				tmpGal.setSuffix(result.getInt("suffix"));
-				tmpGal.setTitle(result.getString("title"));
-				tmpGal.setDesc(result.getString("description"));
-				tmpGal.setIntern(result.getBoolean("intern"));
-				tmpGal.setNewGallery(false);
-				galleries.add(tmpGal);
+				galleries.add(this.getFromRow(result));
 			}
 		} catch (Exception e) {
 			log.error("Failure in getGalleries(): ", e);
@@ -243,5 +255,27 @@ public class DBConn {
 			return null;
 		}
 		return locations;
+	}
+
+	private Gallery getFromRow(ResultSet result) throws SQLException {
+		Gallery gallery = new Gallery();
+		gallery.setDate(DBConn.GALLERY_DATE_FORMAT.format(new Date(result.getDate("date_gal").getTime())));
+		gallery.setLocation(result.getString("location"));
+		gallery.setPictures(result.getInt("pictures"));
+		gallery.setGalid(result.getInt("galid"));
+		gallery.setSuffix(result.getInt("suffix"));
+		gallery.setTitle(result.getString("title"));
+		gallery.setDesc(result.getString("description"));
+		gallery.setIntern(result.getBoolean("intern"));
+		String[] userids = StringUtils.split(result.getString("description"), '&');
+		for (String userid : userids) {
+			gallery.getPhotographers().add(this.getUserForId(Integer.valueOf(userid).intValue()));
+		}
+		String[] censoredPictures = StringUtils.split(result.getString("description"), ',');
+		for (String censoredPicture : censoredPictures) {
+			gallery.getDeletedPictures().add(Integer.valueOf(censoredPicture));
+		}
+		gallery.setNewGallery(false);
+		return gallery;
 	}
 }
