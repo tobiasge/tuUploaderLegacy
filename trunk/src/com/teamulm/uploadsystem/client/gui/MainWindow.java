@@ -182,23 +182,35 @@ public class MainWindow extends Window {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				final UserPassDialog userPassDialog = new UserPassDialog(MainWindow.this.getShell());
-				if (Dialog.OK == userPassDialog.open()) {
+				if (TrmEngine.getInstance().isLoggedIn() || Dialog.OK == userPassDialog.open()) {
 					new Thread() {
 						@Override
 						public void run() {
-							if (TrmEngine.getInstance().connect()) {
+							if (TrmEngine.getInstance().isConnected()) {
+							} else if (TrmEngine.getInstance().connect()) {
 								MainWindow.this.addStatusLine("Verbindung wurde hergestellt.");
-								if (TrmEngine.getInstance().login(userPassDialog.getUserName(),
-									userPassDialog.getPassWord())) {
-									MainWindow.this.addStatusLine("Login erfolgreich durgeführt.");
-									GalleryDialog galleryDialog = new GalleryDialog(MainWindow.this.getShell(),
-										MainWindow.this.getGalleryDate());
-								} else {
-									MainWindow.this.addStatusLine("Login nicht erfolgreich durgeführt.");
-								}
 							} else {
-								MainWindow.this.addStatusLine("Konnte Verbindung nicht herstellen.");
+								MainWindow.this.addStatusLine("Verbindung wurde nicht hergestellt.");
 							}
+							if (TrmEngine.getInstance().isLoggedIn()) {
+							} else if (TrmEngine.getInstance().login(userPassDialog.getUserName(),
+								userPassDialog.getPassWord())) {
+								MainWindow.this.addStatusLine("Login erfolgreich durgeführt.");
+							} else {
+								MainWindow.this.addStatusLine("Login nicht erfolgreich durgeführt.");
+								return;
+							}
+
+							final GalleryDialog galleryDialog = new GalleryDialog(MainWindow.this.getShell(),
+								MainWindow.this.getGalleryDate());
+							Display.getDefault().asyncExec(new Runnable() {
+								@Override
+								public void run() {
+									if (Dialog.OK == galleryDialog.open()) {
+
+									}
+								}
+							});
 						}
 					}.start();
 				}
