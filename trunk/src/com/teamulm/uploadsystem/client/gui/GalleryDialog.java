@@ -8,6 +8,8 @@ import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -79,6 +81,18 @@ public class GalleryDialog extends Dialog {
 		this.galTable.setHeaderVisible(true);
 		this.galTable.setLinesVisible(true);
 		this.buildGalleryTable();
+		this.galTable.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDoubleClick(MouseEvent mouseEvent) {
+				if (-1 < GalleryDialog.this.galTable.getSelectionIndex()) {
+					Gallery gallery = GalleryDialog.this.myGalleries.get(GalleryDialog.this.galTable
+						.getSelectionIndex());
+					if (null != gallery) {
+						new ViewGalleryDialog(GalleryDialog.this.getShell(), gallery).open();
+					}
+				}
+			}
+		});
 		new GalleryLoader(this.date).start();
 		GridDataFactory.fillDefaults().hint(425, 120).applyTo(this.galTable);
 		this.newGal = new Button(composite, SWT.RADIO);
