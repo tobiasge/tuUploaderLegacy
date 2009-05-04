@@ -2,10 +2,11 @@ package com.teamulm.uploadsystem.data;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-public class Location implements Serializable {
+public class Location implements Serializable, Comparable<Location> {
 
 	private static final long serialVersionUID = -4083430320962596602L;
 
@@ -31,5 +32,11 @@ public class Location implements Serializable {
 	public String toString() {
 		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("Id", this.id).append("Name",
 			this.name).toString();
+	}
+
+	@Override
+	public int compareTo(Location rhs) {
+		Location lhs = this;
+		return new CompareToBuilder().append(lhs.name, rhs.name).toComparison();
 	}
 }
