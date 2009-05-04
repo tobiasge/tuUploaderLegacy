@@ -30,7 +30,11 @@ public class UserPassDialog extends Dialog {
 	protected Control createDialogArea(Composite parent) {
 		Composite composite = (Composite) super.createDialogArea(parent);
 		this.getShell().setText(Messages.getString("userPassDialog.dialog.title"));
-		GridLayoutFactory.fillDefaults().numColumns(2).equalWidth(false).margins(5, 5).applyTo(composite);
+		GridLayoutFactory.fillDefaults().numColumns(3).equalWidth(false).margins(5, 5).applyTo(composite);
+		Label iconLabel = new Label(composite, SWT.NONE);
+		iconLabel.setImage(this.getShell().getDisplay().getSystemImage(SWT.ICON_QUESTION));
+		GridDataFactory.fillDefaults().span(1, 2).hint(50, SWT.DEFAULT).indent(10, SWT.DEFAULT).applyTo(iconLabel);
+
 		Label labelUserName = new Label(composite, SWT.NONE);
 		labelUserName.setText(Messages.getString("userPassDialog.label.username"));
 		GridDataFactory.fillDefaults().applyTo(labelUserName);
