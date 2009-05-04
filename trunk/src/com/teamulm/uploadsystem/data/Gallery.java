@@ -4,7 +4,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Gallery implements Serializable {
+import org.apache.commons.lang.builder.CompareToBuilder;
+
+public class Gallery implements Serializable, Comparable<Gallery> {
 
 	private static final long serialVersionUID = -9028890879729734915L;
 
@@ -163,5 +165,12 @@ public class Gallery implements Serializable {
 
 	public String toString() {
 		return this.location;
+	}
+
+	@Override
+	public int compareTo(Gallery rhs) {
+		Gallery lhs = this;
+		return new CompareToBuilder().append(lhs.date, rhs.date).append(lhs.location, rhs.location).append(lhs.title,
+			rhs.title).toComparison();
 	}
 }
