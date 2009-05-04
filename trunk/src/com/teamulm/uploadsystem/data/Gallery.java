@@ -78,6 +78,15 @@ public class Gallery implements Serializable, Comparable<Gallery> {
 		return location;
 	}
 
+	public boolean isPictureDeleted(int picure) {
+		for (Integer integer : this.deletedPictures) {
+			if (integer.intValue() == picure) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public String getPath() {
 		if (this.suffix == 0) {
 			return this.location + System.getProperty("file.separator") + this.date
