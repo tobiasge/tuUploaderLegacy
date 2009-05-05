@@ -55,7 +55,8 @@ public class ViewGalleryDialog extends Dialog {
 
 	@Override
 	protected Control createDialogArea(Composite parent) {
-		this.getShell().setText(this.gallery.getLocation() + " am " + this.gallery.getDate().replace('-', '.'));
+		this.getShell().setText(
+			this.gallery.getLocation() + " am " + this.gallery.getDate().replace('-', '.'));
 		Composite composite = (Composite) super.createDialogArea(parent);
 		GridLayoutFactory.fillDefaults().applyTo(composite);
 		final org.eclipse.nebula.widgets.gallery.Gallery galleryViewer = new org.eclipse.nebula.widgets.gallery.Gallery(
@@ -97,11 +98,12 @@ public class ViewGalleryDialog extends Dialog {
 								public void run() {
 									Image pic = new Image(Display.getDefault(), tmpPic.getAbsolutePath());
 									if (null != pic) {
-										ViewGalleryDialog.this.tmpImages.add(pic);
-										if (!item.isDisposed()) {
+										if (!item.isDisposed() && !pic.isDisposed()) {
+											ViewGalleryDialog.this.tmpImages.add(pic);
 											item.setImage(pic);
 											if (ViewGalleryDialog.this.gallery.isPictureDeleted(index)) {
-												item.setData(AbstractGalleryItemRenderer.OVERLAY_BOTTOM_RIGHT,
+												item.setData(
+													AbstractGalleryItemRenderer.OVERLAY_BOTTOM_RIGHT,
 													ViewGalleryDialog.this.iconCross);
 											}
 										}
