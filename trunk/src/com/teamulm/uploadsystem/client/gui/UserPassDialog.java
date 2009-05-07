@@ -42,7 +42,6 @@ public class UserPassDialog extends Dialog {
 		this.textUserName = new Text(composite, SWT.BORDER);
 		GridDataFactory.fillDefaults().grab(true, false).hint(100, SWT.DEFAULT).applyTo(this.textUserName);
 		this.textUserName.addTraverseListener(new TraverseListener() {
-			@Override
 			public void keyTraversed(TraverseEvent traverseEvent) {
 				if (SWT.CR == traverseEvent.character) {
 					traverseEvent.doit = false;

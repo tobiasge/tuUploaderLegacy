@@ -34,7 +34,6 @@ public class Location implements Serializable, Comparable<Location> {
 			this.name).toString();
 	}
 
-	@Override
 	public int compareTo(Location rhs) {
 		Location lhs = this;
 		return new CompareToBuilder().append(lhs.name, rhs.name).toComparison();

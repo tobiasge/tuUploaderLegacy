@@ -15,8 +15,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.DropTargetAdapter;
 import org.eclipse.swt.dnd.DropTargetEvent;
-import org.eclipse.swt.dnd.DropTargetListener;
 import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
@@ -95,13 +95,8 @@ public class MainWindow extends Window {
 		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).hint(300, 210).applyTo(this.fileList);
 		DropTarget fileListTarget = new DropTarget(this.fileList, DND.DROP_COPY);
 		fileListTarget.setTransfer(new Transfer[] { FileTransfer.getInstance() });
-		fileListTarget.addDropListener(new DropTargetListener() {
+		fileListTarget.addDropListener(new DropTargetAdapter() {
 
-			@Override
-			public void dropAccept(DropTargetEvent event) {
-			}
-
-			@Override
 			public void drop(DropTargetEvent event) {
 				if (FileTransfer.getInstance().isSupportedType(event.currentDataType)) {
 					if (event.data instanceof String[]) {
@@ -115,7 +110,6 @@ public class MainWindow extends Window {
 				}
 			}
 
-			@Override
 			public void dragOver(DropTargetEvent event) {
 				if (!FileTransfer.getInstance().isSupportedType(event.currentDataType)) {
 					event.detail = DND.DROP_NONE;
@@ -124,7 +118,6 @@ public class MainWindow extends Window {
 				}
 			}
 
-			@Override
 			public void dragOperationChanged(DropTargetEvent event) {
 				if (!FileTransfer.getInstance().isSupportedType(event.currentDataType)) {
 					event.detail = DND.DROP_NONE;
@@ -133,11 +126,6 @@ public class MainWindow extends Window {
 				}
 			}
 
-			@Override
-			public void dragLeave(DropTargetEvent event) {
-			}
-
-			@Override
 			public void dragEnter(DropTargetEvent event) {
 				if (!FileTransfer.getInstance().isSupportedType(event.currentDataType)) {
 					event.detail = DND.DROP_NONE;
@@ -204,7 +192,6 @@ public class MainWindow extends Window {
 							final GalleryDialog galleryDialog = new GalleryDialog(MainWindow.this.getShell(),
 								MainWindow.this.getGalleryDate());
 							Display.getDefault().asyncExec(new Runnable() {
-								@Override
 								public void run() {
 									if (Dialog.OK == galleryDialog.open()) {
 
@@ -317,7 +304,6 @@ public class MainWindow extends Window {
 
 	public void addStatusLine(final String line) {
 		this.getShell().getDisplay().asyncExec(new Runnable() {
-			@Override
 			public void run() {
 				MainWindow.this.statusList.add(line);
 				MainWindow.this.statusList.select(statusList.getItems().length - 1);
@@ -334,7 +320,6 @@ public class MainWindow extends Window {
 
 	public void setConvertProgress(final int progress) {
 		this.getShell().getDisplay().asyncExec(new Runnable() {
-			@Override
 			public void run() {
 				MainWindow.this.convertProgressBar.setSelection(progress);
 			}
@@ -344,7 +329,6 @@ public class MainWindow extends Window {
 
 	public void setUploadProgress(final int progress) {
 		this.getShell().getDisplay().asyncExec(new Runnable() {
-			@Override
 			public void run() {
 				MainWindow.this.convertProgressBar.setSelection(progress);
 			}

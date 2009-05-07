@@ -12,8 +12,7 @@ public class Gallery implements Serializable, Comparable<Gallery> {
 
 	public static String getPath(String location, String date, int suffix) {
 		if (suffix == 0) {
-			return location + System.getProperty("file.separator") + date
-				+ System.getProperty("file.separator");
+			return location + System.getProperty("file.separator") + date + System.getProperty("file.separator");
 		} else {
 			return location + System.getProperty("file.separator") + date + "-" + suffix
 				+ System.getProperty("file.separator");
@@ -180,10 +179,9 @@ public class Gallery implements Serializable, Comparable<Gallery> {
 		return this.location;
 	}
 
-	@Override
 	public int compareTo(Gallery rhs) {
 		Gallery lhs = this;
-		return new CompareToBuilder().append(lhs.date, rhs.date).append(lhs.location, rhs.location).append(
-			lhs.title, rhs.title).toComparison();
+		return new CompareToBuilder().append(lhs.date, rhs.date).append(lhs.location, rhs.location).append(lhs.title,
+			rhs.title).toComparison();
 	}
 }

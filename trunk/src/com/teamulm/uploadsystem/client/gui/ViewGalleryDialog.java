@@ -55,8 +55,7 @@ public class ViewGalleryDialog extends Dialog {
 
 	@Override
 	protected Control createDialogArea(Composite parent) {
-		this.getShell().setText(
-			this.gallery.getLocation() + " am " + this.gallery.getDate().replace('-', '.'));
+		this.getShell().setText(this.gallery.getLocation() + " am " + this.gallery.getDate().replace('-', '.'));
 		Composite composite = (Composite) super.createDialogArea(parent);
 		GridLayoutFactory.fillDefaults().applyTo(composite);
 		final org.eclipse.nebula.widgets.gallery.Gallery galleryViewer = new org.eclipse.nebula.widgets.gallery.Gallery(
@@ -74,7 +73,7 @@ public class ViewGalleryDialog extends Dialog {
 				}
 				final int index = tmpIndex;
 				Thread picLoader = new Thread() {
-					@Override
+
 					public void run() {
 						try {
 							URL picUrl = new URL("http://www.team-ulm.de/fotos/parties/"
@@ -94,7 +93,7 @@ public class ViewGalleryDialog extends Dialog {
 							fos.close();
 							ViewGalleryDialog.this.tmpFiles.add(tmpPic);
 							Display.getDefault().asyncExec(new Runnable() {
-								@Override
+
 								public void run() {
 									Image pic = new Image(Display.getDefault(), tmpPic.getAbsolutePath());
 									if (null != pic) {
@@ -102,8 +101,7 @@ public class ViewGalleryDialog extends Dialog {
 											ViewGalleryDialog.this.tmpImages.add(pic);
 											item.setImage(pic);
 											if (ViewGalleryDialog.this.gallery.isPictureDeleted(index)) {
-												item.setData(
-													AbstractGalleryItemRenderer.OVERLAY_BOTTOM_RIGHT,
+												item.setData(AbstractGalleryItemRenderer.OVERLAY_BOTTOM_RIGHT,
 													ViewGalleryDialog.this.iconCross);
 											}
 										}
@@ -130,6 +128,7 @@ public class ViewGalleryDialog extends Dialog {
 			if (i == (int) Math.floor(this.gallery.getPictures() / 80)) {
 				item.setItemCount(this.gallery.getPictures() - 80 * i);
 			}
+			this.galleryGroups.add(item);
 		}
 
 		DefaultGalleryGroupRenderer gr = new DefaultGalleryGroupRenderer();

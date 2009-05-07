@@ -179,7 +179,7 @@ public class GalleryDialog extends Dialog {
 				locNames[index++] = location.getName();
 			}
 			Display.getDefault().asyncExec(new Runnable() {
-				@Override
+
 				public void run() {
 					if (LocationsLoader.this.locationsBox.isDisposed()) {
 						return;
@@ -206,7 +206,7 @@ public class GalleryDialog extends Dialog {
 			final ArrayList<Gallery> list = TrmEngine.getInstance().getGalleriesFor(this.date);
 			Collections.sort(list);
 			Display.getDefault().asyncExec(new Runnable() {
-				@Override
+
 				public void run() {
 					if (GalleryDialog.this.galTable.isDisposed()) {
 						return;
