@@ -13,6 +13,8 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -139,11 +141,31 @@ public class GalleryDialog extends Dialog {
 		this.locationsBox.setText("    -- Bitte wählen --");
 		GridDataFactory.fillDefaults().applyTo(this.locationsBox);
 		new LocationsLoader(this.locationsBox).start();
-		this.titleField = new Text(this.newGalComposite, SWT.BORDER);
+		this.titleField = new Text(this.newGalComposite, SWT.BORDER | SWT.SEARCH);
+		this.titleField.setMessage("Titel der Galerie");
+		this.titleField.addVerifyListener(new VerifyListener() {
+			public void verifyText(VerifyEvent verifyEvent) {
+				String text = ((Text) verifyEvent.widget).getText();
+				if (GalleryDialog.TITLEMAXLENGTH < text.length()) {
+					verifyEvent.doit = false;
+				}
+			}
+		});
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(this.titleField);
 		this.isIntern = new Button(this.newGalComposite, SWT.CHECK);
+		this.isIntern.setText("Intern");
+		this.isIntern.setToolTipText("Haken setzten um interne Galerie zu erstellen");
 		GridDataFactory.fillDefaults().hint(55, SWT.DEFAULT).indent(5, SWT.DEFAULT).applyTo(this.isIntern);
-		this.descField = new Text(this.newGalComposite, SWT.BORDER);
+		this.descField = new Text(this.newGalComposite, SWT.BORDER | SWT.SEARCH);
+		this.descField.setMessage("Beschreibung der Galerie");
+		this.descField.addVerifyListener(new VerifyListener() {
+			public void verifyText(VerifyEvent verifyEvent) {
+				String text = ((Text) verifyEvent.widget).getText();
+				if (GalleryDialog.DESCRMAXLENGTH < text.length()) {
+					verifyEvent.doit = false;
+				}
+			}
+		});
 		GridDataFactory.fillDefaults().grab(true, false).span(3, 1).applyTo(this.descField);
 	}
 
