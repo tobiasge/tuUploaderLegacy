@@ -2,7 +2,8 @@ package com.teamulm.uploadsystem.client.gui;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jface.dialogs.Dialog;
@@ -62,6 +63,12 @@ public class MainWindow extends Window {
 		int style = this.getShellStyle();
 		style &= ~(SWT.MAX | SWT.RESIZE);
 		this.setShellStyle(style);
+	}
+
+	@Override
+	public boolean close() {
+		TrmEngine.getInstance().disconnect();
+		return super.close();
 	}
 
 	@Override
@@ -156,7 +163,19 @@ public class MainWindow extends Window {
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelEvenDate);
 
 		this.eventDate = new CDateTime(composite, CDT.BORDER | CDT.DROP_DOWN | CDT.DATE_MEDIUM);
-		this.eventDate.setSelection(new Date());
+		Calendar cal = GregorianCalendar.getInstance();
+		cal.add(Calendar.DAY_OF_MONTH, -1);
+		this.eventDate.setSelection(cal.getTime());
+		this.eventDate.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent selectionEvent) {
+				if (null != MainWindow.this.gallery) {
+					if (!MainWindow.this.gallery.getDate().equalsIgnoreCase(MainWindow.this.getGalleryDate())) {
+						MainWindow.this.setGallery(null);
+					}
+				}
+			}
+		});
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(this.eventDate);
 
 		Label labelTmp = new Label(composite, SWT.NONE);
@@ -350,6 +369,14 @@ public class MainWindow extends Window {
 	}
 
 	public void setGallery(Gallery gallery) {
+		if (null == gallery) {
+			this.gallery = null;
+			this.fieldLocation.setText("");
+			this.fieldTitle.setText("");
+			this.fieldDesc.setText("");
+			this.fieldIntern.setSelection(false);
+			return;
+		}
 		this.fieldLocation.setText(gallery.getLocation());
 		this.fieldTitle.setText(gallery.getTitle());
 		this.fieldDesc.setText(gallery.getDesc());
