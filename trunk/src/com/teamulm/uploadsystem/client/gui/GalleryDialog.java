@@ -34,6 +34,8 @@ import com.teamulm.uploadsystem.data.Location;
 
 public class GalleryDialog extends Dialog {
 
+	private static final String PLEASE_CHOOSE = "-- Bitte wählen --";
+
 	private static final int DESCRMAXLENGTH = 180;
 
 	private static final int TITLEMAXLENGTH = 33;
@@ -87,8 +89,8 @@ public class GalleryDialog extends Dialog {
 		GridLayoutFactory.fillDefaults().numColumns(3).equalWidth(false).applyTo(this.newGalComposite);
 		this.locationsBox = new Combo(this.newGalComposite, SWT.BORDER | SWT.READ_ONLY);
 		this.locationsBox.setVisibleItemCount(10);
-		this.locationsBox.setItems(new String[] { "    -- Bitte wählen --" });
-		this.locationsBox.setText("    -- Bitte wählen --");
+		this.locationsBox.setItems(new String[] { GalleryDialog.PLEASE_CHOOSE });
+		this.locationsBox.setText(GalleryDialog.PLEASE_CHOOSE);
 		GridDataFactory.fillDefaults().applyTo(this.locationsBox);
 		new LocationsLoader(this.locationsBox).start();
 		this.titleField = new Text(this.newGalComposite, SWT.BORDER | SWT.SEARCH);
@@ -188,9 +190,23 @@ public class GalleryDialog extends Dialog {
 				TeamUlmUpload.getInstance().getMainWindow().setGallery(gal);
 			}
 		} else if (this.newGal.getSelection()) {
-
+			if (0 < GalleryDialog.this.titleField.getText().length()
+				&& 0 < GalleryDialog.this.descField.getText().length()
+				&& !GalleryDialog.PLEASE_CHOOSE.equals(GalleryDialog.this.locationsBox.getText())) {
+				Gallery gal = TrmEngine.getInstance().newGallery(GalleryDialog.this.locationsBox.getText(),
+					GalleryDialog.this.date);
+				gal.setDesc(GalleryDialog.this.descField.getText());
+				gal.setIntern(GalleryDialog.this.isIntern.getSelection());
+				gal.setTitle(GalleryDialog.this.titleField.getText());
+				TeamUlmUpload.getInstance().getMainWindow().setGallery(gal);
+			} else {
+				MessageBox mb = new MessageBox(this.getShell(), SWT.OK | SWT.ERROR);
+				mb.setMessage("Bitte alle Felder vollständig ausfüllen.");
+				mb.setText("Fehler...");
+				mb.open();
+				return;
+			}
 		} else {
-			super.cancelPressed();
 			return;
 		}
 		super.okPressed();
@@ -255,7 +271,7 @@ public class GalleryDialog extends Dialog {
 			final String[] locNames = new String[locations.size() + 1];
 			Collections.sort(locations);
 			int index = 0;
-			locNames[index++] = "    -- Bitte wählen --";
+			locNames[index++] = GalleryDialog.PLEASE_CHOOSE;
 			for (Location location : locations) {
 				locNames[index++] = location.getName();
 			}
@@ -266,7 +282,7 @@ public class GalleryDialog extends Dialog {
 						return;
 					}
 					LocationsLoader.this.locationsBox.setItems(locNames);
-					LocationsLoader.this.locationsBox.setText("    -- Bitte wählen --");
+					LocationsLoader.this.locationsBox.setText(GalleryDialog.PLEASE_CHOOSE);
 					TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Locationsliste laden fertig");
 				}
 			});
