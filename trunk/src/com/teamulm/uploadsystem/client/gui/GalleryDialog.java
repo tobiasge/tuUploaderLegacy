@@ -147,7 +147,9 @@ public class GalleryDialog extends Dialog {
 			public void verifyText(VerifyEvent verifyEvent) {
 				String text = ((Text) verifyEvent.widget).getText();
 				if (GalleryDialog.TITLEMAXLENGTH < text.length()) {
-					verifyEvent.doit = false;
+					if (verifyEvent.character != SWT.BS && verifyEvent.character != SWT.DEL) {
+						verifyEvent.doit = false;
+					}
 				}
 			}
 		});
@@ -162,7 +164,9 @@ public class GalleryDialog extends Dialog {
 			public void verifyText(VerifyEvent verifyEvent) {
 				String text = ((Text) verifyEvent.widget).getText();
 				if (GalleryDialog.DESCRMAXLENGTH < text.length()) {
-					verifyEvent.doit = false;
+					if (verifyEvent.character != SWT.BS && verifyEvent.character != SWT.DEL) {
+						verifyEvent.doit = false;
+					}
 				}
 			}
 		});
