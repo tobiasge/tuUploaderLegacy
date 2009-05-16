@@ -42,6 +42,8 @@ import com.teamulm.uploadsystem.data.Gallery;
 
 public class MainWindow extends Window {
 
+	private final static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MainWindow.class);
+
 	public static final int PROGRESS_BAR_MAX = 1000;
 
 	private List fileList = null, statusList = null;
@@ -369,6 +371,7 @@ public class MainWindow extends Window {
 	}
 
 	public void setGallery(Gallery gallery) {
+		log.debug("Setting gallery: " + gallery);
 		if (null == gallery) {
 			this.gallery = null;
 			this.fieldLocation.setText("");
@@ -381,16 +384,6 @@ public class MainWindow extends Window {
 		this.fieldTitle.setText(gallery.getTitle());
 		this.fieldDesc.setText(gallery.getDesc());
 		this.fieldIntern.setSelection(gallery.isIntern());
-		if (gallery.isNewGallery()) {
-			this.fieldTitle.setEnabled(true);
-			this.fieldDesc.setEnabled(true);
-			this.fieldIntern.setEnabled(true);
-		} else {
-			this.fieldTitle.setEnabled(false);
-			this.fieldDesc.setEnabled(false);
-			this.fieldIntern.setEnabled(false);
-		}
 		this.gallery = gallery;
 	}
-
 }
