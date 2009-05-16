@@ -358,7 +358,9 @@ public class MainWindow extends Window {
 
 	private void reset() {
 		// TODO
+		this.setGallery(null);
 		this.fileList.removeAll();
+		this.addStatusLine("Programm wurde zurückgesetzt.");
 	}
 
 	public Gallery getGallery() {
