@@ -20,6 +20,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -33,78 +34,27 @@ import com.teamulm.uploadsystem.data.Location;
 
 public class GalleryDialog extends Dialog {
 
-	private static final int TITLEMAXLENGTH = 33;
-
 	private static final int DESCRMAXLENGTH = 180;
 
-	private ArrayList<Gallery> myGalleries;
+	private static final int TITLEMAXLENGTH = 33;
 
-	private Combo locationsBox;
-
-	private Text titleField, descField;
+	private String date;
 
 	private Table galTable;
 
-	private String date;
+	private Combo locationsBox;
+
+	private ArrayList<Gallery> myGalleries;
 
 	private Button newGal, oldGal, isIntern;
 
 	private Composite newGalComposite;
 
+	private Text titleField, descField;
+
 	public GalleryDialog(Shell parentShell, String date) {
 		super(parentShell);
 		this.date = date;
-	}
-
-	@Override
-	protected Control createDialogArea(Composite parent) {
-		this.getShell().setText("Galerien am " + this.date.replace('-', '.'));
-		Composite composite = (Composite) super.createDialogArea(parent);
-		GridLayoutFactory.fillDefaults().margins(5, 5).applyTo(composite);
-		SelectionListener oldNewGal = new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent selectionEvent) {
-				Button source = (Button) selectionEvent.widget;
-				if (source.getSelection()) {
-					if (GalleryDialog.this.newGal.equals(source)) {
-						GalleryDialog.this.setNewGalEnabled(true);
-					} else if (GalleryDialog.this.oldGal.equals(source)) {
-						GalleryDialog.this.setNewGalEnabled(false);
-					}
-				}
-			}
-		};
-
-		this.oldGal = new Button(composite, SWT.RADIO);
-		this.oldGal.setText("Vorhandene Galerie wählen");
-		this.oldGal.addSelectionListener(oldNewGal);
-		GridDataFactory.fillDefaults().applyTo(this.oldGal);
-		this.galTable = new Table(composite, SWT.V_SCROLL | SWT.BORDER | SWT.FULL_SELECTION);
-		this.galTable.setHeaderVisible(true);
-		this.galTable.setLinesVisible(true);
-		this.buildGalleryTable();
-		this.galTable.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseDoubleClick(MouseEvent mouseEvent) {
-				if (-1 < GalleryDialog.this.galTable.getSelectionIndex()) {
-					Gallery gallery = GalleryDialog.this.myGalleries.get(GalleryDialog.this.galTable
-						.getSelectionIndex());
-					if (null != gallery) {
-						new ViewGalleryDialog(GalleryDialog.this.getShell(), gallery).open();
-					}
-				}
-			}
-		});
-		new GalleryLoader(this.date).start();
-		GridDataFactory.fillDefaults().hint(425, 120).applyTo(this.galTable);
-		this.newGal = new Button(composite, SWT.RADIO);
-		this.newGal.setText("Neue Galerie erstellen");
-		this.newGal.addSelectionListener(oldNewGal);
-		GridDataFactory.fillDefaults().applyTo(this.newGal);
-		this.buildNewGalComposite(composite);
-		GridDataFactory.fillDefaults().applyTo(this.newGalComposite);
-		this.setNewGalEnabled(false);
-		return composite;
 	}
 
 	private void buildGalleryTable() {
@@ -173,12 +123,117 @@ public class GalleryDialog extends Dialog {
 		GridDataFactory.fillDefaults().grab(true, false).span(3, 1).applyTo(this.descField);
 	}
 
+	@Override
+	protected Control createDialogArea(Composite parent) {
+		this.getShell().setText("Galerien am " + this.date.replace('-', '.'));
+		Composite composite = (Composite) super.createDialogArea(parent);
+		GridLayoutFactory.fillDefaults().margins(5, 5).applyTo(composite);
+		SelectionListener oldNewGal = new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent selectionEvent) {
+				Button source = (Button) selectionEvent.widget;
+				if (source.getSelection()) {
+					if (GalleryDialog.this.newGal.equals(source)) {
+						GalleryDialog.this.setNewGalEnabled(true);
+					} else if (GalleryDialog.this.oldGal.equals(source)) {
+						GalleryDialog.this.setNewGalEnabled(false);
+					}
+				}
+			}
+		};
+
+		this.oldGal = new Button(composite, SWT.RADIO);
+		this.oldGal.setText("Vorhandene Galerie wählen");
+		this.oldGal.addSelectionListener(oldNewGal);
+		GridDataFactory.fillDefaults().applyTo(this.oldGal);
+		this.galTable = new Table(composite, SWT.V_SCROLL | SWT.BORDER | SWT.FULL_SELECTION);
+		this.galTable.setHeaderVisible(true);
+		this.galTable.setLinesVisible(true);
+		this.buildGalleryTable();
+		this.galTable.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDoubleClick(MouseEvent mouseEvent) {
+				if (-1 < GalleryDialog.this.galTable.getSelectionIndex()) {
+					Gallery gallery = GalleryDialog.this.myGalleries.get(GalleryDialog.this.galTable
+						.getSelectionIndex());
+					if (null != gallery) {
+						new ViewGalleryDialog(GalleryDialog.this.getShell(), gallery).open();
+					}
+				}
+			}
+		});
+		new GalleryLoader(this.date).start();
+		GridDataFactory.fillDefaults().hint(425, 120).applyTo(this.galTable);
+		this.newGal = new Button(composite, SWT.RADIO);
+		this.newGal.setText("Neue Galerie erstellen");
+		this.newGal.addSelectionListener(oldNewGal);
+		GridDataFactory.fillDefaults().applyTo(this.newGal);
+		this.buildNewGalComposite(composite);
+		GridDataFactory.fillDefaults().applyTo(this.newGalComposite);
+		this.setNewGalEnabled(false);
+		return composite;
+	}
+
+	@Override
+	protected void okPressed() {
+		if (this.oldGal.getSelection()) {
+			if (-1 == this.galTable.getSelectionIndex()) {
+				MessageBox mb = new MessageBox(this.getShell(), SWT.OK | SWT.ERROR);
+				mb.setMessage("Bitte eine Galerie auswählen.");
+				mb.setText("Fehler...");
+				mb.open();
+				return;
+			} else {
+				Gallery gal = (Gallery) this.galTable.getItem(this.galTable.getSelectionIndex()).getData();
+				TeamUlmUpload.getInstance().getMainWindow().setGallery(gal);
+			}
+		} else if (this.newGal.getSelection()) {
+
+		} else {
+			super.cancelPressed();
+			return;
+		}
+		super.okPressed();
+	}
+
 	private void setNewGalEnabled(boolean enabled) {
 		this.galTable.setEnabled(!enabled);
 		this.titleField.setEnabled(enabled);
 		this.descField.setEnabled(enabled);
 		this.locationsBox.setEnabled(enabled);
 		this.isIntern.setEnabled(enabled);
+	}
+
+	private class GalleryLoader extends Thread {
+
+		private String date;
+
+		public GalleryLoader(String date) {
+			this.date = date;
+			this.setDaemon(true);
+		}
+
+		@Override
+		public void run() {
+			final ArrayList<Gallery> list = TrmEngine.getInstance().getGalleriesFor(this.date);
+			Collections.sort(list);
+			Display.getDefault().asyncExec(new Runnable() {
+
+				public void run() {
+					if (GalleryDialog.this.galTable.isDisposed()) {
+						return;
+					}
+					GalleryDialog.this.myGalleries = list;
+					for (Gallery gallery : list) {
+						TableItem item = new TableItem(GalleryDialog.this.galTable, SWT.DEFAULT);
+						item.setText(new String[] { gallery.getLocation(), gallery.getTitle(),
+							"" + gallery.getPictures(), gallery.isIntern() ? "Ja" : "Nein" });
+						item.setData(gallery);
+					}
+					TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Galerien laden fertig");
+				}
+			});
+		}
 	}
 
 	private class LocationsLoader extends Thread {
@@ -213,37 +268,6 @@ public class GalleryDialog extends Dialog {
 					LocationsLoader.this.locationsBox.setItems(locNames);
 					LocationsLoader.this.locationsBox.setText("    -- Bitte wählen --");
 					TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Locationsliste laden fertig");
-				}
-			});
-		}
-	}
-
-	private class GalleryLoader extends Thread {
-
-		private String date;
-
-		public GalleryLoader(String date) {
-			this.date = date;
-			this.setDaemon(true);
-		}
-
-		@Override
-		public void run() {
-			final ArrayList<Gallery> list = TrmEngine.getInstance().getGalleriesFor(this.date);
-			Collections.sort(list);
-			Display.getDefault().asyncExec(new Runnable() {
-
-				public void run() {
-					if (GalleryDialog.this.galTable.isDisposed()) {
-						return;
-					}
-					GalleryDialog.this.myGalleries = list;
-					for (Gallery gallery : list) {
-						TableItem item = new TableItem(GalleryDialog.this.galTable, SWT.DEFAULT);
-						item.setText(new String[] { gallery.getLocation(), gallery.getTitle(),
-							"" + gallery.getPictures(), gallery.isIntern() ? "Ja" : "Nein" });
-					}
-					TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Galerien laden fertig");
 				}
 			});
 		}
