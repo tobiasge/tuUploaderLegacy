@@ -375,7 +375,7 @@ public class Transmitter extends Thread {
 
 		@Override
 		public void run() {
-			if (Transmitter.this.isConnected()) {
+			if (Transmitter.this.connected && Transmitter.this.loggedIn) {
 				log.debug("sending PingCmd");
 				try {
 					log.debug("Server said: " + Transmitter.this.sendAndRead(new PingCmd()));
