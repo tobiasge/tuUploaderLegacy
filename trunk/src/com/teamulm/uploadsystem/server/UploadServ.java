@@ -225,7 +225,7 @@ public class UploadServ extends Thread {
 					this.output.flush();
 				}
 			} else {
-				log.error(this.clientip + ": Client did not send HELLO with version");
+				log.error(this.clientip + ": Client did not send HELLO with version " + "(" + cmd.getClass() + ")");
 				this.cleanUp();
 			}
 			while (this.active) {
