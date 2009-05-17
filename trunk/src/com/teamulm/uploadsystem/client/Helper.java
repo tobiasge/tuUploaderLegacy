@@ -88,7 +88,9 @@ public class Helper {
 			JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[1]))
 			return;
 		else {
-			TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Sende Fehlerbericht");
+			if (null != TeamUlmUpload.getInstance() && null != TeamUlmUpload.getInstance().getMainWindow()) {
+				TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Sende Fehlerbericht");
+			}
 			String[] lines = this.readFileData(TeamUlmUpload.logFileName, false);
 			String report = "";
 			if (null != lines) {
