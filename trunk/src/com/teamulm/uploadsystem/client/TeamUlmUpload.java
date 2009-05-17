@@ -19,6 +19,7 @@ import java.lang.management.MemoryMXBean;
 import java.lang.management.OperatingSystemMXBean;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.swt.widgets.Display;
@@ -99,15 +100,15 @@ public class TeamUlmUpload {
 
 	public static String getAppDataDir() {
 		String appData;
-		if (null == TeamUlmUpload.appDataDir || TeamUlmUpload.appDataDir.isEmpty()) {
+		if (StringUtils.isBlank(TeamUlmUpload.appDataDir)) {
 			// Getting Windows AppData directory
 			String appDataRoot = System.getenv("appdata");
 			// if empty non Windows system, trying Mac/Linux user home directory
-			if (appDataRoot.isEmpty()) {
+			if (StringUtils.isBlank(appDataRoot)) {
 				appDataRoot = System.getenv("home");
 			}
 			// empty? Should not be, using local install directory
-			if (appDataRoot.isEmpty()) {
+			if (StringUtils.isBlank(appDataRoot)) {
 				TeamUlmUpload.appDataDir = "";
 			} else {
 				// Setting correct sub directory
