@@ -21,6 +21,8 @@ import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
@@ -29,6 +31,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Menu;
@@ -101,6 +104,16 @@ public class MainWindow extends Window {
 		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(this.selectedPics);
 
 		this.fileList = new List(composite, SWT.BORDER | SWT.V_SCROLL | SWT.MULTI | SWT.FULL_SELECTION);
+		this.fileList.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent keyEvent) {
+				if (SWT.DEL == keyEvent.character) {
+					if (0 < MainWindow.this.fileList.getSelectionIndices().length) {
+						MainWindow.this.fileList.remove(MainWindow.this.fileList.getSelectionIndices());
+					}
+				}
+			}
+		});
 		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).hint(300, 210).applyTo(this.fileList);
 		DropTarget fileListTarget = new DropTarget(this.fileList, DND.DROP_COPY);
 		fileListTarget.setTransfer(new Transfer[] { FileTransfer.getInstance() });
@@ -146,6 +159,24 @@ public class MainWindow extends Window {
 
 		Button selectPics = new Button(composite, SWT.PUSH);
 		selectPics.setText("Bilder wählen");
+		selectPics.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (null != MainWindow.this.fileList.getSelectionIndices()) {
+					FileDialog fileDialog = new FileDialog(MainWindow.this.getShell(), SWT.OPEN | SWT.MULTI);
+					fileDialog.setFilterExtensions(new String[] { "*.jpg;*.jpeg;*.JPG;*.JPEG" });
+					fileDialog.setFilterNames(new String[] { "JPEG Bilddateien" });
+					fileDialog.setText("Bilder wählen");
+					if (null == fileDialog.open() || null == fileDialog.getFileNames()) {
+						return;
+					}
+					String filterPath = fileDialog.getFilterPath() + System.getProperty("file.separator");
+					for (String fileName : fileDialog.getFileNames()) {
+						MainWindow.this.fileList.add(filterPath + fileName);
+					}
+				}
+			}
+		});
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(selectPics);
 
 		Button removePictures = new Button(composite, SWT.PUSH);
