@@ -245,9 +245,7 @@ public class MainWindow extends Window {
 								MainWindow.this.getGalleryDate());
 							Display.getDefault().asyncExec(new Runnable() {
 								public void run() {
-									if (Dialog.OK == galleryDialog.open()) {
-
-									}
+									galleryDialog.open();
 								}
 							});
 						}
@@ -405,18 +403,26 @@ public class MainWindow extends Window {
 
 	public void setGallery(Gallery gallery) {
 		log.debug("Setting gallery: " + gallery);
-		if (null == gallery) {
-			this.gallery = null;
+		this.gallery = gallery;
+		if (null == this.gallery) {
 			this.fieldLocation.setText("");
 			this.fieldTitle.setText("");
 			this.fieldDesc.setText("");
 			this.fieldIntern.setSelection(false);
-			return;
+		} else {
+			this.fieldLocation.setText(this.gallery.getLocation());
+			this.fieldTitle.setText(this.gallery.getTitle());
+			this.fieldDesc.setText(this.gallery.getDesc());
+			this.fieldIntern.setSelection(this.gallery.isIntern());
 		}
-		this.fieldLocation.setText(gallery.getLocation());
-		this.fieldTitle.setText(gallery.getTitle());
-		this.fieldDesc.setText(gallery.getDesc());
-		this.fieldIntern.setSelection(gallery.isIntern());
-		this.gallery = gallery;
+		if (null != this.gallery && this.gallery.isNewGallery()) {
+			this.fieldTitle.setEditable(true);
+			this.fieldDesc.setEditable(true);
+			this.fieldIntern.setEnabled(true);
+		} else {
+			this.fieldTitle.setEditable(false);
+			this.fieldDesc.setEditable(false);
+			this.fieldIntern.setEnabled(false);
+		}
 	}
 }
