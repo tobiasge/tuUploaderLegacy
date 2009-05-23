@@ -102,10 +102,10 @@ public class TeamUlmUpload {
 		String appData;
 		if (StringUtils.isBlank(TeamUlmUpload.appDataDir)) {
 			// Getting Windows AppData directory
-			String appDataRoot = System.getenv("appdata");
+			String appDataRoot = System.getenv("APPDATA");
 			// if empty non Windows system, trying Mac/Linux user home directory
 			if (StringUtils.isBlank(appDataRoot)) {
-				appDataRoot = System.getenv("home");
+				appDataRoot = System.getenv("HOME");
 			}
 			// empty? Should not be, using local install directory
 			if (StringUtils.isBlank(appDataRoot)) {
@@ -121,6 +121,7 @@ public class TeamUlmUpload {
 				TeamUlmUpload.appDataDir = appData;
 			}
 		}
+		System.out.println("TeamUlmUpload.appDataDir = '" + TeamUlmUpload.appDataDir + "'");
 		return TeamUlmUpload.appDataDir;
 	}
 }
