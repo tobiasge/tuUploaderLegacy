@@ -72,7 +72,7 @@ public class ViewGalleryDialog extends Dialog {
 					return;
 				}
 				final int index = tmpIndex;
-				Thread picLoader = new Thread() {
+				Thread picLoader = new Thread("ViewGallerDialog-PicLoader-" + index) {
 
 					public void run() {
 						try {
