@@ -156,11 +156,12 @@ public class ViewGalleryDialog extends Dialog {
 		}
 		this.tmpImages.clear();
 		for (File file : this.tmpFiles) {
-			file.delete();
+			if (null != file) {
+				file.delete();
+			}
 		}
 		this.tmpFiles.clear();
 		this.iconCross.dispose();
 		return super.close();
 	}
-
 }
