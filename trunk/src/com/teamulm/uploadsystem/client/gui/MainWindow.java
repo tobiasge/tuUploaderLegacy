@@ -406,9 +406,15 @@ public class MainWindow extends Window {
 	}
 
 	private void reset() {
-		// TODO
+		this.convertProgressBar.setSelection(0);
+		this.uploadProgressBar.setSelection(0);
 		this.setGallery(null);
 		this.fileList.removeAll();
+		this.reOrganiseFileList();
+		Calendar cal = GregorianCalendar.getInstance();
+		cal.add(Calendar.DAY_OF_MONTH, -1);
+		this.eventDate.setSelection(cal.getTime());
+		TrmEngine.getInstance().disconnect();
 		this.addStatusLine(Messages.getString("MainWindow.logMessages.programReset"));
 	}
 
