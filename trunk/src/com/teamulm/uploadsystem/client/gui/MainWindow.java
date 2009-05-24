@@ -29,6 +29,8 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.VerifyEvent;
+import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
@@ -277,6 +279,16 @@ public class MainWindow extends Window {
 		this.fieldTitle = new Text(composite, SWT.BORDER);
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(this.fieldTitle);
 		this.fieldTitle.setEditable(false);
+		this.fieldTitle.addVerifyListener(new VerifyListener() {
+			public void verifyText(VerifyEvent verifyEvent) {
+				String text = ((Text) verifyEvent.widget).getText();
+				if (GalleryDialog.TITLEMAXLENGTH < text.length()) {
+					if (verifyEvent.character != SWT.BS && verifyEvent.character != SWT.DEL) {
+						verifyEvent.doit = false;
+					}
+				}
+			}
+		});
 
 		Label labelEventDescription = new Label(composite, SWT.NONE);
 		labelEventDescription.setText(Messages.getString("MainWindow.label.eventDesc.text"));
@@ -285,6 +297,16 @@ public class MainWindow extends Window {
 		this.fieldDesc = new Text(composite, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).hint(120, 60).applyTo(this.fieldDesc);
 		this.fieldDesc.setEditable(false);
+		this.fieldDesc.addVerifyListener(new VerifyListener() {
+			public void verifyText(VerifyEvent verifyEvent) {
+				String text = ((Text) verifyEvent.widget).getText();
+				if (GalleryDialog.DESCRMAXLENGTH < text.length()) {
+					if (verifyEvent.character != SWT.BS && verifyEvent.character != SWT.DEL) {
+						verifyEvent.doit = false;
+					}
+				}
+			}
+		});
 
 		labelTmp = new Label(composite, SWT.NONE);
 		labelTmp.setText("");
