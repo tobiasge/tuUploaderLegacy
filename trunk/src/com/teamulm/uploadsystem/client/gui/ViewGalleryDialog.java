@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,7 +56,9 @@ public class ViewGalleryDialog extends Dialog {
 
 	@Override
 	protected Control createDialogArea(Composite parent) {
-		this.getShell().setText(this.gallery.getLocation() + " am " + this.gallery.getDate().replace('-', '.'));
+		this.getShell().setText(
+			MessageFormat.format(Messages.getString("ViewGalleryDialog.dialog.title"), this.gallery.getLocation(),
+				this.gallery.getDate()));
 		Composite composite = (Composite) super.createDialogArea(parent);
 		GridLayoutFactory.fillDefaults().applyTo(composite);
 		final org.eclipse.nebula.widgets.gallery.Gallery galleryViewer = new org.eclipse.nebula.widgets.gallery.Gallery(
@@ -122,7 +125,8 @@ public class ViewGalleryDialog extends Dialog {
 
 		for (int i = 0; i <= (Math.floor(this.gallery.getPictures() / 80)); i++) {
 			GalleryItem item = new GalleryItem(galleryViewer, SWT.NONE);
-			item.setText("Seite " + (i + 1));
+			item.setText(MessageFormat.format(Messages.getString("ViewGalleryDialog.gallery.group.title"), Integer
+				.valueOf(i + 1)));
 			item.setItemCount(80);
 			item.setData("pageNumber", Integer.valueOf(i));
 			if (i == (int) Math.floor(this.gallery.getPictures() / 80)) {
@@ -145,7 +149,7 @@ public class ViewGalleryDialog extends Dialog {
 	protected Control createButtonBar(Composite parent) {
 		Control control = super.createButtonBar(parent);
 		this.getButton(IDialogConstants.OK_ID).setVisible(false);
-		this.getButton(IDialogConstants.CANCEL_ID).setText("Schließen");
+		this.getButton(IDialogConstants.CANCEL_ID).setText(Messages.getString("ViewGalleryDialog.button.close.text"));
 		return control;
 	}
 

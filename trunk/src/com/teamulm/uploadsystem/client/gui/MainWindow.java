@@ -208,7 +208,7 @@ public class MainWindow extends Window {
 			@Override
 			public void widgetSelected(SelectionEvent selectionEvent) {
 				if (null != MainWindow.this.gallery) {
-					if (!MainWindow.this.gallery.getDate().equalsIgnoreCase(
+					if (!Gallery.GALLERY_DATE_FORMAT.format(MainWindow.this.gallery.getDate()).equalsIgnoreCase(
 						Gallery.GALLERY_DATE_FORMAT.format(MainWindow.this.getGalleryDate()))) {
 						MainWindow.this.setGallery(null);
 					}

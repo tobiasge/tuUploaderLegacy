@@ -4,6 +4,7 @@ import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.locks.Condition;
@@ -255,7 +256,7 @@ public class TrmEngine extends Thread {
 		return this.transmit.unLockLocation(gal);
 	}
 
-	public synchronized Gallery newGallery(String location, String date) {
+	public synchronized Gallery newGallery(String location, Date date) {
 		return this.transmit.newGallery(location, date);
 	}
 

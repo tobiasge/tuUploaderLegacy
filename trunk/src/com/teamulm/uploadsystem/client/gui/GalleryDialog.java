@@ -196,7 +196,7 @@ public class GalleryDialog extends Dialog {
 				&& 0 < GalleryDialog.this.descField.getText().length()
 				&& !GalleryDialog.PLEASE_CHOOSE.equals(GalleryDialog.this.locationsBox.getText())) {
 				Gallery gal = TrmEngine.getInstance().newGallery(GalleryDialog.this.locationsBox.getText(),
-					Gallery.GALLERY_DATE_FORMAT.format(GalleryDialog.this.date));
+					GalleryDialog.this.date);
 				gal.setDesc(GalleryDialog.this.descField.getText());
 				gal.setIntern(GalleryDialog.this.isIntern.getSelection());
 				gal.setTitle(GalleryDialog.this.titleField.getText());

@@ -12,6 +12,7 @@ import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -167,7 +168,7 @@ public class Transmitter extends Thread {
 		}
 	}
 
-	public synchronized Gallery newGallery(String location, String date) {
+	public synchronized Gallery newGallery(String location, Date date) {
 		NewGalleryCmd cmd = new NewGalleryCmd();
 		Gallery requestGallery = new Gallery();
 		requestGallery.setDate(date);
@@ -248,7 +249,7 @@ public class Transmitter extends Thread {
 	protected boolean unLockLocation(Gallery gal) {
 		try {
 			UnLockPathCmd cmd = new UnLockPathCmd();
-			cmd.setDate(gal.getDate());
+			cmd.setDate(Gallery.GALLERY_DATE_FORMAT.format(gal.getDate()));
 			cmd.setLocation(gal.getLocation());
 			cmd.setSuffix(gal.getSuffix());
 			Command retVal = this.sendAndRead(cmd);

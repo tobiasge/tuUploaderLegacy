@@ -11,6 +11,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -136,14 +137,14 @@ public class UploadServ extends Thread {
 		}
 	}
 
-	public Gallery getGallery(String location, String date, int suffix) {
+	public Gallery getGallery(String location, Date date, int suffix) {
 		Gallery retVal;
 		File dir = new File(this.baseDir + Gallery.getPath(location, date, suffix));
 		if (!dir.exists()) {
 			dir.mkdirs();
 			log.info("New Location dir created " + dir.getAbsolutePath());
 		}
-		retVal = DBConn.getInstance().getGallery(location, date, suffix);
+		retVal = DBConn.getInstance().getGallery(location, Gallery.GALLERY_DATE_FORMAT.format(date), suffix);
 		if (null == retVal) {
 			retVal = new Gallery();
 			retVal.setDate(date);
@@ -283,7 +284,7 @@ public class UploadServ extends Thread {
 					if (this.makeDBEntry()) {
 						if (this.uploaded > 2) {
 							PicServer.getInstance().logLastUpload(this.user.getUserid(), this.uploaded / 2,
-								this.gallery.getDate(), this.gallery.getLocation());
+								Gallery.GALLERY_DATE_FORMAT.format(this.gallery.getDate()), this.gallery.getLocation());
 						}
 						log.info(this.clientip + ": DB Entry done");
 						response.setSuccess(true);
@@ -311,7 +312,7 @@ public class UploadServ extends Thread {
 					gal.setLocation(request.getGallery().getLocation());
 					gal.setDate(request.getGallery().getDate());
 					gal.setSuffix(DBConn.getInstance().getNextSuffixFor(request.getGallery().getLocation(),
-						request.getGallery().getDate()));
+						Gallery.GALLERY_DATE_FORMAT.format(request.getGallery().getDate())));
 					response.setGallery(gal);
 					response.setSuccess(true);
 					this.output.writeObject(response);

@@ -3,8 +3,6 @@ package com.teamulm.uploadsystem.server;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -22,8 +20,6 @@ public class DBConn {
 	private static final Logger log = Logger.getLogger(DBConn.class);
 
 	private static final String GALLERY_FIELDS_TO_SELECT = "galid, pictures, suffix, location, description, title, intern, censored, userids, date_gal";
-
-	private static final DateFormat GALLERY_DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
 
 	private static DBConn instance;
 
@@ -212,7 +208,7 @@ public class DBConn {
 				request.setString(4, gallery.getTitle());
 				request.setInt(5, user.getUserid());
 				request.setInt(6, gallery.getPictures());
-				request.setString(7, gallery.getDate());
+				request.setDate(7, new java.sql.Date(gallery.getDate().getTime()));
 				if (gallery.isIntern()) {
 					request.setInt(8, 1);
 				} else {
@@ -259,7 +255,7 @@ public class DBConn {
 
 	private Gallery getFromRow(ResultSet result) throws SQLException {
 		Gallery gallery = new Gallery();
-		gallery.setDate(DBConn.GALLERY_DATE_FORMAT.format(new Date(result.getDate("date_gal").getTime())));
+		gallery.setDate(new Date(result.getDate("date_gal").getTime()));
 		gallery.setLocation(result.getString("location"));
 		gallery.setPictures(result.getInt("pictures"));
 		gallery.setGalid(result.getInt("galid"));
