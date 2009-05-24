@@ -1,10 +1,9 @@
 package com.teamulm.uploadsystem.client.gui;
 
 import java.text.Collator;
-import java.text.DateFormat;
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TreeSet;
 
@@ -209,7 +208,8 @@ public class MainWindow extends Window {
 			@Override
 			public void widgetSelected(SelectionEvent selectionEvent) {
 				if (null != MainWindow.this.gallery) {
-					if (!MainWindow.this.gallery.getDate().equalsIgnoreCase(MainWindow.this.getGalleryDate())) {
+					if (!MainWindow.this.gallery.getDate().equalsIgnoreCase(
+						Gallery.GALLERY_DATE_FORMAT.format(MainWindow.this.getGalleryDate()))) {
 						MainWindow.this.setGallery(null);
 					}
 				}
@@ -403,9 +403,8 @@ public class MainWindow extends Window {
 		});
 	}
 
-	private String getGalleryDate() {
-		DateFormat format = new SimpleDateFormat("dd-MM-yyyy");
-		return format.format(this.eventDate.getSelection());
+	private Date getGalleryDate() {
+		return this.eventDate.getSelection();
 	}
 
 	public void setConvertProgress(final int progress) {
