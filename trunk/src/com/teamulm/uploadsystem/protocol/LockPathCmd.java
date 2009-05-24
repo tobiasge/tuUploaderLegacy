@@ -1,5 +1,7 @@
 package com.teamulm.uploadsystem.protocol;
 
+import java.util.Date;
+
 public class LockPathCmd extends Command {
 
 	private static final long serialVersionUID = -8628939768509360791L;
@@ -10,7 +12,7 @@ public class LockPathCmd extends Command {
 
 	private String location;
 
-	private String date;
+	private Date date;
 
 	private int suffix;
 
@@ -32,11 +34,11 @@ public class LockPathCmd extends Command {
 		this.location = location;
 	}
 
-	public String getDate() {
-		return date;
+	public Date getDate() {
+		return this.date;
 	}
 
-	public void setDate(String date) {
+	public void setDate(Date date) {
 		this.date = date;
 	}
 
@@ -50,20 +52,18 @@ public class LockPathCmd extends Command {
 
 	public String getPath() {
 		if (this.suffix == 0) {
-			return this.location + System.getProperty("file.separator")
-					+ this.date + System.getProperty("file.separator");
+			return this.location + System.getProperty("file.separator") + this.date
+				+ System.getProperty("file.separator");
 		} else {
-			return this.location + System.getProperty("file.separator")
-					+ this.date + "-" + this.suffix
-					+ System.getProperty("file.separator");
+			return this.location + System.getProperty("file.separator") + this.date + "-" + this.suffix
+				+ System.getProperty("file.separator");
 		}
 	}
 
 	public String toString() {
 		String toString = "LockPathCmd ";
 		if (this.isServerResponse()) {
-			toString = toString.concat("(Response): commandSucceded() = "
-					+ this.commandSucceded());
+			toString = toString.concat("(Response): commandSucceded() = " + this.commandSucceded());
 		} else {
 			toString = toString.concat("(Request): for path " + this.getPath());
 		}
