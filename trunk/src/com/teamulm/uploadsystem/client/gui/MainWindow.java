@@ -1,10 +1,14 @@
 package com.teamulm.uploadsystem.client.gui;
 
+import java.text.Collator;
 import java.text.DateFormat;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.TreeSet;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -100,7 +104,6 @@ public class MainWindow extends Window {
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns(2).equalWidth(true).applyTo(composite);
 		this.selectedPics = new Label(composite, SWT.NONE);
-		this.selectedPics.setText("Ausgewählte Bilder (0):");
 		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(this.selectedPics);
 
 		this.fileList = new List(composite, SWT.BORDER | SWT.V_SCROLL | SWT.MULTI | SWT.FULL_SELECTION);
@@ -128,6 +131,7 @@ public class MainWindow extends Window {
 								MainWindow.this.fileList.add(file);
 							}
 						}
+						MainWindow.this.reOrganiseFileList();
 					}
 				}
 			}
@@ -156,9 +160,10 @@ public class MainWindow extends Window {
 				}
 			}
 		});
+		this.reOrganiseFileList();
 
 		Button selectPics = new Button(composite, SWT.PUSH);
-		selectPics.setText("Bilder wählen");
+		selectPics.setText(Messages.getString("MainWindow.button.selectPics.text"));
 		selectPics.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -174,13 +179,14 @@ public class MainWindow extends Window {
 					for (String fileName : fileDialog.getFileNames()) {
 						MainWindow.this.fileList.add(filterPath + fileName);
 					}
+					MainWindow.this.reOrganiseFileList();
 				}
 			}
 		});
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(selectPics);
 
 		Button removePictures = new Button(composite, SWT.PUSH);
-		removePictures.setText("Auswahl löschen");
+		removePictures.setText(Messages.getString("MainWindow.button.removePictures.text"));
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(removePictures);
 		removePictures.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -192,7 +198,7 @@ public class MainWindow extends Window {
 		});
 
 		Label labelEvenDate = new Label(composite, SWT.NONE);
-		labelEvenDate.setText("Eventdatum");
+		labelEvenDate.setText(Messages.getString("MainWindow.label.eventDate.text"));
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelEvenDate);
 
 		this.eventDate = new CDateTime(composite, CDT.BORDER | CDT.DROP_DOWN | CDT.DATE_MEDIUM);
@@ -216,7 +222,7 @@ public class MainWindow extends Window {
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelTmp);
 
 		Button selectGallery = new Button(composite, SWT.PUSH);
-		selectGallery.setText("Galerie wählen");
+		selectGallery.setText(Messages.getString("MainWindow.label.selectGallery.text"));
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(selectGallery);
 		selectGallery.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -228,16 +234,20 @@ public class MainWindow extends Window {
 						public void run() {
 							if (TrmEngine.getInstance().isConnected()) {
 							} else if (TrmEngine.getInstance().connect()) {
-								MainWindow.this.addStatusLine("Verbindung wurde hergestellt.");
+								MainWindow.this.addStatusLine(Messages.getString("MainWindow.logMessages.connectOk"));
 							} else {
-								MainWindow.this.addStatusLine("Verbindung wurde nicht hergestellt.");
+								MainWindow.this
+									.addStatusLine(Messages.getString("MainWindow.logMessages.connectNotOk"));
+							}
+							if (!TrmEngine.getInstance().isConnected()) {
+								return;
 							}
 							if (TrmEngine.getInstance().isLoggedIn()) {
 							} else if (TrmEngine.getInstance().login(userPassDialog.getUserName(),
 								userPassDialog.getPassWord())) {
-								MainWindow.this.addStatusLine("Login erfolgreich durgeführt.");
+								MainWindow.this.addStatusLine(Messages.getString("MainWindow.logMessages.loginOk"));
 							} else {
-								MainWindow.this.addStatusLine("Login nicht erfolgreich durgeführt.");
+								MainWindow.this.addStatusLine(Messages.getString("MainWindow.logMessages.loginNotOk"));
 								return;
 							}
 
@@ -255,7 +265,7 @@ public class MainWindow extends Window {
 		});
 
 		Label labelEventLocation = new Label(composite, SWT.NONE);
-		labelEventLocation.setText("Eventlocation:");
+		labelEventLocation.setText(Messages.getString("MainWindow.label.eventLocation.text"));
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelEventLocation);
 
 		this.fieldLocation = new Text(composite, SWT.BORDER);
@@ -263,7 +273,7 @@ public class MainWindow extends Window {
 		this.fieldLocation.setEditable(false);
 
 		Label labelEventTitle = new Label(composite, SWT.NONE);
-		labelEventTitle.setText("EventTitel:");
+		labelEventTitle.setText(Messages.getString("MainWindow.label.eventTitle.text"));
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelEventTitle);
 
 		this.fieldTitle = new Text(composite, SWT.BORDER);
@@ -271,7 +281,7 @@ public class MainWindow extends Window {
 		this.fieldTitle.setEditable(false);
 
 		Label labelEventDescription = new Label(composite, SWT.NONE);
-		labelEventDescription.setText("EventBeschreibung:");
+		labelEventDescription.setText(Messages.getString("MainWindow.label.eventDesc.text"));
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelEventDescription);
 
 		this.fieldDesc = new Text(composite, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
@@ -283,10 +293,20 @@ public class MainWindow extends Window {
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelTmp);
 
 		this.fieldIntern = new Button(composite, SWT.CHECK);
-		this.fieldIntern.setText("Intern");
+		this.fieldIntern.setText(Messages.getString("MainWindow.button.internal.text"));
 		this.fieldIntern.setEnabled(false);
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(this.fieldIntern);
 		return composite;
+	}
+
+	private void reOrganiseFileList() {
+		TreeSet<String> files = new TreeSet<String>(Collator.getInstance());
+		for (String file : this.fileList.getItems()) {
+			files.add(file);
+		}
+		this.fileList.setItems(files.toArray(ArrayUtils.EMPTY_STRING_ARRAY));
+		this.selectedPics.setText(MessageFormat.format(Messages.getString("MainWindow.label.selectedPics.text"),
+			Integer.valueOf(files.size())));
 	}
 
 	private Composite rightComposite(Composite parent) {
@@ -294,7 +314,7 @@ public class MainWindow extends Window {
 		GridLayoutFactory.fillDefaults().numColumns(1).equalWidth(false).applyTo(composite);
 
 		Label labelConvertProgress = new Label(composite, SWT.NONE);
-		labelConvertProgress.setText("Konvertier-Fortschritt:");
+		labelConvertProgress.setText(Messages.getString("MainWindow.label.convertProgress.text"));
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelConvertProgress);
 
 		this.convertProgressBar = new ProgressBar(composite, SWT.HORIZONTAL | SWT.BORDER);
@@ -302,7 +322,7 @@ public class MainWindow extends Window {
 		this.convertProgressBar.setMaximum(PROGRESS_BAR_MAX);
 
 		Label labelUploadProgress = new Label(composite, SWT.NONE);
-		labelUploadProgress.setText("Upload-Fortschritt:");
+		labelUploadProgress.setText(Messages.getString("MainWindow.label.uploadProgress.text"));
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelUploadProgress);
 
 		this.uploadProgressBar = new ProgressBar(composite, SWT.HORIZONTAL | SWT.BORDER);
@@ -313,7 +333,7 @@ public class MainWindow extends Window {
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).hint(290, 340).applyTo(this.statusList);
 		Menu statusListMenu = new Menu(this.getShell(), SWT.POP_UP);
 		MenuItem statusListMenuItemCopy = new MenuItem(statusListMenu, SWT.PUSH);
-		statusListMenuItemCopy.setText("Log kopieren");
+		statusListMenuItemCopy.setText(Messages.getString("MainWindow.list.status.menu.copy.text"));
 		statusListMenuItemCopy.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -333,7 +353,7 @@ public class MainWindow extends Window {
 		GridLayoutFactory.fillDefaults().equalWidth(false).numColumns(3).applyTo(buttonComposite);
 
 		Button buttonUpload = new Button(buttonComposite, SWT.PUSH);
-		buttonUpload.setText("Konvertieren / hochladen");
+		buttonUpload.setText(Messages.getString("MainWindow.button.convUpload.text"));
 		GridDataFactory.fillDefaults().span(1, 1).grab(false, false).applyTo(buttonUpload);
 
 		Label tmpLabel = new Label(buttonComposite, SWT.NONE);
@@ -341,7 +361,7 @@ public class MainWindow extends Window {
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(tmpLabel);
 
 		Button buttonReset = new Button(buttonComposite, SWT.PUSH);
-		buttonReset.setText("Zurücksetzten");
+		buttonReset.setText(Messages.getString("MainWindow.button.reset.text"));
 		GridDataFactory.fillDefaults().span(1, 1).grab(false, false).applyTo(buttonReset);
 		buttonReset.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -389,7 +409,7 @@ public class MainWindow extends Window {
 		// TODO
 		this.setGallery(null);
 		this.fileList.removeAll();
-		this.addStatusLine("Programm wurde zurückgesetzt.");
+		this.addStatusLine(Messages.getString("MainWindow.logMessages.programReset"));
 	}
 
 	public Gallery getGallery() {
