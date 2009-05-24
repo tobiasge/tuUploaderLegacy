@@ -1,12 +1,16 @@
 package com.teamulm.uploadsystem.data;
 
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.builder.CompareToBuilder;
 
 public class Gallery implements Serializable, Comparable<Gallery> {
+
+	public final static DateFormat GALLERY_DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
 
 	private static final long serialVersionUID = -9028890879729734915L;
 
@@ -51,6 +55,12 @@ public class Gallery implements Serializable, Comparable<Gallery> {
 		this.photographers = new ArrayList<User>();
 	}
 
+	public int compareTo(Gallery rhs) {
+		Gallery lhs = this;
+		return new CompareToBuilder().append(lhs.date, rhs.date).append(lhs.location, rhs.location).append(lhs.title,
+			rhs.title).toComparison();
+	}
+
 	public void deletedPicture(int picture) {
 		if (null == this.deletedPictures) {
 			this.deletedPictures = new ArrayList<Integer>();
@@ -76,18 +86,6 @@ public class Gallery implements Serializable, Comparable<Gallery> {
 
 	public String getLocation() {
 		return location;
-	}
-
-	public boolean isPictureDeleted(int picure) {
-		if (null == this.deletedPictures) {
-			return false;
-		}
-		for (Integer integer : this.deletedPictures) {
-			if (null != integer && integer.intValue() == picure) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	public String getPath() {
@@ -122,6 +120,18 @@ public class Gallery implements Serializable, Comparable<Gallery> {
 
 	public boolean isNewGallery() {
 		return this.newGallery;
+	}
+
+	public boolean isPictureDeleted(int picure) {
+		if (null == this.deletedPictures) {
+			return false;
+		}
+		for (Integer integer : this.deletedPictures) {
+			if (null != integer && integer.intValue() == picure) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void restorePicture(int picture) {
@@ -177,11 +187,5 @@ public class Gallery implements Serializable, Comparable<Gallery> {
 
 	public String toString() {
 		return this.location;
-	}
-
-	public int compareTo(Gallery rhs) {
-		Gallery lhs = this;
-		return new CompareToBuilder().append(lhs.date, rhs.date).append(lhs.location, rhs.location).append(lhs.title,
-			rhs.title).toComparison();
 	}
 }
