@@ -202,9 +202,7 @@ public class MainWindow extends Window {
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelEvenDate);
 
 		this.eventDate = new CDateTime(composite, CDT.BORDER | CDT.DROP_DOWN | CDT.DATE_MEDIUM);
-		Calendar cal = GregorianCalendar.getInstance();
-		cal.add(Calendar.DAY_OF_MONTH, -1);
-		this.eventDate.setSelection(cal.getTime());
+		this.selectYesterDay();
 		this.eventDate.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent selectionEvent) {
@@ -411,11 +409,19 @@ public class MainWindow extends Window {
 		this.setGallery(null);
 		this.fileList.removeAll();
 		this.reOrganiseFileList();
-		Calendar cal = GregorianCalendar.getInstance();
-		cal.add(Calendar.DAY_OF_MONTH, -1);
-		this.eventDate.setSelection(cal.getTime());
+		this.selectYesterDay();
 		TrmEngine.getInstance().disconnect();
 		this.addStatusLine(Messages.getString("MainWindow.logMessages.programReset"));
+	}
+
+	private void selectYesterDay() {
+		Calendar cal = GregorianCalendar.getInstance();
+		cal.clear(Calendar.HOUR);
+		cal.clear(Calendar.MINUTE);
+		cal.clear(Calendar.SECOND);
+		cal.clear(Calendar.MILLISECOND);
+		cal.add(Calendar.DAY_OF_MONTH, -1);
+		this.eventDate.setSelection(cal.getTime());
 	}
 
 	public Gallery getGallery() {
