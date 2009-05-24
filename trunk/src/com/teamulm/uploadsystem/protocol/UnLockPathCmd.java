@@ -1,12 +1,16 @@
 package com.teamulm.uploadsystem.protocol;
 
+import org.joda.time.LocalDate;
+
+import com.teamulm.uploadsystem.data.Gallery;
+
 public class UnLockPathCmd extends Command {
 
 	private static final long serialVersionUID = 8073402000599416724L;
 
 	private String location;
 
-	private String date;
+	private LocalDate date;
 
 	private int suffix;
 
@@ -28,11 +32,11 @@ public class UnLockPathCmd extends Command {
 		this.location = location;
 	}
 
-	public String getDate() {
-		return date;
+	public LocalDate getDate() {
+		return this.date;
 	}
 
-	public void setDate(String date) {
+	public void setDate(LocalDate date) {
 		this.date = date;
 	}
 
@@ -45,21 +49,13 @@ public class UnLockPathCmd extends Command {
 	}
 
 	public String getPath() {
-		if (this.suffix == 0) {
-			return this.location + System.getProperty("file.separator")
-					+ this.date + System.getProperty("file.separator");
-		} else {
-			return this.location + System.getProperty("file.separator")
-					+ this.date + "-" + this.suffix
-					+ System.getProperty("file.separator");
-		}
+		return Gallery.getPath(this.location, this.date, this.suffix);
 	}
 
 	public String toString() {
 		String toString = "UnLockPathCmd ";
 		if (this.isServerResponse()) {
-			toString = toString.concat("(Response): commandSucceded() = "
-					+ this.commandSucceded());
+			toString = toString.concat("(Response): commandSucceded() = " + this.commandSucceded());
 		} else {
 			toString = toString.concat("(Request): for path " + this.getPath());
 		}

@@ -1,6 +1,8 @@
 package com.teamulm.uploadsystem.protocol;
 
-import java.util.Date;
+import org.joda.time.LocalDate;
+
+import com.teamulm.uploadsystem.data.Gallery;
 
 public class LockPathCmd extends Command {
 
@@ -12,7 +14,7 @@ public class LockPathCmd extends Command {
 
 	private String location;
 
-	private Date date;
+	private LocalDate date;
 
 	private int suffix;
 
@@ -34,11 +36,11 @@ public class LockPathCmd extends Command {
 		this.location = location;
 	}
 
-	public Date getDate() {
+	public LocalDate getDate() {
 		return this.date;
 	}
 
-	public void setDate(Date date) {
+	public void setDate(LocalDate date) {
 		this.date = date;
 	}
 
@@ -51,13 +53,7 @@ public class LockPathCmd extends Command {
 	}
 
 	public String getPath() {
-		if (this.suffix == 0) {
-			return this.location + System.getProperty("file.separator") + this.date
-				+ System.getProperty("file.separator");
-		} else {
-			return this.location + System.getProperty("file.separator") + this.date + "-" + this.suffix
-				+ System.getProperty("file.separator");
-		}
+		return Gallery.getPath(this.location, this.date, this.suffix);
 	}
 
 	public String toString() {

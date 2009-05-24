@@ -3,7 +3,6 @@ package com.teamulm.uploadsystem.client.gui;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import org.eclipse.jface.dialogs.Dialog;
@@ -28,6 +27,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+import org.joda.time.LocalDate;
 
 import com.teamulm.uploadsystem.client.TeamUlmUpload;
 import com.teamulm.uploadsystem.client.transmitEngine.TrmEngine;
@@ -42,7 +42,7 @@ public class GalleryDialog extends Dialog {
 
 	public static final int TITLEMAXLENGTH = 33;
 
-	private Date date;
+	private LocalDate date;
 
 	private Table galTable;
 
@@ -56,7 +56,7 @@ public class GalleryDialog extends Dialog {
 
 	private Text titleField, descField;
 
-	public GalleryDialog(Shell parentShell, Date date) {
+	public GalleryDialog(Shell parentShell, LocalDate date) {
 		super(parentShell);
 		this.date = date;
 	}
@@ -129,7 +129,10 @@ public class GalleryDialog extends Dialog {
 
 	@Override
 	protected Control createDialogArea(Composite parent) {
-		this.getShell().setText(MessageFormat.format(Messages.getString("GalleryDialog.dialog.title"), this.date));
+		this.getShell()
+			.setText(
+				MessageFormat.format(Messages.getString("GalleryDialog.dialog.title"), this.date.toDateMidnight()
+					.toDate()));
 		Composite composite = (Composite) super.createDialogArea(parent);
 		GridLayoutFactory.fillDefaults().margins(5, 5).applyTo(composite);
 		SelectionListener oldNewGal = new SelectionAdapter() {
@@ -166,7 +169,7 @@ public class GalleryDialog extends Dialog {
 				}
 			}
 		});
-		new GalleryLoader(Gallery.GALLERY_DATE_FORMAT.format(this.date)).start();
+		new GalleryLoader(Gallery.GALLERY_DATE_FORMAT.print(this.date)).start();
 		GridDataFactory.fillDefaults().hint(425, 120).applyTo(this.galTable);
 		this.newGal = new Button(composite, SWT.RADIO);
 		this.newGal.setText(Messages.getString("GalleryDialog.button.newGal.text"));

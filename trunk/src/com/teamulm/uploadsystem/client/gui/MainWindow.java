@@ -3,7 +3,6 @@ package com.teamulm.uploadsystem.client.gui;
 import java.text.Collator;
 import java.text.MessageFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TreeSet;
 
@@ -44,6 +43,7 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.joda.time.LocalDate;
 
 import com.teamulm.uploadsystem.client.transmitEngine.TrmEngine;
 import com.teamulm.uploadsystem.data.Gallery;
@@ -208,8 +208,7 @@ public class MainWindow extends Window {
 			@Override
 			public void widgetSelected(SelectionEvent selectionEvent) {
 				if (null != MainWindow.this.gallery) {
-					if (!Gallery.GALLERY_DATE_FORMAT.format(MainWindow.this.gallery.getDate()).equalsIgnoreCase(
-						Gallery.GALLERY_DATE_FORMAT.format(MainWindow.this.getGalleryDate()))) {
+					if (!MainWindow.this.gallery.getDate().equals(MainWindow.this.getGalleryDate())) {
 						MainWindow.this.setGallery(null);
 					}
 				}
@@ -403,8 +402,8 @@ public class MainWindow extends Window {
 		});
 	}
 
-	private Date getGalleryDate() {
-		return this.eventDate.getSelection();
+	private LocalDate getGalleryDate() {
+		return LocalDate.fromDateFields(this.eventDate.getSelection());
 	}
 
 	public void setConvertProgress(final int progress) {

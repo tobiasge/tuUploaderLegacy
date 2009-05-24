@@ -12,12 +12,12 @@ import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
+import org.joda.time.LocalDate;
 
 import com.teamulm.uploadsystem.client.Helper;
 import com.teamulm.uploadsystem.client.TeamUlmUpload;
@@ -168,7 +168,7 @@ public class Transmitter extends Thread {
 		}
 	}
 
-	public synchronized Gallery newGallery(String location, Date date) {
+	public synchronized Gallery newGallery(String location, LocalDate date) {
 		NewGalleryCmd cmd = new NewGalleryCmd();
 		Gallery requestGallery = new Gallery();
 		requestGallery.setDate(date);
@@ -249,7 +249,7 @@ public class Transmitter extends Thread {
 	protected boolean unLockLocation(Gallery gal) {
 		try {
 			UnLockPathCmd cmd = new UnLockPathCmd();
-			cmd.setDate(Gallery.GALLERY_DATE_FORMAT.format(gal.getDate()));
+			cmd.setDate(gal.getDate());
 			cmd.setLocation(gal.getLocation());
 			cmd.setSuffix(gal.getSuffix());
 			Command retVal = this.sendAndRead(cmd);

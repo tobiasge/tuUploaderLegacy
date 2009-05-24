@@ -1,31 +1,31 @@
 package com.teamulm.uploadsystem.data;
 
 import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.builder.CompareToBuilder;
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 public class Gallery implements Serializable, Comparable<Gallery> {
 
-	public final static DateFormat GALLERY_DATE_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
+	public final static DateTimeFormatter GALLERY_DATE_FORMAT = DateTimeFormat.forPattern("dd-MM-yyyy");
 
 	private static final long serialVersionUID = -9028890879729734915L;
 
-	public static String getPath(String location, Date date, int suffix) {
+	public static String getPath(String location, LocalDate date, int suffix) {
 		if (suffix == 0) {
-			return location + System.getProperty("file.separator") + Gallery.GALLERY_DATE_FORMAT.format(date)
+			return location + System.getProperty("file.separator") + Gallery.GALLERY_DATE_FORMAT.print(date)
 				+ System.getProperty("file.separator");
 		} else {
-			return location + System.getProperty("file.separator") + Gallery.GALLERY_DATE_FORMAT.format(date) + "-"
+			return location + System.getProperty("file.separator") + Gallery.GALLERY_DATE_FORMAT.print(date) + "-"
 				+ suffix + System.getProperty("file.separator");
 		}
 	}
 
-	private Date date;
+	private LocalDate date;
 
 	private List<Integer> deletedPictures = null;
 
@@ -70,7 +70,7 @@ public class Gallery implements Serializable, Comparable<Gallery> {
 		this.deletedPictures.add(Integer.valueOf(picture));
 	}
 
-	public Date getDate() {
+	public LocalDate getDate() {
 		return this.date;
 	}
 
@@ -92,11 +92,11 @@ public class Gallery implements Serializable, Comparable<Gallery> {
 
 	public String getPath() {
 		if (this.suffix == 0) {
-			return this.location + System.getProperty("file.separator") + this.date
+			return this.location + System.getProperty("file.separator") + Gallery.GALLERY_DATE_FORMAT.print(this.date)
 				+ System.getProperty("file.separator");
 		} else {
-			return this.location + System.getProperty("file.separator") + this.date + "-" + this.suffix
-				+ System.getProperty("file.separator");
+			return this.location + System.getProperty("file.separator") + Gallery.GALLERY_DATE_FORMAT.print(this.date)
+				+ "-" + this.suffix + System.getProperty("file.separator");
 		}
 	}
 
@@ -143,7 +143,7 @@ public class Gallery implements Serializable, Comparable<Gallery> {
 		this.deletedPictures.remove(Integer.valueOf(picture));
 	}
 
-	public void setDate(Date date) {
+	public void setDate(LocalDate date) {
 		this.date = date;
 	}
 

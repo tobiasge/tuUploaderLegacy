@@ -4,11 +4,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.joda.time.LocalDate;
 
 import com.teamulm.uploadsystem.data.Gallery;
 import com.teamulm.uploadsystem.data.Location;
@@ -208,7 +208,7 @@ public class DBConn {
 				request.setString(4, gallery.getTitle());
 				request.setInt(5, user.getUserid());
 				request.setInt(6, gallery.getPictures());
-				request.setDate(7, new java.sql.Date(gallery.getDate().getTime()));
+				request.setDate(7, new java.sql.Date(gallery.getDate().toDateMidnight().toDate().getTime()));
 				if (gallery.isIntern()) {
 					request.setInt(8, 1);
 				} else {
@@ -255,7 +255,7 @@ public class DBConn {
 
 	private Gallery getFromRow(ResultSet result) throws SQLException {
 		Gallery gallery = new Gallery();
-		gallery.setDate(new Date(result.getDate("date_gal").getTime()));
+		gallery.setDate(LocalDate.fromDateFields(result.getDate("date_gal")));
 		gallery.setLocation(result.getString("location"));
 		gallery.setPictures(result.getInt("pictures"));
 		gallery.setGalid(result.getInt("galid"));
