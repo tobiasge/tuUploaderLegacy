@@ -81,7 +81,8 @@ public class ViewGalleryDialog extends Dialog {
 						try {
 							URL picUrl = new URL("http://www.team-ulm.de/fotos/parties/"
 								+ ViewGalleryDialog.this.gallery.getLocation() + "/"
-								+ ViewGalleryDialog.this.gallery.getDate() + "/s_pic" + index + ".jpg");
+								+ Gallery.GALLERY_DATE_FORMAT.print(ViewGalleryDialog.this.gallery.getDate())
+								+ "/s_pic" + index + ".jpg");
 							URLConnection connection = picUrl.openConnection();
 							InputStream inputStream = connection.getInputStream();
 							final File tmpPic = File.createTempFile("tu_s_pic", ".jpg");
