@@ -16,9 +16,13 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.MessageBox;
+
+import com.teamulm.uploadsystem.client.gui.Messages;
 
 public class Helper {
 
@@ -82,14 +86,16 @@ public class Helper {
 		error.printStackTrace(new PrintWriter(sw));
 		String stackTrace = sw.toString();
 
-		Object[] options = { "Ja", "Nein" };
-		if (JOptionPane.NO_OPTION == JOptionPane.showOptionDialog(null,
-			"Es ist ein Fehler aufgetreten. Soll ein Report erstellt werden?", "Fehlerreport...?",
-			JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE, null, options, options[1]))
+		MessageBox mb = new MessageBox(Display.getDefault().getActiveShell(), SWT.YES | SWT.NO);
+		mb.setText(Messages.getString("Helper.title.errorReport"));
+		mb.setMessage(Messages.getString("Helper.msg.errorReport"));
+
+		if (SWT.YES != mb.open())
 			return;
 		else {
 			if (null != TeamUlmUpload.getInstance() && null != TeamUlmUpload.getInstance().getMainWindow()) {
-				TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Sende Fehlerbericht");
+				TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
+					Messages.getString("Helper.logMessages.sendreport"));
 			}
 			String[] lines = this.readFileData(TeamUlmUpload.logFileName, false);
 			String report = "";
@@ -120,8 +126,10 @@ public class Helper {
 				Transport.send(mailMessage);
 			} catch (Exception e) {
 				System.out.println(e.getClass() + ": " + e.getMessage());
-				JOptionPane.showMessageDialog(null, "Bericht konnte nicht gesendet werden.", "Fehler...",
-					JOptionPane.ERROR_MESSAGE);
+				mb = new MessageBox(Display.getDefault().getActiveShell(), SWT.YES | SWT.NO);
+				mb.setText(Messages.getString("String.error"));
+				mb.setMessage(Messages.getString("Helper.msg.errorNotSend"));
+				mb.open();
 			}
 		}
 	}
