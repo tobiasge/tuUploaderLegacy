@@ -80,57 +80,62 @@ public class Helper {
 		return ret;
 	}
 
-	public void systemCrashHandler(Exception error) {
+	public void systemCrashHandler(final Exception error) {
 		log.error("", error);
-		StringWriter sw = new StringWriter();
-		error.printStackTrace(new PrintWriter(sw));
-		String stackTrace = sw.toString();
+		Display.getDefault().asyncExec(new Runnable() {
 
-		MessageBox mb = new MessageBox(Display.getDefault().getActiveShell(), SWT.YES | SWT.NO);
-		mb.setText(Messages.getString("Helper.title.errorReport"));
-		mb.setMessage(Messages.getString("Helper.msg.errorReport"));
+			public void run() {
+				StringWriter sw = new StringWriter();
+				error.printStackTrace(new PrintWriter(sw));
+				String stackTrace = sw.toString();
 
-		if (SWT.YES != mb.open())
-			return;
-		else {
-			if (null != TeamUlmUpload.getInstance() && null != TeamUlmUpload.getInstance().getMainWindow()) {
-				TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
-					Messages.getString("Helper.logMessages.sendreport"));
-			}
-			String[] lines = this.readFileData(TeamUlmUpload.logFileName, false);
-			String report = "";
-			if (null != lines) {
-				for (String line : lines) {
-					report += line + "\n";
+				MessageBox mb = new MessageBox(Display.getDefault().getActiveShell(), SWT.YES | SWT.NO);
+				mb.setText(Messages.getString("Helper.title.errorReport"));
+				mb.setMessage(Messages.getString("Helper.msg.errorReport"));
+
+				if (SWT.YES != mb.open())
+					return;
+				else {
+					if (null != TeamUlmUpload.getInstance() && null != TeamUlmUpload.getInstance().getMainWindow()) {
+						TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
+							Messages.getString("Helper.logMessages.sendreport"));
+					}
+					String[] lines = Helper.this.readFileData(TeamUlmUpload.logFileName, false);
+					String report = "";
+					if (null != lines) {
+						for (String line : lines) {
+							report += line + "\n";
+						}
+					} else {
+						report = "Konnte Log nicht lesen";
+					}
+					try {
+						Properties mailProperties = new Properties();
+						mailProperties.setProperty("mail.smtp.host", "hermes.nb.team-ulm.de");
+						Session mailSession = Session.getDefaultInstance(mailProperties);
+						MimeMessage mailMessage = new MimeMessage(mailSession);
+						InternetAddress from = new InternetAddress();
+						from.setAddress("uploaderror@team-ulm.de");
+						from.setPersonal("Upload Error");
+						InternetAddress to = new InternetAddress();
+						to.setAddress("tobias.genannt@team-ulm.de");
+						to.setPersonal("Tobias Genannt");
+						mailMessage.addFrom(new Address[] { from });
+						mailMessage.addRecipient(Message.RecipientType.TO, to);
+						mailMessage.setSubject("Error: " + error.getClass());
+						mailMessage.setText(stackTrace + "\n\nLogfile:" + report, "UTF-8", "plain");
+						mailMessage.setHeader("X-Mailer", "TU-Uploader");
+						mailMessage.setSentDate(new Date());
+						Transport.send(mailMessage);
+					} catch (Exception e) {
+						System.out.println(e.getClass() + ": " + e.getMessage());
+						mb = new MessageBox(Display.getDefault().getActiveShell(), SWT.YES | SWT.NO);
+						mb.setText(Messages.getString("String.error"));
+						mb.setMessage(Messages.getString("Helper.msg.errorNotSend"));
+						mb.open();
+					}
 				}
-			} else {
-				report = "Konnte Log nicht lesen";
 			}
-			try {
-				Properties mailProperties = new Properties();
-				mailProperties.setProperty("mail.smtp.host", "hermes.nb.team-ulm.de");
-				Session mailSession = Session.getDefaultInstance(mailProperties);
-				MimeMessage mailMessage = new MimeMessage(mailSession);
-				InternetAddress from = new InternetAddress();
-				from.setAddress("uploaderror@team-ulm.de");
-				from.setPersonal("Upload Error");
-				InternetAddress to = new InternetAddress();
-				to.setAddress("tobias.genannt@team-ulm.de");
-				to.setPersonal("Tobias Genannt");
-				mailMessage.addFrom(new Address[] { from });
-				mailMessage.addRecipient(Message.RecipientType.TO, to);
-				mailMessage.setSubject("Error: " + error.getClass());
-				mailMessage.setText(stackTrace + "\n\nLogfile:" + report, "UTF-8", "plain");
-				mailMessage.setHeader("X-Mailer", "TU-Uploader");
-				mailMessage.setSentDate(new Date());
-				Transport.send(mailMessage);
-			} catch (Exception e) {
-				System.out.println(e.getClass() + ": " + e.getMessage());
-				mb = new MessageBox(Display.getDefault().getActiveShell(), SWT.YES | SWT.NO);
-				mb.setText(Messages.getString("String.error"));
-				mb.setMessage(Messages.getString("Helper.msg.errorNotSend"));
-				mb.open();
-			}
-		}
+		});
 	}
 }
