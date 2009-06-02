@@ -1,5 +1,6 @@
 package com.teamulm.uploadsystem.client.gui;
 
+import java.io.File;
 import java.text.Collator;
 import java.text.MessageFormat;
 import java.util.Calendar;
@@ -54,25 +55,36 @@ public class MainWindow extends Window {
 
 	public static final int PROGRESS_BAR_MAX = 1000;
 
-	private List fileList = null, statusList = null;
-
-	private Text fieldTitle = null, fieldDesc = null, fieldLocation = null;
-
-	private ProgressBar uploadProgressBar = null, convertProgressBar = null;
+	private CDateTime eventDate = null;
 
 	private Button fieldIntern = null;
 
-	private CDateTime eventDate = null;
+	private Text fieldTitle = null, fieldDesc = null, fieldLocation = null;
+
+	private List fileList = null, statusList = null;
+
+	private Gallery gallery = null;
 
 	private Label selectedPics = null;
 
-	private Gallery gallery = null;
+	private ProgressBar uploadProgressBar = null, convertProgressBar = null;
 
 	public MainWindow() {
 		super((Shell) null);
 		int style = this.getShellStyle();
 		style &= ~(SWT.MAX | SWT.RESIZE);
 		this.setShellStyle(style);
+	}
+
+	public void addStatusLine(final String line) {
+		this.getShell().getDisplay().asyncExec(new Runnable() {
+			public void run() {
+				MainWindow.this.statusList.add(line);
+				MainWindow.this.statusList.select(statusList.getItems().length - 1);
+				MainWindow.this.statusList.showSelection();
+				MainWindow.this.statusList.deselectAll();
+			}
+		});
 	}
 
 	@Override
@@ -101,6 +113,19 @@ public class MainWindow extends Window {
 		return composite;
 	}
 
+	public Gallery getGallery() {
+		if (this.gallery.isNewGallery()) {
+			this.gallery.setTitle(this.fieldTitle.getText());
+			this.gallery.setDesc(this.fieldDesc.getText());
+			this.gallery.setIntern(this.fieldIntern.getSelection());
+		}
+		return this.gallery;
+	}
+
+	private LocalDate getGalleryDate() {
+		return LocalDate.fromDateFields(this.eventDate.getSelection());
+	}
+
 	private Composite leftComposite(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns(2).equalWidth(true).applyTo(composite);
@@ -123,21 +148,7 @@ public class MainWindow extends Window {
 		fileListTarget.setTransfer(new Transfer[] { FileTransfer.getInstance() });
 		fileListTarget.addDropListener(new DropTargetAdapter() {
 
-			public void drop(DropTargetEvent event) {
-				if (FileTransfer.getInstance().isSupportedType(event.currentDataType)) {
-					if (event.data instanceof String[]) {
-						String[] files = (String[]) event.data;
-						for (String file : files) {
-							if (file.toLowerCase().endsWith(".jpg") || file.toLowerCase().endsWith(".jpeg")) {
-								MainWindow.this.fileList.add(file);
-							}
-						}
-						MainWindow.this.reOrganiseFileList();
-					}
-				}
-			}
-
-			public void dragOver(DropTargetEvent event) {
+			public void dragEnter(DropTargetEvent event) {
 				if (!FileTransfer.getInstance().isSupportedType(event.currentDataType)) {
 					event.detail = DND.DROP_NONE;
 				} else {
@@ -153,11 +164,25 @@ public class MainWindow extends Window {
 				}
 			}
 
-			public void dragEnter(DropTargetEvent event) {
+			public void dragOver(DropTargetEvent event) {
 				if (!FileTransfer.getInstance().isSupportedType(event.currentDataType)) {
 					event.detail = DND.DROP_NONE;
 				} else {
 					event.detail = DND.DROP_COPY;
+				}
+			}
+
+			public void drop(DropTargetEvent event) {
+				if (FileTransfer.getInstance().isSupportedType(event.currentDataType)) {
+					if (event.data instanceof String[]) {
+						String[] files = (String[]) event.data;
+						for (String file : files) {
+							if (file.toLowerCase().endsWith(".jpg") || file.toLowerCase().endsWith(".jpeg")) {
+								MainWindow.this.fileList.add(file);
+							}
+						}
+						MainWindow.this.reOrganiseFileList();
+					}
 				}
 			}
 		});
@@ -233,10 +258,11 @@ public class MainWindow extends Window {
 						public void run() {
 							if (TrmEngine.getInstance().isConnected()) {
 							} else if (TrmEngine.getInstance().connect()) {
-								MainWindow.this.addStatusLine(Messages.getString("MainWindow.logMessages.connectOk"));
+								MainWindow.this.addStatusLine(Messages
+									.getString("MainWindow.logMessages.connectOk"));
 							} else {
-								MainWindow.this
-									.addStatusLine(Messages.getString("MainWindow.logMessages.connectNotOk"));
+								MainWindow.this.addStatusLine(Messages
+									.getString("MainWindow.logMessages.connectNotOk"));
 							}
 							if (!TrmEngine.getInstance().isConnected()) {
 								return;
@@ -244,9 +270,11 @@ public class MainWindow extends Window {
 							if (TrmEngine.getInstance().isLoggedIn()) {
 							} else if (TrmEngine.getInstance().login(userPassDialog.getUserName(),
 								userPassDialog.getPassWord())) {
-								MainWindow.this.addStatusLine(Messages.getString("MainWindow.logMessages.loginOk"));
+								MainWindow.this.addStatusLine(Messages
+									.getString("MainWindow.logMessages.loginOk"));
 							} else {
-								MainWindow.this.addStatusLine(Messages.getString("MainWindow.logMessages.loginNotOk"));
+								MainWindow.this.addStatusLine(Messages
+									.getString("MainWindow.logMessages.loginNotOk"));
 								return;
 							}
 
@@ -324,8 +352,19 @@ public class MainWindow extends Window {
 			files.add(file);
 		}
 		this.fileList.setItems(files.toArray(ArrayUtils.EMPTY_STRING_ARRAY));
-		this.selectedPics.setText(MessageFormat.format(Messages.getString("MainWindow.label.selectedPics.text"),
-			Integer.valueOf(files.size())));
+		this.selectedPics.setText(MessageFormat.format(Messages
+			.getString("MainWindow.label.selectedPics.text"), Integer.valueOf(files.size())));
+	}
+
+	private void reset() {
+		this.convertProgressBar.setSelection(0);
+		this.uploadProgressBar.setSelection(0);
+		this.setGallery(null);
+		this.fileList.removeAll();
+		this.reOrganiseFileList();
+		this.selectYesterDay();
+		TrmEngine.getInstance().disconnect();
+		this.addStatusLine(Messages.getString("MainWindow.logMessages.programReset"));
 	}
 
 	private Composite rightComposite(Composite parent) {
@@ -391,49 +430,6 @@ public class MainWindow extends Window {
 		return composite;
 	}
 
-	public void addStatusLine(final String line) {
-		this.getShell().getDisplay().asyncExec(new Runnable() {
-			public void run() {
-				MainWindow.this.statusList.add(line);
-				MainWindow.this.statusList.select(statusList.getItems().length - 1);
-				MainWindow.this.statusList.showSelection();
-				MainWindow.this.statusList.deselectAll();
-			}
-		});
-	}
-
-	private LocalDate getGalleryDate() {
-		return LocalDate.fromDateFields(this.eventDate.getSelection());
-	}
-
-	public void setConvertProgress(final int progress) {
-		this.getShell().getDisplay().asyncExec(new Runnable() {
-			public void run() {
-				MainWindow.this.convertProgressBar.setSelection(progress);
-			}
-		});
-
-	}
-
-	public void setUploadProgress(final int progress) {
-		this.getShell().getDisplay().asyncExec(new Runnable() {
-			public void run() {
-				MainWindow.this.convertProgressBar.setSelection(progress);
-			}
-		});
-	}
-
-	private void reset() {
-		this.convertProgressBar.setSelection(0);
-		this.uploadProgressBar.setSelection(0);
-		this.setGallery(null);
-		this.fileList.removeAll();
-		this.reOrganiseFileList();
-		this.selectYesterDay();
-		TrmEngine.getInstance().disconnect();
-		this.addStatusLine(Messages.getString("MainWindow.logMessages.programReset"));
-	}
-
 	private void selectYesterDay() {
 		Calendar cal = GregorianCalendar.getInstance();
 		cal.clear(Calendar.HOUR);
@@ -444,13 +440,13 @@ public class MainWindow extends Window {
 		this.eventDate.setSelection(cal.getTime());
 	}
 
-	public Gallery getGallery() {
-		if (this.gallery.isNewGallery()) {
-			this.gallery.setTitle(this.fieldTitle.getText());
-			this.gallery.setDesc(this.fieldDesc.getText());
-			this.gallery.setIntern(this.fieldIntern.getSelection());
-		}
-		return this.gallery;
+	public void setConvertProgress(final int progress) {
+		this.getShell().getDisplay().asyncExec(new Runnable() {
+			public void run() {
+				MainWindow.this.convertProgressBar.setSelection(progress);
+			}
+		});
+
 	}
 
 	public void setGallery(Gallery gallery) {
@@ -475,6 +471,39 @@ public class MainWindow extends Window {
 			this.fieldTitle.setEditable(false);
 			this.fieldDesc.setEditable(false);
 			this.fieldIntern.setEnabled(false);
+		}
+	}
+
+	public void setUploadProgress(final int progress) {
+		this.getShell().getDisplay().asyncExec(new Runnable() {
+			public void run() {
+				MainWindow.this.convertProgressBar.setSelection(progress);
+			}
+		});
+	}
+
+	class ConvertUploadListener extends SelectionAdapter {
+		@Override
+		public void widgetSelected(SelectionEvent arg0) {
+			if (0 == MainWindow.this.fileList.getItemCount()) {
+				MainWindow.this.addStatusLine("Keine Bilder gewählt -> Abbruch");
+				return;
+			}
+			if (null == MainWindow.this.gallery) {
+				MainWindow.this.addStatusLine("Keine Galerie gewählt -> Abbruch");
+				return;
+			}
+			if (!TrmEngine.getInstance().lockLocation(MainWindow.this.gallery)) {
+				return;
+			}
+			File[] files = new File[MainWindow.this.fileList.getItemCount()];
+			int index = 0;
+			for (String fileName : MainWindow.this.fileList.getItems()) {
+				File file = new File(fileName);
+				files[index++] = file;
+			}
+			TrmEngine.getInstance().setFiles(files);
+			TrmEngine.getInstance().start();
 		}
 	}
 }
