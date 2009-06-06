@@ -11,17 +11,17 @@ import org.joda.time.format.DateTimeFormatter;
 
 public class Gallery implements Serializable, Comparable<Gallery> {
 
-	public final static DateTimeFormatter GALLERY_DATE_FORMAT = DateTimeFormat.forPattern("dd-MM-yyyy");
+	public final static DateTimeFormatter GALLERY_DATE_FORMAT = DateTimeFormat.forPattern("dd-MM-yyyy"); //$NON-NLS-1$
 
 	private static final long serialVersionUID = -9028890879729734915L;
 
 	public static String getPath(String location, LocalDate date, int suffix) {
 		if (suffix == 0) {
-			return location + System.getProperty("file.separator") + Gallery.GALLERY_DATE_FORMAT.print(date)
-				+ System.getProperty("file.separator");
+			return location + System.getProperty("file.separator") + Gallery.GALLERY_DATE_FORMAT.print(date) //$NON-NLS-1$
+				+ System.getProperty("file.separator"); //$NON-NLS-1$
 		} else {
-			return location + System.getProperty("file.separator") + Gallery.GALLERY_DATE_FORMAT.print(date) + "-"
-				+ suffix + System.getProperty("file.separator");
+			return location + System.getProperty("file.separator") + Gallery.GALLERY_DATE_FORMAT.print(date) + "-" //$NON-NLS-1$ //$NON-NLS-2$
+				+ suffix + System.getProperty("file.separator"); //$NON-NLS-1$
 		}
 	}
 
@@ -91,13 +91,7 @@ public class Gallery implements Serializable, Comparable<Gallery> {
 	}
 
 	public String getPath() {
-		if (this.suffix == 0) {
-			return this.location + System.getProperty("file.separator") + Gallery.GALLERY_DATE_FORMAT.print(this.date)
-				+ System.getProperty("file.separator");
-		} else {
-			return this.location + System.getProperty("file.separator") + Gallery.GALLERY_DATE_FORMAT.print(this.date)
-				+ "-" + this.suffix + System.getProperty("file.separator");
-		}
+		return Gallery.getPath(this.location, this.date, this.suffix);
 	}
 
 	public List<User> getPhotographers() {
