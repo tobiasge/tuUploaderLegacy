@@ -30,7 +30,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -96,8 +95,7 @@ public class MainWindow extends Window {
 	@Override
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
-		newShell.setImage(new Image(Display.getCurrent(), "icons/icon.png"));
-		newShell.setText(Messages.getString("mainWindow.dialog.title"));
+		newShell.setText(Messages.getString("mainWindow.dialog.title")); //$NON-NLS-1$
 	}
 
 	@Override
@@ -177,7 +175,7 @@ public class MainWindow extends Window {
 					if (event.data instanceof String[]) {
 						String[] files = (String[]) event.data;
 						for (String file : files) {
-							if (file.toLowerCase().endsWith(".jpg") || file.toLowerCase().endsWith(".jpeg")) {
+							if (file.toLowerCase().endsWith(".jpg") || file.toLowerCase().endsWith(".jpeg")) { //$NON-NLS-1$ //$NON-NLS-2$
 								MainWindow.this.fileList.add(file);
 							}
 						}
@@ -189,19 +187,19 @@ public class MainWindow extends Window {
 		this.reOrganiseFileList();
 
 		Button selectPics = new Button(composite, SWT.PUSH);
-		selectPics.setText(Messages.getString("MainWindow.button.selectPics.text"));
+		selectPics.setText(Messages.getString("MainWindow.button.selectPics.text")); //$NON-NLS-1$
 		selectPics.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (null != MainWindow.this.fileList.getSelectionIndices()) {
 					FileDialog fileDialog = new FileDialog(MainWindow.this.getShell(), SWT.OPEN | SWT.MULTI);
-					fileDialog.setFilterExtensions(new String[] { "*.jpg;*.jpeg;*.JPG;*.JPEG" });
-					fileDialog.setFilterNames(new String[] { "JPEG Bilddateien" });
-					fileDialog.setText("Bilder wählen");
+					fileDialog.setFilterExtensions(new String[] { "*.jpg;*.jpeg;*.JPG;*.JPEG" }); //$NON-NLS-1$
+					fileDialog.setFilterNames(new String[] { Messages.getString("MainWindow.fileDialog.filter.name") }); //$NON-NLS-1$
+					fileDialog.setText(Messages.getString("MainWindow.fileDialog.title")); //$NON-NLS-1$
 					if (null == fileDialog.open() || null == fileDialog.getFileNames()) {
 						return;
 					}
-					String filterPath = fileDialog.getFilterPath() + System.getProperty("file.separator");
+					String filterPath = fileDialog.getFilterPath() + System.getProperty("file.separator"); //$NON-NLS-1$
 					for (String fileName : fileDialog.getFileNames()) {
 						MainWindow.this.fileList.add(filterPath + fileName);
 					}
@@ -212,7 +210,7 @@ public class MainWindow extends Window {
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(selectPics);
 
 		Button removePictures = new Button(composite, SWT.PUSH);
-		removePictures.setText(Messages.getString("MainWindow.button.removePictures.text"));
+		removePictures.setText(Messages.getString("MainWindow.button.removePictures.text")); //$NON-NLS-1$
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(removePictures);
 		removePictures.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -224,7 +222,7 @@ public class MainWindow extends Window {
 		});
 
 		Label labelEvenDate = new Label(composite, SWT.NONE);
-		labelEvenDate.setText(Messages.getString("MainWindow.label.eventDate.text"));
+		labelEvenDate.setText(Messages.getString("MainWindow.label.eventDate.text")); //$NON-NLS-1$
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelEvenDate);
 
 		this.eventDate = new CDateTime(composite, CDT.BORDER | CDT.DROP_DOWN | CDT.DATE_MEDIUM);
@@ -242,11 +240,11 @@ public class MainWindow extends Window {
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(this.eventDate);
 
 		Label labelTmp = new Label(composite, SWT.NONE);
-		labelTmp.setText("");
+		labelTmp.setText(""); //$NON-NLS-1$
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelTmp);
 
 		Button selectGallery = new Button(composite, SWT.PUSH);
-		selectGallery.setText(Messages.getString("MainWindow.label.selectGallery.text"));
+		selectGallery.setText(Messages.getString("MainWindow.label.selectGallery.text")); //$NON-NLS-1$
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(selectGallery);
 		selectGallery.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -258,10 +256,10 @@ public class MainWindow extends Window {
 						public void run() {
 							if (TrmEngine.getInstance().isConnected()) {
 							} else if (TrmEngine.getInstance().connect()) {
-								MainWindow.this.addStatusLine(Messages.getString("MainWindow.logMessages.connectOk"));
+								MainWindow.this.addStatusLine(Messages.getString("MainWindow.logMessages.connectOk")); //$NON-NLS-1$
 							} else {
 								MainWindow.this
-									.addStatusLine(Messages.getString("MainWindow.logMessages.connectNotOk"));
+									.addStatusLine(Messages.getString("MainWindow.logMessages.connectNotOk")); //$NON-NLS-1$
 							}
 							if (!TrmEngine.getInstance().isConnected()) {
 								return;
@@ -269,9 +267,9 @@ public class MainWindow extends Window {
 							if (TrmEngine.getInstance().isLoggedIn()) {
 							} else if (TrmEngine.getInstance().login(userPassDialog.getUserName(),
 								userPassDialog.getPassWord())) {
-								MainWindow.this.addStatusLine(Messages.getString("MainWindow.logMessages.loginOk"));
+								MainWindow.this.addStatusLine(Messages.getString("MainWindow.logMessages.loginOk")); //$NON-NLS-1$
 							} else {
-								MainWindow.this.addStatusLine(Messages.getString("MainWindow.logMessages.loginNotOk"));
+								MainWindow.this.addStatusLine(Messages.getString("MainWindow.logMessages.loginNotOk")); //$NON-NLS-1$
 								return;
 							}
 
@@ -289,7 +287,7 @@ public class MainWindow extends Window {
 		});
 
 		Label labelEventLocation = new Label(composite, SWT.NONE);
-		labelEventLocation.setText(Messages.getString("MainWindow.label.eventLocation.text"));
+		labelEventLocation.setText(Messages.getString("MainWindow.label.eventLocation.text")); //$NON-NLS-1$
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelEventLocation);
 
 		this.fieldLocation = new Text(composite, SWT.BORDER);
@@ -297,7 +295,7 @@ public class MainWindow extends Window {
 		this.fieldLocation.setEditable(false);
 
 		Label labelEventTitle = new Label(composite, SWT.NONE);
-		labelEventTitle.setText(Messages.getString("MainWindow.label.eventTitle.text"));
+		labelEventTitle.setText(Messages.getString("MainWindow.label.eventTitle.text")); //$NON-NLS-1$
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelEventTitle);
 
 		this.fieldTitle = new Text(composite, SWT.BORDER);
@@ -315,7 +313,7 @@ public class MainWindow extends Window {
 		});
 
 		Label labelEventDescription = new Label(composite, SWT.NONE);
-		labelEventDescription.setText(Messages.getString("MainWindow.label.eventDesc.text"));
+		labelEventDescription.setText(Messages.getString("MainWindow.label.eventDesc.text")); //$NON-NLS-1$
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelEventDescription);
 
 		this.fieldDesc = new Text(composite, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
@@ -333,11 +331,11 @@ public class MainWindow extends Window {
 		});
 
 		labelTmp = new Label(composite, SWT.NONE);
-		labelTmp.setText("");
+		labelTmp.setText(""); //$NON-NLS-1$
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelTmp);
 
 		this.fieldIntern = new Button(composite, SWT.CHECK);
-		this.fieldIntern.setText(Messages.getString("MainWindow.button.internal.text"));
+		this.fieldIntern.setText(Messages.getString("MainWindow.button.internal.text")); //$NON-NLS-1$
 		this.fieldIntern.setEnabled(false);
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(this.fieldIntern);
 		return composite;
@@ -349,7 +347,7 @@ public class MainWindow extends Window {
 			files.add(file);
 		}
 		this.fileList.setItems(files.toArray(ArrayUtils.EMPTY_STRING_ARRAY));
-		this.selectedPics.setText(MessageFormat.format(Messages.getString("MainWindow.label.selectedPics.text"),
+		this.selectedPics.setText(MessageFormat.format(Messages.getString("MainWindow.label.selectedPics.text"), //$NON-NLS-1$
 			Integer.valueOf(files.size())));
 	}
 
@@ -361,7 +359,7 @@ public class MainWindow extends Window {
 		this.reOrganiseFileList();
 		this.selectYesterDay();
 		TrmEngine.getInstance().disconnect();
-		this.addStatusLine(Messages.getString("MainWindow.logMessages.programReset"));
+		this.addStatusLine(Messages.getString("MainWindow.logMessages.programReset")); //$NON-NLS-1$
 	}
 
 	private Composite rightComposite(Composite parent) {
@@ -369,7 +367,7 @@ public class MainWindow extends Window {
 		GridLayoutFactory.fillDefaults().numColumns(1).equalWidth(false).applyTo(composite);
 
 		Label labelConvertProgress = new Label(composite, SWT.NONE);
-		labelConvertProgress.setText(Messages.getString("MainWindow.label.convertProgress.text"));
+		labelConvertProgress.setText(Messages.getString("MainWindow.label.convertProgress.text")); //$NON-NLS-1$
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelConvertProgress);
 
 		this.convertProgressBar = new ProgressBar(composite, SWT.HORIZONTAL | SWT.BORDER);
@@ -377,7 +375,7 @@ public class MainWindow extends Window {
 		this.convertProgressBar.setMaximum(PROGRESS_BAR_MAX);
 
 		Label labelUploadProgress = new Label(composite, SWT.NONE);
-		labelUploadProgress.setText(Messages.getString("MainWindow.label.uploadProgress.text"));
+		labelUploadProgress.setText(Messages.getString("MainWindow.label.uploadProgress.text")); //$NON-NLS-1$
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelUploadProgress);
 
 		this.uploadProgressBar = new ProgressBar(composite, SWT.HORIZONTAL | SWT.BORDER);
@@ -388,12 +386,12 @@ public class MainWindow extends Window {
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).hint(290, 340).applyTo(this.statusList);
 		Menu statusListMenu = new Menu(this.getShell(), SWT.POP_UP);
 		MenuItem statusListMenuItemCopy = new MenuItem(statusListMenu, SWT.PUSH);
-		statusListMenuItemCopy.setText(Messages.getString("MainWindow.list.status.menu.copy.text"));
+		statusListMenuItemCopy.setText(Messages.getString("MainWindow.list.status.menu.copy.text")); //$NON-NLS-1$
 		statusListMenuItemCopy.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				String logText = StringUtils.join(MainWindow.this.statusList.getItems(), System
-					.getProperty("line.separator"));
+					.getProperty("line.separator")); //$NON-NLS-1$
 				Clipboard cb = new Clipboard(Display.getCurrent());
 				TextTransfer textTransfer = TextTransfer.getInstance();
 				cb.setContents(new Object[] { logText }, new Transfer[] { textTransfer });
@@ -401,23 +399,23 @@ public class MainWindow extends Window {
 			}
 		});
 		this.statusList.setMenu(statusListMenu);
-		this.addStatusLine("Copyright by ibTEC Team-Ulm GbR");
+		this.addStatusLine("Copyright by ibTEC Team-Ulm GbR"); //$NON-NLS-1$
 
 		Composite buttonComposite = new Composite(composite, SWT.NONE);
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(buttonComposite);
 		GridLayoutFactory.fillDefaults().equalWidth(false).numColumns(3).applyTo(buttonComposite);
 
 		Button buttonUpload = new Button(buttonComposite, SWT.PUSH);
-		buttonUpload.setText(Messages.getString("MainWindow.button.convUpload.text"));
+		buttonUpload.setText(Messages.getString("MainWindow.button.convUpload.text")); //$NON-NLS-1$
 		buttonUpload.addSelectionListener(new ConvertUploadListener());
 		GridDataFactory.fillDefaults().span(1, 1).grab(false, false).applyTo(buttonUpload);
 
 		Label tmpLabel = new Label(buttonComposite, SWT.NONE);
-		tmpLabel.setText("  ");
+		tmpLabel.setText("  "); //$NON-NLS-1$
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(tmpLabel);
 
 		Button buttonReset = new Button(buttonComposite, SWT.PUSH);
-		buttonReset.setText(Messages.getString("MainWindow.button.reset.text"));
+		buttonReset.setText(Messages.getString("MainWindow.button.reset.text")); //$NON-NLS-1$
 		GridDataFactory.fillDefaults().span(1, 1).grab(false, false).applyTo(buttonReset);
 		buttonReset.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -448,12 +446,12 @@ public class MainWindow extends Window {
 	}
 
 	public void setGallery(Gallery gallery) {
-		log.debug("Setting gallery: " + gallery);
+		log.debug("Setting gallery: " + gallery); //$NON-NLS-1$
 		this.gallery = gallery;
 		if (null == this.gallery) {
-			this.fieldLocation.setText("");
-			this.fieldTitle.setText("");
-			this.fieldDesc.setText("");
+			this.fieldLocation.setText(""); //$NON-NLS-1$
+			this.fieldTitle.setText(""); //$NON-NLS-1$
+			this.fieldDesc.setText(""); //$NON-NLS-1$
 			this.fieldIntern.setSelection(false);
 		} else {
 			this.fieldLocation.setText(this.gallery.getLocation());
@@ -484,13 +482,24 @@ public class MainWindow extends Window {
 		@Override
 		public void widgetSelected(SelectionEvent arg0) {
 			if (0 == MainWindow.this.fileList.getItemCount()) {
-				MainWindow.this.addStatusLine("Keine Bilder gewählt -> Abbruch");
+				MainWindow.this.addStatusLine(Messages.getString("MainWindow.logMessages.missingFiles")); //$NON-NLS-1$
 				return;
 			}
 			if (null == MainWindow.this.gallery) {
-				MainWindow.this.addStatusLine("Keine Galerie gewählt -> Abbruch");
+				MainWindow.this.addStatusLine(Messages.getString("MainWindow.logMessages.missingGallery")); //$NON-NLS-1$
 				return;
 			}
+			if (MainWindow.this.gallery.isNewGallery()) {
+				if (0 == MainWindow.this.fieldTitle.getText().length()) {
+					MainWindow.this.addStatusLine(Messages.getString("MainWindow.logMessages.missingTitle")); //$NON-NLS-1$
+					return;
+				}
+				if (0 == MainWindow.this.fieldDesc.getText().length()) {
+					MainWindow.this.addStatusLine(Messages.getString("MainWindow.logMessages.missingDesc")); //$NON-NLS-1$
+					return;
+				}
+			}
+
 			if (!TrmEngine.getInstance().lockLocation(MainWindow.this.gallery)) {
 				return;
 			}
