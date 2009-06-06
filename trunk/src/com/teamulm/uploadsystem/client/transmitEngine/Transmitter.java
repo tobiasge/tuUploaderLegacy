@@ -11,6 +11,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -22,6 +23,7 @@ import org.joda.time.LocalDate;
 import com.teamulm.uploadsystem.client.Helper;
 import com.teamulm.uploadsystem.client.TeamUlmUpload;
 import com.teamulm.uploadsystem.client.gui.MainWindow;
+import com.teamulm.uploadsystem.client.gui.Messages;
 import com.teamulm.uploadsystem.data.Gallery;
 import com.teamulm.uploadsystem.data.Location;
 import com.teamulm.uploadsystem.exception.AuthenticationException;
@@ -65,13 +67,13 @@ public class Transmitter extends Thread {
 
 	public Transmitter(TrmEngine chef) {
 		super();
-		this.setName("Transmitter");
+		this.setName("Transmitter"); //$NON-NLS-1$
 		this.chef = chef;
 		this.Running = true;
 		this.loggedIn = false;
 		try {
-			int serverPort = Integer.parseInt(TeamUlmUpload.getInstance().getClientConf().getProperty("serverPort"));
-			String serverName = TeamUlmUpload.getInstance().getClientConf().getProperty("serverName", "tmp");
+			int serverPort = Integer.parseInt(TeamUlmUpload.getInstance().getClientConf().getProperty("serverPort")); //$NON-NLS-1$
+			String serverName = TeamUlmUpload.getInstance().getClientConf().getProperty("serverName"); //$NON-NLS-1$
 			this.serverAdress = InetAddress.getByName(serverName);
 			this.server = new Socket(this.serverAdress, serverPort);
 			if (this.server.isConnected()) {
@@ -83,7 +85,7 @@ public class Transmitter extends Thread {
 			this.connected = false;
 			Helper.getInstance().systemCrashHandler(e);
 		}
-		this.keepAliveTimer = new Timer("KeepAliveTimer", true);
+		this.keepAliveTimer = new Timer("KeepAliveTimer", true); //$NON-NLS-1$
 		this.keepAliveTimer.schedule(new KeepAliveTimerTask(), 0, 1000 * 60 * 2);
 	}
 
@@ -115,14 +117,14 @@ public class Transmitter extends Thread {
 		MessageDigest md5 = null;
 		byte[] byteArray = null;
 		try {
-			md5 = MessageDigest.getInstance("MD5");
-			byteArray = inStr.getBytes("UTF-8");
+			md5 = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
+			byteArray = inStr.getBytes("UTF-8"); //$NON-NLS-1$
 		} catch (NoSuchAlgorithmException e) {
 			Helper.getInstance().systemCrashHandler(e);
-			return "";
+			return ""; //$NON-NLS-1$
 		} catch (UnsupportedEncodingException e) {
 			Helper.getInstance().systemCrashHandler(e);
-			return "";
+			return ""; //$NON-NLS-1$
 		}
 
 		byte[] md5Bytes = md5.digest(byteArray);
@@ -130,7 +132,7 @@ public class Transmitter extends Thread {
 		for (int i = 0; i < md5Bytes.length; i++) {
 			int val = ((int) md5Bytes[i]) & 0xff;
 			if (val < 16)
-				hexValue.append("0");
+				hexValue.append("0"); //$NON-NLS-1$
 			hexValue.append(Integer.toHexString(val));
 		}
 		return hexValue.toString();
@@ -144,7 +146,7 @@ public class Transmitter extends Thread {
 		cmd.setPassWord(this.compute(passwd));
 		try {
 			Command retVal = this.sendAndRead(cmd);
-			log.debug("Server said: " + retVal);
+			log.debug("Server said: " + retVal); //$NON-NLS-1$
 			this.loggedIn = retVal instanceof LoginCmd && retVal.commandSucceded();
 			return this.loggedIn;
 		} catch (Exception e) {
@@ -160,7 +162,7 @@ public class Transmitter extends Thread {
 		cmd.setProtocolVersionString(TrmEngine.VERSION);
 		try {
 			Command retVal = this.sendAndRead(cmd);
-			log.debug("Server said: " + retVal);
+			log.debug("Server said: " + retVal); //$NON-NLS-1$
 			return retVal instanceof HelloCmd && retVal.commandSucceded();
 		} catch (Exception e) {
 			Helper.getInstance().systemCrashHandler(e);
@@ -176,7 +178,7 @@ public class Transmitter extends Thread {
 		cmd.setGallery(requestGallery);
 		try {
 			Command retVal = this.sendAndRead(cmd);
-			log.debug("Server said: " + retVal);
+			log.debug("Server said: " + retVal); //$NON-NLS-1$
 			if (retVal instanceof NewGalleryCmd) {
 				NewGalleryCmd response = (NewGalleryCmd) retVal;
 				return response.getGallery();
@@ -192,7 +194,7 @@ public class Transmitter extends Thread {
 		GetLocationsCmd cmd = new GetLocationsCmd();
 		try {
 			Command retVal = this.sendAndRead(cmd);
-			log.debug("Server said: " + retVal);
+			log.debug("Server said: " + retVal); //$NON-NLS-1$
 			if (retVal instanceof GetLocationsCmd) {
 				GetLocationsCmd response = (GetLocationsCmd) retVal;
 				return response.getLocations();
@@ -209,7 +211,7 @@ public class Transmitter extends Thread {
 		cmd.setDate(date);
 		try {
 			Command retVal = this.sendAndRead(cmd);
-			log.debug("Server said: " + retVal);
+			log.debug("Server said: " + retVal); //$NON-NLS-1$
 			if (retVal instanceof GetGalleriesCmd) {
 				GetGalleriesCmd response = (GetGalleriesCmd) retVal;
 				return response.getGalleries();
@@ -226,7 +228,7 @@ public class Transmitter extends Thread {
 		InputStream is = new FileInputStream(file);
 		long length = file.length();
 		if (length > Integer.MAX_VALUE) {
-			log.error("File is too large to process");
+			log.error("File is too large to process"); //$NON-NLS-1$
 			return null;
 		}
 		byte[] bytes = new byte[(int) length];
@@ -236,7 +238,7 @@ public class Transmitter extends Thread {
 			offset += numRead;
 		}
 		if (offset < bytes.length) {
-			throw new IOException("Could not completely read file " + file.getName());
+			throw new IOException("Could not completely read file " + file.getName()); //$NON-NLS-1$
 		}
 		is.close();
 		return bytes;
@@ -253,7 +255,7 @@ public class Transmitter extends Thread {
 			cmd.setLocation(gal.getLocation());
 			cmd.setSuffix(gal.getSuffix());
 			Command retVal = this.sendAndRead(cmd);
-			log.debug("Server said: " + retVal);
+			log.debug("Server said: " + retVal); //$NON-NLS-1$
 			if (!(retVal instanceof UnLockPathCmd))
 				return false;
 			UnLockPathCmd resp = (UnLockPathCmd) retVal;
@@ -271,7 +273,7 @@ public class Transmitter extends Thread {
 			cmd.setLocation(gal.getLocation());
 			cmd.setSuffix(gal.getSuffix());
 			Command retVal = this.sendAndRead(cmd);
-			log.debug("Server said: " + retVal);
+			log.debug("Server said: " + retVal); //$NON-NLS-1$
 			if (!(retVal instanceof LockPathCmd))
 				return false;
 			LockPathCmd resp = (LockPathCmd) retVal;
@@ -282,10 +284,12 @@ public class Transmitter extends Thread {
 				this.chef.setStartNumber(resp.getStartNumber());
 				return true;
 			} else if (resp.getErrorCode() == LockPathCmd.ERROR_LOC_BADLOC) {
-				TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Ungültige Location.");
+				TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
+					Messages.getString("Transmitter.logMessages.usedLoc")); //$NON-NLS-1$
 				return false;
 			} else if (resp.getErrorCode() == LockPathCmd.ERROR_LOC_NOTFREE) {
-				TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Location in Benutzung.");
+				TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
+					Messages.getString("Transmitter.logMessages.usedLoc")); //$NON-NLS-1$
 				return false;
 			} else
 				return false;
@@ -297,29 +301,31 @@ public class Transmitter extends Thread {
 
 	@Override
 	public void run() {
-		TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Beginne Übertragung");
+		TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
+			Messages.getString("Transmitter.logMessages.startedTransmit")); //$NON-NLS-1$
 		TeamUlmUpload.getInstance().getMainWindow().setUploadProgress(0);
 		Command retVal;
 		try {
 			while (this.Running && this.chef.isThereSomethingToTtansmit()) {
 				if ((this.akt = this.chef.getNextToTransmit()) == null) {
-					log.info("this.chef.getNextToTransmit() returned null");
+					log.info("this.chef.getNextToTransmit() returned null"); //$NON-NLS-1$
 				} else {
-					log.info("Sende Datei " + this.akt.getName());
+					log.info("Sende Datei " + this.akt.getName()); //$NON-NLS-1$
 					SaveFileCmd cmd = new SaveFileCmd();
 					cmd.setFileName(this.akt.getName());
 					cmd.setFileSize((int) this.akt.length());
 					cmd.setFileContent(this.getBytesFromFile(this.akt));
 
 					retVal = this.sendAndRead(cmd);
-					log.debug("Server said: " + retVal);
+					log.debug("Server said: " + retVal); //$NON-NLS-1$
 					if (retVal instanceof SaveFileCmd && retVal.commandSucceded()) {
-						log.info("Datei " + this.akt.getAbsolutePath() + " gesendet");
+						log.info("Datei " + this.akt.getAbsolutePath() + " gesendet"); //$NON-NLS-1$ //$NON-NLS-2$
 						this.akt.delete();
 					} else {
-						log.info("Datei " + this.akt.getName() + " nicht gesendet");
+						log.info("Datei " + this.akt.getName() + " nicht gesendet"); //$NON-NLS-1$ //$NON-NLS-2$
 						TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
-							"Konnte " + this.akt.getName() + " nicht senden");
+							MessageFormat.format(Messages.getString("Transmitter.logMessages.fileNotSent"), this.akt //$NON-NLS-1$
+								.getName()));
 					}
 				}
 			}
@@ -327,15 +333,19 @@ public class Transmitter extends Thread {
 			cmd.setGallery(this.gallery);
 
 			retVal = this.sendAndRead(cmd);
-			log.debug("Server said: " + retVal);
+			log.debug("Server said: " + retVal); //$NON-NLS-1$
 			if (retVal instanceof SaveGalleryCmd && retVal.commandSucceded()) {
-				TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Galerie gespeichert");
+				TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
+					Messages.getString("Transmitter.logMessages.gallerySaved")); //$NON-NLS-1$
 			} else {
-				TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Fehler bei Datenbankeintrag");
+				TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
+					Messages.getString("Transmitter.logMessages.gallerySaveError")); //$NON-NLS-1$
 			}
-			TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Beende Übertragung");
+			TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
+				Messages.getString("Transmitter.logMessages.finishedTransmit")); //$NON-NLS-1$
 			this.disconnect();
-			TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Verbindung beendet");
+			TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
+				Messages.getString("Transmitter.logMessages.disconnected")); //$NON-NLS-1$
 			sleep(10);
 		} catch (AuthenticationException authEx) {
 			TeamUlmUpload.getInstance().getMainWindow().addStatusLine(authEx.getMessage());
@@ -377,9 +387,9 @@ public class Transmitter extends Thread {
 		@Override
 		public void run() {
 			if (Transmitter.this.connected && Transmitter.this.loggedIn) {
-				log.debug("sending PingCmd");
+				log.debug("sending PingCmd"); //$NON-NLS-1$
 				try {
-					log.debug("Server said: " + Transmitter.this.sendAndRead(new PingCmd()));
+					log.debug("Server said: " + Transmitter.this.sendAndRead(new PingCmd())); //$NON-NLS-1$
 				} catch (AuthenticationException authEx) {
 				}
 			}
