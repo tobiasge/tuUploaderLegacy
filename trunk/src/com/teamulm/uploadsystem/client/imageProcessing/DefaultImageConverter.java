@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 
 import com.teamulm.uploadsystem.client.Helper;
 import com.teamulm.uploadsystem.client.TeamUlmUpload;
+import com.teamulm.uploadsystem.client.gui.Messages;
 
 public class DefaultImageConverter extends ImageConverter {
 
@@ -32,7 +33,7 @@ public class DefaultImageConverter extends ImageConverter {
 		try {
 			BufferedImage pic = this.readImage(inFile);
 			if (this.isSLRPicture(pic.getWidth(), pic.getHeight())) {
-				log.debug("SLR picture found.");
+				log.debug("SLR picture found."); //$NON-NLS-1$
 				BufferedImage target = new BufferedImage(this.bigPicSize.width, this.bigPicSize.height,
 					BufferedImage.TYPE_INT_RGB);
 				Graphics graf = target.getGraphics();
@@ -46,7 +47,7 @@ public class DefaultImageConverter extends ImageConverter {
 				this.writeImage(outFile, target);
 				return true;
 			} else if (this.isUprightPicture(pic.getWidth(), pic.getHeight())) {
-				log.debug("Upright picture found.");
+				log.debug("Upright picture found."); //$NON-NLS-1$
 				BufferedImage target = new BufferedImage(this.bigPicSize.width, this.bigPicSize.height,
 					BufferedImage.TYPE_INT_RGB);
 				double downRatio = (double) this.bigPicSize.height / (double) pic.getHeight();
@@ -61,12 +62,13 @@ public class DefaultImageConverter extends ImageConverter {
 				this.writeImage(outFile, target);
 				return true;
 			} else if (this.isDefaultPicture(pic.getWidth(), pic.getHeight())) {
-				log.debug("Normal picture found.");
+				log.debug("Normal picture found."); //$NON-NLS-1$
 				this.writeImage(outFile, this.toBufferedImage(pic.getScaledInstance(this.bigPicSize.width,
 					this.bigPicSize.height, BufferedImage.SCALE_SMOOTH)));
 				return true;
 			} else {
-				TeamUlmUpload.getInstance().getMainWindow().addStatusLine("Bild ignoriert: Bild hat falsches Format.");
+				TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
+					Messages.getString("DefaultImageConverter.logMessages.wrongFormat")); //$NON-NLS-1$
 				return false;
 			}
 		} catch (IOException e) {
@@ -80,7 +82,7 @@ public class DefaultImageConverter extends ImageConverter {
 	}
 
 	private void writeImage(File outFile, BufferedImage img) throws IOException {
-		Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName("jpeg");
+		Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName("jpeg"); //$NON-NLS-1$
 		ImageWriter writer = (ImageWriter) iter.next();
 		ImageWriteParam iwp = writer.getDefaultWriteParam();
 		iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
