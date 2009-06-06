@@ -36,7 +36,7 @@ import com.teamulm.uploadsystem.data.Location;
 
 public class GalleryDialog extends Dialog {
 
-	private static final String PLEASE_CHOOSE = Messages.getString("GalleryDialog.constant.pleaseSelect");
+	private static final String PLEASE_CHOOSE = Messages.getString("GalleryDialog.constant.pleaseSelect"); //$NON-NLS-1$
 
 	public static final int DESCRMAXLENGTH = 180;
 
@@ -66,22 +66,22 @@ public class GalleryDialog extends Dialog {
 		int columnIndex = 0;
 
 		col = new TableColumn(this.galTable, SWT.LEFT, columnIndex++);
-		col.setText(Messages.getString("GalleryDialog.table.galTable.column.location"));
+		col.setText(Messages.getString("GalleryDialog.table.galTable.column.location")); //$NON-NLS-1$
 		col.setWidth(130);
 		col.setResizable(false);
 
 		col = new TableColumn(this.galTable, SWT.LEFT, columnIndex++);
-		col.setText(Messages.getString("GalleryDialog.table.galTable.column.title"));
+		col.setText(Messages.getString("GalleryDialog.table.galTable.column.title")); //$NON-NLS-1$
 		col.setWidth(200);
 		col.setResizable(false);
 
 		col = new TableColumn(this.galTable, SWT.LEFT, columnIndex++);
-		col.setText(Messages.getString("GalleryDialog.table.galTable.column.pictures"));
+		col.setText(Messages.getString("GalleryDialog.table.galTable.column.pictures")); //$NON-NLS-1$
 		col.setWidth(40);
 		col.setResizable(false);
 
 		col = new TableColumn(this.galTable, SWT.LEFT | SWT.CHECK, columnIndex++);
-		col.setText(Messages.getString("GalleryDialog.table.galTable.column.internal"));
+		col.setText(Messages.getString("GalleryDialog.table.galTable.column.internal")); //$NON-NLS-1$
 		col.setWidth(50);
 		col.setResizable(false);
 	}
@@ -96,7 +96,7 @@ public class GalleryDialog extends Dialog {
 		GridDataFactory.fillDefaults().applyTo(this.locationsBox);
 		new LocationsLoader(this.locationsBox).start();
 		this.titleField = new Text(this.newGalComposite, SWT.BORDER | SWT.SEARCH);
-		this.titleField.setMessage(Messages.getString("GalleryDialog.text.galleryTitle.messages"));
+		this.titleField.setMessage(Messages.getString("GalleryDialog.text.galleryTitle.messages")); //$NON-NLS-1$
 		this.titleField.addVerifyListener(new VerifyListener() {
 			public void verifyText(VerifyEvent verifyEvent) {
 				String text = ((Text) verifyEvent.widget).getText();
@@ -109,11 +109,11 @@ public class GalleryDialog extends Dialog {
 		});
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(this.titleField);
 		this.isIntern = new Button(this.newGalComposite, SWT.CHECK);
-		this.isIntern.setText(Messages.getString("GalleryDialog.button.interal.text"));
-		this.isIntern.setToolTipText(Messages.getString("GalleryDialog.button.interal.tooltip"));
+		this.isIntern.setText(Messages.getString("GalleryDialog.button.interal.text")); //$NON-NLS-1$
+		this.isIntern.setToolTipText(Messages.getString("GalleryDialog.button.interal.tooltip")); //$NON-NLS-1$
 		GridDataFactory.fillDefaults().hint(55, SWT.DEFAULT).indent(5, SWT.DEFAULT).applyTo(this.isIntern);
 		this.descField = new Text(this.newGalComposite, SWT.BORDER | SWT.SEARCH);
-		this.descField.setMessage(Messages.getString("GalleryDialog.text.galleryDesc.messages"));
+		this.descField.setMessage(Messages.getString("GalleryDialog.text.galleryDesc.messages")); //$NON-NLS-1$
 		this.descField.addVerifyListener(new VerifyListener() {
 			public void verifyText(VerifyEvent verifyEvent) {
 				String text = ((Text) verifyEvent.widget).getText();
@@ -129,10 +129,9 @@ public class GalleryDialog extends Dialog {
 
 	@Override
 	protected Control createDialogArea(Composite parent) {
-		this.getShell()
-			.setText(
-				MessageFormat.format(Messages.getString("GalleryDialog.dialog.title"), this.date.toDateMidnight()
-					.toDate()));
+		this.getShell().setText(
+			MessageFormat.format(Messages.getString("GalleryDialog.dialog.title"), this.date.toDateMidnight() //$NON-NLS-1$
+				.toDate()));
 		Composite composite = (Composite) super.createDialogArea(parent);
 		GridLayoutFactory.fillDefaults().margins(5, 5).applyTo(composite);
 		SelectionListener oldNewGal = new SelectionAdapter() {
@@ -150,7 +149,7 @@ public class GalleryDialog extends Dialog {
 		};
 
 		this.oldGal = new Button(composite, SWT.RADIO);
-		this.oldGal.setText(Messages.getString("GalleryDialog.button.oldGal.text"));
+		this.oldGal.setText(Messages.getString("GalleryDialog.button.oldGal.text")); //$NON-NLS-1$
 		this.oldGal.addSelectionListener(oldNewGal);
 		GridDataFactory.fillDefaults().applyTo(this.oldGal);
 		this.galTable = new Table(composite, SWT.V_SCROLL | SWT.BORDER | SWT.FULL_SELECTION);
@@ -172,7 +171,7 @@ public class GalleryDialog extends Dialog {
 		new GalleryLoader(Gallery.GALLERY_DATE_FORMAT.print(this.date)).start();
 		GridDataFactory.fillDefaults().hint(425, 120).applyTo(this.galTable);
 		this.newGal = new Button(composite, SWT.RADIO);
-		this.newGal.setText(Messages.getString("GalleryDialog.button.newGal.text"));
+		this.newGal.setText(Messages.getString("GalleryDialog.button.newGal.text")); //$NON-NLS-1$
 		this.newGal.addSelectionListener(oldNewGal);
 		GridDataFactory.fillDefaults().applyTo(this.newGal);
 		this.buildNewGalComposite(composite);
@@ -186,8 +185,8 @@ public class GalleryDialog extends Dialog {
 		if (this.oldGal.getSelection()) {
 			if (-1 == this.galTable.getSelectionIndex()) {
 				MessageBox mb = new MessageBox(this.getShell(), SWT.OK | SWT.ERROR);
-				mb.setMessage(Messages.getString("GalleryDialog.msg.error.noGallery"));
-				mb.setText(Messages.getString("String.error"));
+				mb.setMessage(Messages.getString("GalleryDialog.msg.error.noGallery")); //$NON-NLS-1$
+				mb.setText(Messages.getString("String.error")); //$NON-NLS-1$
 				mb.open();
 				return;
 			} else {
@@ -206,8 +205,8 @@ public class GalleryDialog extends Dialog {
 				TeamUlmUpload.getInstance().getMainWindow().setGallery(gal);
 			} else {
 				MessageBox mb = new MessageBox(this.getShell(), SWT.OK | SWT.ERROR);
-				mb.setMessage(Messages.getString("GalleryDialog.msg.error.allFields"));
-				mb.setText(Messages.getString("String.error"));
+				mb.setMessage(Messages.getString("GalleryDialog.msg.error.allFields")); //$NON-NLS-1$
+				mb.setText(Messages.getString("String.error")); //$NON-NLS-1$
 				mb.open();
 				return;
 			}
@@ -248,12 +247,12 @@ public class GalleryDialog extends Dialog {
 					for (Gallery gallery : list) {
 						TableItem item = new TableItem(GalleryDialog.this.galTable, SWT.DEFAULT);
 						item.setText(new String[] { gallery.getLocation(), gallery.getTitle(),
-							"" + gallery.getPictures(),
-							gallery.isIntern() ? Messages.getString("String.yes") : Messages.getString("String.no") });
+							"" + gallery.getPictures(), //$NON-NLS-1$
+							gallery.isIntern() ? Messages.getString("String.yes") : Messages.getString("String.no") }); //$NON-NLS-1$ //$NON-NLS-2$
 						item.setData(gallery);
 					}
 					TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
-						Messages.getString("GalleryDialog.logMessages.galleriesLoaded"));
+						Messages.getString("GalleryDialog.logMessages.galleriesLoaded")); //$NON-NLS-1$
 				}
 			});
 		}
@@ -273,7 +272,7 @@ public class GalleryDialog extends Dialog {
 			List<Location> locations = TrmEngine.getInstance().getLocations();
 			if (null == locations) {
 				TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
-					Messages.getString("GalleryDialog.logMessages.locationsNotLoaded"));
+					Messages.getString("GalleryDialog.logMessages.locationsNotLoaded")); //$NON-NLS-1$
 				return;
 			}
 			final String[] locNames = new String[locations.size() + 1];
@@ -292,7 +291,7 @@ public class GalleryDialog extends Dialog {
 					LocationsLoader.this.locationsBox.setItems(locNames);
 					LocationsLoader.this.locationsBox.setText(GalleryDialog.PLEASE_CHOOSE);
 					TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
-						Messages.getString("GalleryDialog.logMessages.locationsLoaded"));
+						Messages.getString("GalleryDialog.logMessages.locationsLoaded")); //$NON-NLS-1$
 				}
 			});
 		}
