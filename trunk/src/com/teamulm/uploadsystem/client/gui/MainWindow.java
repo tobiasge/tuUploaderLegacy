@@ -258,11 +258,10 @@ public class MainWindow extends Window {
 						public void run() {
 							if (TrmEngine.getInstance().isConnected()) {
 							} else if (TrmEngine.getInstance().connect()) {
-								MainWindow.this.addStatusLine(Messages
-									.getString("MainWindow.logMessages.connectOk"));
+								MainWindow.this.addStatusLine(Messages.getString("MainWindow.logMessages.connectOk"));
 							} else {
-								MainWindow.this.addStatusLine(Messages
-									.getString("MainWindow.logMessages.connectNotOk"));
+								MainWindow.this
+									.addStatusLine(Messages.getString("MainWindow.logMessages.connectNotOk"));
 							}
 							if (!TrmEngine.getInstance().isConnected()) {
 								return;
@@ -270,11 +269,9 @@ public class MainWindow extends Window {
 							if (TrmEngine.getInstance().isLoggedIn()) {
 							} else if (TrmEngine.getInstance().login(userPassDialog.getUserName(),
 								userPassDialog.getPassWord())) {
-								MainWindow.this.addStatusLine(Messages
-									.getString("MainWindow.logMessages.loginOk"));
+								MainWindow.this.addStatusLine(Messages.getString("MainWindow.logMessages.loginOk"));
 							} else {
-								MainWindow.this.addStatusLine(Messages
-									.getString("MainWindow.logMessages.loginNotOk"));
+								MainWindow.this.addStatusLine(Messages.getString("MainWindow.logMessages.loginNotOk"));
 								return;
 							}
 
@@ -352,8 +349,8 @@ public class MainWindow extends Window {
 			files.add(file);
 		}
 		this.fileList.setItems(files.toArray(ArrayUtils.EMPTY_STRING_ARRAY));
-		this.selectedPics.setText(MessageFormat.format(Messages
-			.getString("MainWindow.label.selectedPics.text"), Integer.valueOf(files.size())));
+		this.selectedPics.setText(MessageFormat.format(Messages.getString("MainWindow.label.selectedPics.text"),
+			Integer.valueOf(files.size())));
 	}
 
 	private void reset() {
@@ -412,6 +409,7 @@ public class MainWindow extends Window {
 
 		Button buttonUpload = new Button(buttonComposite, SWT.PUSH);
 		buttonUpload.setText(Messages.getString("MainWindow.button.convUpload.text"));
+		buttonUpload.addSelectionListener(new ConvertUploadListener());
 		GridDataFactory.fillDefaults().span(1, 1).grab(false, false).applyTo(buttonUpload);
 
 		Label tmpLabel = new Label(buttonComposite, SWT.NONE);
@@ -477,12 +475,12 @@ public class MainWindow extends Window {
 	public void setUploadProgress(final int progress) {
 		this.getShell().getDisplay().asyncExec(new Runnable() {
 			public void run() {
-				MainWindow.this.convertProgressBar.setSelection(progress);
+				MainWindow.this.uploadProgressBar.setSelection(progress);
 			}
 		});
 	}
 
-	class ConvertUploadListener extends SelectionAdapter {
+	private class ConvertUploadListener extends SelectionAdapter {
 		@Override
 		public void widgetSelected(SelectionEvent arg0) {
 			if (0 == MainWindow.this.fileList.getItemCount()) {
