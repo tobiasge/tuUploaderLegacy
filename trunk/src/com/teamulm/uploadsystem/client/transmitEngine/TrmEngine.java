@@ -24,7 +24,7 @@ public class TrmEngine extends Thread {
 
 	private static TrmEngine instance;
 
-	public static final String VERSION = "4.6";
+	public static final String VERSION = "5.0"; //$NON-NLS-1$
 
 	private Vector<File> toconvert;
 
