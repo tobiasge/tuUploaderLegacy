@@ -51,13 +51,13 @@ public class ViewGalleryDialog extends Dialog {
 		this.galleryGroups = new ArrayList<GalleryItem>();
 		this.tmpFiles = new ArrayList<File>();
 		this.tmpImages = new ArrayList<Image>();
-		this.iconCross = new Image(Display.getCurrent(), "icons/cross.png");
+		this.iconCross = new Image(Display.getCurrent(), "icons/cross.png"); //$NON-NLS-1$
 	}
 
 	@Override
 	protected Control createDialogArea(Composite parent) {
 		this.getShell().setText(
-			MessageFormat.format(Messages.getString("ViewGalleryDialog.dialog.title"), this.gallery.getLocation(),
+			MessageFormat.format(Messages.getString("ViewGalleryDialog.dialog.title"), this.gallery.getLocation(), //$NON-NLS-1$
 				this.gallery.getDate().toDateMidnight().toDate()));
 		Composite composite = (Composite) super.createDialogArea(parent);
 		GridLayoutFactory.fillDefaults().applyTo(composite);
@@ -70,22 +70,23 @@ public class ViewGalleryDialog extends Dialog {
 				int tmpIndex = galleryViewer.indexOf(item);
 				if (null != item.getParentItem()) {
 					GalleryItem parent = item.getParentItem();
-					tmpIndex = (((Integer) parent.getData("pageNumber")) * 80) + (tmpIndex + 1);
+					tmpIndex = (((Integer) parent.getData("pageNumber")) * 80) + (tmpIndex + 1); //$NON-NLS-1$
 				} else {
 					return;
 				}
 				final int index = tmpIndex;
-				Thread picLoader = new Thread("ViewGallerDialog-PicLoader-" + index) {
+				Thread picLoader = new Thread("ViewGallerDialog-PicLoader-" + index) { //$NON-NLS-1$
 
 					public void run() {
 						try {
-							URL picUrl = new URL("http://www.team-ulm.de/fotos/parties/"
-								+ ViewGalleryDialog.this.gallery.getLocation() + "/"
+							URL picUrl = new URL("http://www.team-ulm.de/fotos/parties/" //$NON-NLS-1$
+								+ ViewGalleryDialog.this.gallery.getLocation()
+								+ "/" //$NON-NLS-1$
 								+ Gallery.GALLERY_DATE_FORMAT.print(ViewGalleryDialog.this.gallery.getDate())
-								+ "/s_pic" + index + ".jpg");
+								+ "/s_pic" + index + ".jpg"); //$NON-NLS-1$ //$NON-NLS-2$
 							URLConnection connection = picUrl.openConnection();
 							InputStream inputStream = connection.getInputStream();
-							final File tmpPic = File.createTempFile("tu_s_pic", ".jpg");
+							final File tmpPic = File.createTempFile("tu_s_pic", ".jpg"); //$NON-NLS-1$ //$NON-NLS-2$
 							FileOutputStream fos = new FileOutputStream(tmpPic);
 							int readByte = -1;
 							do {
@@ -113,9 +114,9 @@ public class ViewGalleryDialog extends Dialog {
 								}
 							});
 						} catch (MalformedURLException malformedUrlException) {
-							log.error("", malformedUrlException);
+							log.error("", malformedUrlException); //$NON-NLS-1$
 						} catch (IOException ioException) {
-							log.error("", ioException);
+							log.error("", ioException); //$NON-NLS-1$
 						}
 					}
 				};
@@ -126,10 +127,10 @@ public class ViewGalleryDialog extends Dialog {
 
 		for (int i = 0; i <= (Math.floor(this.gallery.getPictures() / 80)); i++) {
 			GalleryItem item = new GalleryItem(galleryViewer, SWT.NONE);
-			item.setText(MessageFormat.format(Messages.getString("ViewGalleryDialog.gallery.group.title"), Integer
+			item.setText(MessageFormat.format(Messages.getString("ViewGalleryDialog.gallery.group.title"), Integer //$NON-NLS-1$
 				.valueOf(i + 1)));
 			item.setItemCount(80);
-			item.setData("pageNumber", Integer.valueOf(i));
+			item.setData("pageNumber", Integer.valueOf(i)); //$NON-NLS-1$
 			if (i == (int) Math.floor(this.gallery.getPictures() / 80)) {
 				item.setItemCount(this.gallery.getPictures() - 80 * i);
 			}
@@ -150,7 +151,7 @@ public class ViewGalleryDialog extends Dialog {
 	protected Control createButtonBar(Composite parent) {
 		Control control = super.createButtonBar(parent);
 		this.getButton(IDialogConstants.OK_ID).setVisible(false);
-		this.getButton(IDialogConstants.CANCEL_ID).setText(Messages.getString("ViewGalleryDialog.button.close.text"));
+		this.getButton(IDialogConstants.CANCEL_ID).setText(Messages.getString("ViewGalleryDialog.button.close.text")); //$NON-NLS-1$
 		return control;
 	}
 
