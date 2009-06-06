@@ -30,6 +30,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -95,6 +96,7 @@ public class MainWindow extends Window {
 	@Override
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
+		newShell.setImage(new Image(Display.getCurrent(), "icons/icon.png")); //$NON-NLS-1$
 		newShell.setText(Messages.getString("mainWindow.dialog.title")); //$NON-NLS-1$
 	}
 
