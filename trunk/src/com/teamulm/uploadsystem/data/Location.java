@@ -30,7 +30,7 @@ public class Location implements Serializable, Comparable<Location> {
 
 	@Override
 	public String toString() {
-		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("Id", this.id).append("Name",
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("Id", this.id).append("Name", //$NON-NLS-1$ //$NON-NLS-2$
 			this.name).toString();
 	}
 
