@@ -70,7 +70,7 @@ public class TrmEngine extends Thread {
 
 	private TrmEngine() {
 		super();
-		this.setName("TrmEngine");
+		this.setName("TrmEngine"); //$NON-NLS-1$
 		this.picTransmitLock = new ReentrantLock(false);
 		this.picConvertLock = new ReentrantLock(false);
 		this.picNumLock = new ReentrantLock(false);
@@ -173,10 +173,10 @@ public class TrmEngine extends Thread {
 			this.converters[i].setPriority(3);
 		}
 		try {
-			log.info("Starte Converter.");
+			log.info("Starte Converter."); //$NON-NLS-1$
 			for (Converter con : this.converters)
 				con.start();
-			log.info("Starte Transmitter.");
+			log.info("Starte Transmitter."); //$NON-NLS-1$
 			this.transmit.start();
 			for (Converter con : this.converters)
 				if (con.isAlive())
@@ -190,7 +190,7 @@ public class TrmEngine extends Thread {
 			this.reset();
 			TrmEngine.instance = null;
 			Thread.sleep(10);
-			log.info("Beende Transmitter.");
+			log.info("Beende Transmitter."); //$NON-NLS-1$
 		} catch (Exception e) {
 			Helper.getInstance().systemCrashHandler(e);
 		}
