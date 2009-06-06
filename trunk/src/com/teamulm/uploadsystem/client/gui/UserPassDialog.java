@@ -29,14 +29,14 @@ public class UserPassDialog extends Dialog {
 	@Override
 	protected Control createDialogArea(Composite parent) {
 		Composite composite = (Composite) super.createDialogArea(parent);
-		this.getShell().setText(Messages.getString("userPassDialog.dialog.title"));
+		this.getShell().setText(Messages.getString("userPassDialog.dialog.title")); //$NON-NLS-1$
 		GridLayoutFactory.fillDefaults().numColumns(3).equalWidth(false).margins(5, 5).applyTo(composite);
 		Label iconLabel = new Label(composite, SWT.NONE);
 		iconLabel.setImage(this.getShell().getDisplay().getSystemImage(SWT.ICON_QUESTION));
 		GridDataFactory.fillDefaults().span(1, 2).hint(50, SWT.DEFAULT).indent(10, SWT.DEFAULT).applyTo(iconLabel);
 
 		Label labelUserName = new Label(composite, SWT.NONE);
-		labelUserName.setText(Messages.getString("userPassDialog.label.username"));
+		labelUserName.setText(Messages.getString("userPassDialog.label.username")); //$NON-NLS-1$
 		GridDataFactory.fillDefaults().applyTo(labelUserName);
 
 		this.textUserName = new Text(composite, SWT.BORDER);
@@ -51,7 +51,7 @@ public class UserPassDialog extends Dialog {
 		});
 
 		Label labelpassWord = new Label(composite, SWT.NONE);
-		labelpassWord.setText(Messages.getString("userPassDialog.label.password"));
+		labelpassWord.setText(Messages.getString("userPassDialog.label.password")); //$NON-NLS-1$
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(labelpassWord);
 
 		this.textPassWord = new Text(composite, SWT.BORDER | SWT.PASSWORD);
