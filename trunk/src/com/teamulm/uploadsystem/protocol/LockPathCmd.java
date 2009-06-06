@@ -57,11 +57,11 @@ public class LockPathCmd extends Command {
 	}
 
 	public String toString() {
-		String toString = "LockPathCmd ";
+		String toString = "LockPathCmd "; //$NON-NLS-1$
 		if (this.isServerResponse()) {
-			toString = toString.concat("(Response): commandSucceded() = " + this.commandSucceded());
+			toString = toString.concat("(Response): commandSucceded() = " + this.commandSucceded()); //$NON-NLS-1$
 		} else {
-			toString = toString.concat("(Request): for path " + this.getPath());
+			toString = toString.concat("(Request): for path " + this.getPath()); //$NON-NLS-1$
 		}
 		return toString;
 	}

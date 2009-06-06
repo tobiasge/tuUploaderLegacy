@@ -28,6 +28,6 @@ public class AuthenticationCmd extends Command {
 	@Override
 	public String toString() {
 		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).appendSuper(super.toString()).append(
-			"Message", this.message).toString();
+			"Message", this.message).toString(); //$NON-NLS-1$
 	}
 }

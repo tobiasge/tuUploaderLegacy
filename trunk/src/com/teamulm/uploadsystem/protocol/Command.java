@@ -66,6 +66,6 @@ public abstract class Command implements Serializable {
 	@Override
 	public String toString() {
 		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-			.append("ServerResponse", this.serverResponse).append("Success", this.success).toString();
+			.append("ServerResponse", this.serverResponse).append("Success", this.success).toString(); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

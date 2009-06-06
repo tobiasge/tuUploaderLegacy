@@ -30,6 +30,6 @@ public class NewGalleryCmd extends Command {
 	@Override
 	public String toString() {
 		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).appendSuper(super.toString()).append(
-			"Gallery", this.gallery).toString();
+			"Gallery", this.gallery).toString(); //$NON-NLS-1$
 	}
 }

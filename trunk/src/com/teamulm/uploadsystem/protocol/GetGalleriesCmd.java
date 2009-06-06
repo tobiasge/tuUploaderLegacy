@@ -44,6 +44,6 @@ public class GetGalleriesCmd extends Command {
 
 	public String toString() {
 		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).appendSuper(super.toString()).append(
-			"GalDate", this.galDate).toString();
+			"GalDate", this.galDate).toString(); //$NON-NLS-1$
 	}
 }

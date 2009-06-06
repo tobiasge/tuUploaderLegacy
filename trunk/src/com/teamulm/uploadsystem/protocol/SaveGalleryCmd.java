@@ -25,13 +25,13 @@ public class SaveGalleryCmd extends Command {
 	}
 
 	public String toString() {
-		String toString = "SaveGalleryCmd ";
+		String toString = "SaveGalleryCmd "; //$NON-NLS-1$
 		if (this.isServerResponse()) {
-			toString = toString.concat("(Response): commandSucceded() = "
-					+ this.commandSucceded());
+			toString = toString.concat("(Response): commandSucceded() = " //$NON-NLS-1$
+				+ this.commandSucceded());
 		} else {
-			toString = toString.concat("(Request): gallery = "
-					+ this.gallery.getPath());
+			toString = toString.concat("(Request): gallery = " //$NON-NLS-1$
+				+ this.gallery.getPath());
 		}
 		return toString;
 	}

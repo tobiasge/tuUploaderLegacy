@@ -47,6 +47,6 @@ public class SaveFileCmd extends Command {
 
 	public String toString() {
 		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).appendSuper(super.toString()).append(
-			"FileSize", this.fileSize).append("FileName", this.fileName).toString();
+			"FileSize", this.fileSize).append("FileName", this.fileName).toString(); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

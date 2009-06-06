@@ -7,7 +7,7 @@ public class HelloCmd extends Command {
 
 	private static final long serialVersionUID = 5503474416981045766L;
 
-	private String protocolVersionString = "1.0";
+	private String protocolVersionString = "1.0"; //$NON-NLS-1$
 
 	public HelloCmd() {
 		super();
@@ -28,6 +28,6 @@ public class HelloCmd extends Command {
 	@Override
 	public String toString() {
 		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).appendSuper(super.toString()).append(
-			"ProtocolVersionString", this.protocolVersionString).toString();
+			"ProtocolVersionString", this.protocolVersionString).toString(); //$NON-NLS-1$
 	}
 }
