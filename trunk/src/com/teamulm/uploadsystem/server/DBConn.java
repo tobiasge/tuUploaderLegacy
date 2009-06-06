@@ -199,8 +199,7 @@ public class DBConn {
 		try {
 			if (-1 == gallery.getGalid()) { // Save new gallery
 				String query = "INSERT INTO tu_fotos(location,description,suffix,"
-					+ "title,userids,pictures,date_gal,intern)"
-					+ " VALUES (?, ?, ?, ?, ?, ?, STR_TO_DATE(?, '%d-%m-%Y'), ?)";
+					+ "title,userids,pictures,date_gal,intern)" + " VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 				request = connection.prepareStatement(query);
 				request.setString(1, gallery.getLocation());
 				request.setString(2, gallery.getDesc());
@@ -209,11 +208,7 @@ public class DBConn {
 				request.setInt(5, user.getUserid());
 				request.setInt(6, gallery.getPictures());
 				request.setDate(7, new java.sql.Date(gallery.getDate().toDateMidnight().toDate().getTime()));
-				if (gallery.isIntern()) {
-					request.setInt(8, 1);
-				} else {
-					request.setInt(8, 0);
-				}
+				request.setBoolean(8, gallery.isIntern());
 				request.executeUpdate();
 			} else { // Update gallery
 				String query = "UPDATE tu_fotos SET pictures = ?, userids = CONCAT(userids, ?) where galid = ?";
