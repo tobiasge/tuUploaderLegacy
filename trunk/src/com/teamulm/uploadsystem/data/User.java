@@ -47,7 +47,7 @@ public class User implements Serializable {
 
 	@Override
 	public String toString() {
-		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("UserId", this.userid).append(
-			"UserName", this.username).toString();
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("UserId", this.userid).append( //$NON-NLS-1$
+			"UserName", this.username).toString(); //$NON-NLS-1$
 	}
 }
