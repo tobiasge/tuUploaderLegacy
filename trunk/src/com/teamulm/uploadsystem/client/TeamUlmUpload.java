@@ -31,7 +31,7 @@ public class TeamUlmUpload {
 
 	private static final Logger log = Logger.getLogger(TeamUlmUpload.class);
 
-	public static final String CLIENTCONFFILE = "client.conf";
+	public static final String CLIENTCONFFILE = "client.conf"; //$NON-NLS-1$
 
 	private static TeamUlmUpload instance = null;
 
@@ -42,15 +42,14 @@ public class TeamUlmUpload {
 	private MainWindow mainWindow;
 
 	private TeamUlmUpload() {
-		Thread.currentThread().setName("Main");
+		Thread.currentThread().setName("Main"); //$NON-NLS-1$
 		OperatingSystemMXBean sysInfo1 = ManagementFactory.getOperatingSystemMXBean();
 		MemoryMXBean sysInfo2 = ManagementFactory.getMemoryMXBean();
-		log.info("Program Startup - Version " + TrmEngine.VERSION);
-		log.info("Running on: " + sysInfo1.getName() + " " + sysInfo1.getVersion());
-		log
-			.info("Systemtype is " + sysInfo1.getArch() + " working on " + sysInfo1.getAvailableProcessors()
-				+ " CPU(s)");
-		log.info("Memory Usage is: " + sysInfo2.getHeapMemoryUsage());
+		log.info("Program Startup - Version " + TrmEngine.VERSION); //$NON-NLS-1$
+		log.info("Running on: " + sysInfo1.getName() + " " + sysInfo1.getVersion()); //$NON-NLS-1$ //$NON-NLS-2$
+		log.info("Systemtype is " + sysInfo1.getArch() + " working on " + sysInfo1.getAvailableProcessors() //$NON-NLS-1$ //$NON-NLS-2$
+			+ " CPU(s)"); //$NON-NLS-1$
+		log.info("Memory Usage is: " + sysInfo2.getHeapMemoryUsage()); //$NON-NLS-1$
 	}
 
 	public static TeamUlmUpload getInstance() {
@@ -72,10 +71,10 @@ public class TeamUlmUpload {
 	public static void main(String[] args) {
 		try {
 			Properties logConf = new Properties();
-			logConf.load(new FileInputStream("client.log4j.properties"));
+			logConf.load(new FileInputStream("client.log4j.properties")); //$NON-NLS-1$
 			TeamUlmUpload.logFileName = TeamUlmUpload.getAppDataDir()
-				+ logConf.getProperty("log4j.appender.logfile.File", "TeamUlm.log");
-			logConf.setProperty("log4j.appender.logfile.File", TeamUlmUpload.logFileName);
+				+ logConf.getProperty("log4j.appender.logfile.File", "TeamUlm.log"); //$NON-NLS-1$ //$NON-NLS-2$
+			logConf.setProperty("log4j.appender.logfile.File", TeamUlmUpload.logFileName); //$NON-NLS-1$
 			PropertyConfigurator.configure(logConf);
 		} catch (Exception e) {
 			Helper.getInstance().systemCrashHandler(e);
@@ -102,18 +101,18 @@ public class TeamUlmUpload {
 		String appData;
 		if (StringUtils.isBlank(TeamUlmUpload.appDataDir)) {
 			// Getting Windows AppData directory
-			String appDataRoot = System.getenv("APPDATA");
+			String appDataRoot = System.getenv("APPDATA"); //$NON-NLS-1$
 			// if empty non Windows system, trying Mac/Linux user home directory
 			if (StringUtils.isBlank(appDataRoot)) {
-				appDataRoot = System.getenv("HOME");
+				appDataRoot = System.getenv("HOME"); //$NON-NLS-1$
 			}
 			// empty? Should not be, using local install directory
 			if (StringUtils.isBlank(appDataRoot)) {
-				TeamUlmUpload.appDataDir = "";
+				TeamUlmUpload.appDataDir = ""; //$NON-NLS-1$
 			} else {
 				// Setting correct sub directory
-				appData = appDataRoot + System.getProperty("file.separator") + ".TUUploader"
-					+ System.getProperty("file.separator");
+				appData = appDataRoot + System.getProperty("file.separator") + ".TUUploader" //$NON-NLS-1$ //$NON-NLS-2$
+					+ System.getProperty("file.separator"); //$NON-NLS-1$
 				File appDataDir = new File(appData);
 				if (!appDataDir.exists()) {
 					appDataDir.mkdirs();
@@ -121,7 +120,7 @@ public class TeamUlmUpload {
 				TeamUlmUpload.appDataDir = appData;
 			}
 		}
-		System.out.println("TeamUlmUpload.appDataDir = '" + TeamUlmUpload.appDataDir + "'");
+		System.out.println("TeamUlmUpload.appDataDir = '" + TeamUlmUpload.appDataDir + "'"); //$NON-NLS-1$ //$NON-NLS-2$
 		return TeamUlmUpload.appDataDir;
 	}
 }
