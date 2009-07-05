@@ -26,6 +26,8 @@ import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.VerifyEvent;
@@ -68,6 +70,10 @@ public class MainWindow extends Window {
 	private Label selectedPics = null;
 
 	private ProgressBar uploadProgressBar = null, convertProgressBar = null;
+
+	private Label labelEventTitle;
+
+	private Label labelEventDescription;
 
 	public MainWindow() {
 		super((Shell) null);
@@ -296,9 +302,10 @@ public class MainWindow extends Window {
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(this.fieldLocation);
 		this.fieldLocation.setEditable(false);
 
-		Label labelEventTitle = new Label(composite, SWT.NONE);
-		labelEventTitle.setText(Messages.getString("MainWindow.label.eventTitle.text")); //$NON-NLS-1$
-		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelEventTitle);
+		this.labelEventTitle = new Label(composite, SWT.NONE);
+		this.labelEventTitle.setText(MessageFormat.format(
+			Messages.getString("MainWindow.label.eventTitle.text"), 0, GalleryDialog.TITLEMAXLENGTH)); //$NON-NLS-1$
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(this.labelEventTitle);
 
 		this.fieldTitle = new Text(composite, SWT.BORDER);
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(this.fieldTitle);
@@ -306,17 +313,27 @@ public class MainWindow extends Window {
 		this.fieldTitle.addVerifyListener(new VerifyListener() {
 			public void verifyText(VerifyEvent verifyEvent) {
 				String text = ((Text) verifyEvent.widget).getText();
-				if (GalleryDialog.TITLEMAXLENGTH < text.length()) {
+				if (GalleryDialog.TITLEMAXLENGTH < text.length() + 1) {
 					if (verifyEvent.character != SWT.BS && verifyEvent.character != SWT.DEL) {
 						verifyEvent.doit = false;
 					}
 				}
+
 			}
 		});
+		this.fieldTitle.addModifyListener(new ModifyListener() {
 
-		Label labelEventDescription = new Label(composite, SWT.NONE);
-		labelEventDescription.setText(Messages.getString("MainWindow.label.eventDesc.text")); //$NON-NLS-1$
-		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelEventDescription);
+			public void modifyText(ModifyEvent modifyEvent) {
+				MainWindow.this.labelEventTitle
+					.setText(MessageFormat
+						.format(
+							Messages.getString("MainWindow.label.eventTitle.text"), MainWindow.this.fieldTitle.getText().length(), GalleryDialog.TITLEMAXLENGTH)); //$NON-NLS-1$
+			}
+		});
+		this.labelEventDescription = new Label(composite, SWT.NONE);
+		this.labelEventDescription.setText(MessageFormat.format(
+			Messages.getString("MainWindow.label.eventDesc.text"), 0, GalleryDialog.DESCRMAXLENGTH)); //$NON-NLS-1$
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(this.labelEventDescription);
 
 		this.fieldDesc = new Text(composite, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).hint(120, 60).applyTo(this.fieldDesc);
@@ -324,11 +341,20 @@ public class MainWindow extends Window {
 		this.fieldDesc.addVerifyListener(new VerifyListener() {
 			public void verifyText(VerifyEvent verifyEvent) {
 				String text = ((Text) verifyEvent.widget).getText();
-				if (GalleryDialog.DESCRMAXLENGTH < text.length()) {
+				if (GalleryDialog.DESCRMAXLENGTH < text.length() + 1) {
 					if (verifyEvent.character != SWT.BS && verifyEvent.character != SWT.DEL) {
 						verifyEvent.doit = false;
 					}
 				}
+			}
+		});
+		this.fieldDesc.addModifyListener(new ModifyListener() {
+
+			public void modifyText(ModifyEvent modifyEvent) {
+				MainWindow.this.labelEventDescription
+					.setText(MessageFormat
+						.format(
+							Messages.getString("MainWindow.label.eventDesc.text"), MainWindow.this.fieldDesc.getText().length(), GalleryDialog.DESCRMAXLENGTH)); //$NON-NLS-1$
 			}
 		});
 
