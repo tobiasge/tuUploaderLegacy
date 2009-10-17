@@ -23,6 +23,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 
 import com.teamulm.uploadsystem.client.gui.Messages;
+import com.teamulm.uploadsystem.client.transmitEngine.TrmEngine;
 
 public class Helper {
 
@@ -116,7 +117,7 @@ public class Helper {
 						MimeMessage mailMessage = new MimeMessage(mailSession);
 						InternetAddress from = new InternetAddress();
 						from.setAddress("uploaderror@team-ulm.de"); //$NON-NLS-1$
-						from.setPersonal("Upload Error"); //$NON-NLS-1$
+						from.setPersonal(TrmEngine.getInstance().getUserName());
 						InternetAddress to = new InternetAddress();
 						to.setAddress("tobias.genannt@team-ulm.de"); //$NON-NLS-1$
 						to.setPersonal("Tobias Genannt"); //$NON-NLS-1$
