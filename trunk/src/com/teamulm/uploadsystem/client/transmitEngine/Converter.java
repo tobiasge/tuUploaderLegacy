@@ -35,25 +35,25 @@ public class Converter extends Thread {
 
 	private static final Logger log = Logger.getLogger(Converter.class);
 
-	private String savePath;
+	private String bigPicName = "pic"; //$NON-NLS-1$
+
+	private Dimension bigPicSize = new Dimension(596, 447);
 
 	private TrmEngine chef;
 
-	private boolean stopRequest;
+	private final String fileSep = System.getProperty("file.separator"); //$NON-NLS-1$
 
 	private int ident;
 
-	private final String fileSep = System.getProperty("file.separator"); //$NON-NLS-1$
+	private ImageConverter myImageConverter;
 
-	private String bigPicName = "pic"; //$NON-NLS-1$
+	private String savePath;
 
 	private String smallPicName = "s_pic"; //$NON-NLS-1$
 
-	private ImageConverter myImageConverter;
-
 	private Dimension smallPicSize = new Dimension(134, 100);
 
-	private Dimension bigPicSize = new Dimension(596, 447);
+	private boolean stopRequest;
 
 	public Converter(TrmEngine chef, int ident) {
 		super();
@@ -63,23 +63,6 @@ public class Converter extends Thread {
 		this.stopRequest = false;
 		this.ident = ident;
 		this.myImageConverter = ImageConverterFactory.getConverter(smallPicSize, bigPicSize);
-	}
-
-	public synchronized void requestStop() {
-		this.stopRequest = true;
-	}
-
-	private boolean copyFile(File in, File out) {
-		try {
-			FileChannel sourceChannel = new FileInputStream(in).getChannel();
-			FileChannel destinationChannel = new FileOutputStream(out).getChannel();
-			sourceChannel.transferTo(0, sourceChannel.size(), destinationChannel);
-			sourceChannel.close();
-			destinationChannel.close();
-			return true;
-		} catch (IOException e) {
-			return false;
-		}
 	}
 
 	@Override
@@ -137,5 +120,22 @@ public class Converter extends Thread {
 			Helper.getInstance().systemCrashHandler(e);
 		}
 		TeamUlmUpload.getInstance().getMainWindow().setConvertProgress(MainWindow.PROGRESS_BAR_MAX);
+	}
+
+	private boolean copyFile(File in, File out) {
+		try {
+			FileChannel sourceChannel = new FileInputStream(in).getChannel();
+			FileChannel destinationChannel = new FileOutputStream(out).getChannel();
+			sourceChannel.transferTo(0, sourceChannel.size(), destinationChannel);
+			sourceChannel.close();
+			destinationChannel.close();
+			return true;
+		} catch (IOException e) {
+			return false;
+		}
+	}
+
+	protected synchronized void requestStop() {
+		this.stopRequest = true;
 	}
 }

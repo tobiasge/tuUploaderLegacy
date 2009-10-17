@@ -96,6 +96,8 @@ public class TrmEngine extends Thread {
 			return;
 		}
 		this.transmit.disconnect();
+		this.requestStop();
+		this.reset();
 	}
 
 	public synchronized void fileWasIgnored() {
@@ -165,6 +167,16 @@ public class TrmEngine extends Thread {
 
 	public void requestStop() {
 		this.stopRequested = true;
+		if (null != this.transmit) {
+			this.transmit.requestStop();
+		}
+		if (null != this.converters) {
+			for (Converter con : this.converters) {
+				if (null != con) {
+					con.requestStop();
+				}
+			}
+		}
 	}
 
 	@Override
