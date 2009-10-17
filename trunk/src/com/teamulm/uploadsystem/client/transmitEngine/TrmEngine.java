@@ -20,35 +20,11 @@ import com.teamulm.uploadsystem.data.Location;
 
 public class TrmEngine extends Thread {
 
-	private static final Logger log = Logger.getLogger(TrmEngine.class);
+	public static final String VERSION = "5.0"; //$NON-NLS-1$
 
 	private static TrmEngine instance;
 
-	public static final String VERSION = "5.0"; //$NON-NLS-1$
-
-	private Vector<File> toconvert;
-
-	private Vector<File> totransmit;
-
-	private Transmitter transmit;
-
-	private long totalFiles;
-
-	private long convertedFiles;
-
-	private long transmitedFiles;
-
-	private boolean stopRequested, loggedIn, connected;
-
-	private int startNum;
-
-	private Converter[] converters;
-
-	private ReentrantLock picTransmitLock, picConvertLock, picNumLock;
-
-	private Condition picToTransmit, startNumSetCond;
-
-	private Gallery gallery;
+	private static final Logger log = Logger.getLogger(TrmEngine.class);
 
 	public static TrmEngine getInstance() {
 		if (null == TrmEngine.instance) {
@@ -64,9 +40,31 @@ public class TrmEngine extends Thread {
 		}
 	}
 
-	public Gallery getGallery() {
-		return gallery;
-	}
+	private long convertedFiles;
+
+	private Converter[] converters;
+
+	private Gallery gallery;
+
+	private Condition picToTransmit, startNumSetCond;
+
+	private ReentrantLock picTransmitLock, picConvertLock, picNumLock;
+
+	private int startNum;
+
+	private boolean stopRequested, loggedIn, connected;
+
+	private Vector<File> toconvert;
+
+	private long totalFiles;
+
+	private Vector<File> totransmit;
+
+	private Transmitter transmit;
+
+	private long transmitedFiles;
+
+	private String userName;
 
 	private TrmEngine() {
 		super();
@@ -87,6 +85,41 @@ public class TrmEngine extends Thread {
 		this.converters = new Converter[sysInfo1.getAvailableProcessors()];
 	}
 
+	public boolean connect() {
+		this.transmit = new Transmitter(this);
+		this.connected = this.transmit.verCheck();
+		return this.connected;
+	}
+
+	public synchronized void disconnect() {
+		if (null == this.transmit || !this.transmit.isConnected()) {
+			return;
+		}
+		this.transmit.disconnect();
+	}
+
+	public synchronized void fileWasIgnored() {
+		this.totalFiles = this.totalFiles - 2;
+	}
+
+	public synchronized ArrayList<Gallery> getGalleriesFor(String date) {
+		if (null == this.transmit || !this.transmit.isConnected()) {
+			return new ArrayList<Gallery>();
+		}
+		return this.transmit.getGalleriesFor(date);
+	}
+
+	public Gallery getGallery() {
+		return gallery;
+	}
+
+	public synchronized List<Location> getLocations() {
+		if (null == this.transmit || !this.transmit.isConnected()) {
+			return new ArrayList<Location>();
+		}
+		return this.transmit.getLocations();
+	}
+
 	public File getNextToConvert() {
 		File retVal = null;
 		this.picConvertLock.lock();
@@ -96,66 +129,38 @@ public class TrmEngine extends Thread {
 		return retVal;
 	}
 
-	private synchronized void reset() {
-		int length = this.converters.length;
-		for (int i = 0; i < length; i++)
-			this.converters[i] = null;
-		this.transmit = null;
-		TrmEngine.instance = null;
+	public String getUserName() {
+		return userName;
 	}
 
-	protected File getNextToTransmit() {
-		File retVal = null;
-		this.picTransmitLock.lock();
-		try {
-			while (this.totransmit.isEmpty() && this.isThereSomethingToTtansmit()) {
-				picToTransmit.await();
-			}
-			this.transmitedFiles++;
-			retVal = this.totransmit.remove(0);
-		} catch (Exception e) {
-			Helper.getInstance().systemCrashHandler(e);
-		} finally {
-			this.picTransmitLock.unlock();
+	public boolean isConnected() {
+		return this.connected;
+	}
+
+	public boolean isLoggedIn() {
+		return this.loggedIn;
+	}
+
+	public synchronized boolean lockLocation(Gallery gal) {
+		if (null == this.transmit || !this.transmit.isConnected()) {
+			return false;
 		}
-		TeamUlmUpload.getInstance().getMainWindow().setUploadProgress(
-			(int) ((MainWindow.PROGRESS_BAR_MAX / TrmEngine.this.totalFiles) * TrmEngine.this.transmitedFiles));
-		return retVal;
+		this.gallery = gal;
+		if (null != this.transmit)
+			this.transmit.setGallery(gal);
+		return this.transmit.lockLocation(gal);
 	}
 
-	protected synchronized boolean isThereSomethingToTtansmit() {
-		return this.totalFiles > this.transmitedFiles;
+	public boolean login(String userName, String passWord) {
+		this.loggedIn = this.transmit.login(userName, passWord);
+		if (this.loggedIn) {
+			this.userName = userName;
+		}
+		return this.loggedIn;
 	}
 
-	protected void setToTransmit(File file) {
-		this.picTransmitLock.lock();
-		this.totransmit.add(file);
-		this.convertedFiles++;
-		this.picToTransmit.signal();
-		this.picTransmitLock.unlock();
-		TeamUlmUpload.getInstance().getMainWindow().setConvertProgress(
-			(int) ((MainWindow.PROGRESS_BAR_MAX / TrmEngine.this.totalFiles) * TrmEngine.this.convertedFiles));
-	}
-
-	protected void setStartNumber(int start) {
-		this.picNumLock.lock();
-		this.startNum = start - 1;
-		this.startNumSetCond.signal();
-		this.picNumLock.unlock();
-	}
-
-	protected void unSetStartNumber() {
-		this.picNumLock.lock();
-		this.startNum = -1;
-		this.picNumLock.unlock();
-	}
-
-	protected int getNextPicNum() {
-		this.picNumLock.lock();
-		this.startNum++;
-		int retVal = this.startNum;
-		this.picNumLock.unlock();
-		return retVal;
+	public synchronized Gallery newGallery(String location, LocalDate date) {
+		return this.transmit.newGallery(location, date);
 	}
 
 	public void requestStop() {
@@ -196,10 +201,6 @@ public class TrmEngine extends Thread {
 		}
 	}
 
-	public synchronized void fileWasIgnored() {
-		this.totalFiles = this.totalFiles - 2;
-	}
-
 	public void setFiles(File[] files) {
 		this.totalFiles = files.length * 2;
 		this.toconvert = new Vector<File>();
@@ -207,46 +208,9 @@ public class TrmEngine extends Thread {
 			this.toconvert.add(fi);
 	}
 
-	public boolean login(String userName, String passWord) {
-		this.loggedIn = this.transmit.login(userName, passWord);
-		return this.loggedIn;
-	}
-
-	public boolean connect() {
-		this.transmit = new Transmitter(this);
-		this.connected = this.transmit.verCheck();
-		return this.connected;
-	}
-
-	public synchronized void disconnect() {
-		if (null == this.transmit || !this.transmit.isConnected()) {
-			return;
-		}
-		this.transmit.disconnect();
-	}
-
-	public synchronized ArrayList<Gallery> getGalleriesFor(String date) {
-		if (null == this.transmit || !this.transmit.isConnected()) {
-			return new ArrayList<Gallery>();
-		}
-		return this.transmit.getGalleriesFor(date);
-	}
-
-	public synchronized List<Location> getLocations() {
-		if (null == this.transmit || !this.transmit.isConnected()) {
-			return new ArrayList<Location>();
-		}
-		return this.transmit.getLocations();
-	}
-
-	public synchronized boolean lockLocation(Gallery gal) {
-		if (null == this.transmit || !this.transmit.isConnected()) {
-			return false;
-		}
-		this.gallery = gal;
-		if (null != this.transmit)
-			this.transmit.setGallery(gal);
-		return this.transmit.lockLocation(gal);
+	public void setGallery(Gallery gallery) {
+		this.gallery = gallery;
+		this.transmit.setGallery(gallery);
 	}
 
 	public synchronized boolean unLockLocation(Gallery gal) {
@@ -256,20 +220,65 @@ public class TrmEngine extends Thread {
 		return this.transmit.unLockLocation(gal);
 	}
 
-	public synchronized Gallery newGallery(String location, LocalDate date) {
-		return this.transmit.newGallery(location, date);
+	private synchronized void reset() {
+		int length = this.converters.length;
+		for (int i = 0; i < length; i++)
+			this.converters[i] = null;
+		this.transmit = null;
+		TrmEngine.instance = null;
 	}
 
-	public boolean isLoggedIn() {
-		return this.loggedIn;
+	protected int getNextPicNum() {
+		this.picNumLock.lock();
+		this.startNum++;
+		int retVal = this.startNum;
+		this.picNumLock.unlock();
+		return retVal;
 	}
 
-	public boolean isConnected() {
-		return this.connected;
+	protected File getNextToTransmit() {
+		File retVal = null;
+		this.picTransmitLock.lock();
+		try {
+			while (this.totransmit.isEmpty() && this.isThereSomethingToTtansmit()) {
+				picToTransmit.await();
+			}
+			this.transmitedFiles++;
+			retVal = this.totransmit.remove(0);
+		} catch (Exception e) {
+			Helper.getInstance().systemCrashHandler(e);
+		} finally {
+			this.picTransmitLock.unlock();
+		}
+		TeamUlmUpload.getInstance().getMainWindow().setUploadProgress(
+			(int) ((MainWindow.PROGRESS_BAR_MAX / TrmEngine.this.totalFiles) * TrmEngine.this.transmitedFiles));
+		return retVal;
 	}
 
-	public void setGallery(Gallery gallery) {
-		this.gallery = gallery;
-		this.transmit.setGallery(gallery);
+	protected synchronized boolean isThereSomethingToTtansmit() {
+		return this.totalFiles > this.transmitedFiles;
+	}
+
+	protected void setStartNumber(int start) {
+		this.picNumLock.lock();
+		this.startNum = start - 1;
+		this.startNumSetCond.signal();
+		this.picNumLock.unlock();
+	}
+
+	protected void setToTransmit(File file) {
+		this.picTransmitLock.lock();
+		this.totransmit.add(file);
+		this.convertedFiles++;
+		this.picToTransmit.signal();
+		this.picTransmitLock.unlock();
+		TeamUlmUpload.getInstance().getMainWindow().setConvertProgress(
+			(int) ((MainWindow.PROGRESS_BAR_MAX / TrmEngine.this.totalFiles) * TrmEngine.this.convertedFiles));
+	}
+
+	protected void unSetStartNumber() {
+		this.picNumLock.lock();
+		this.startNum = -1;
+		this.picNumLock.unlock();
 	}
 }
