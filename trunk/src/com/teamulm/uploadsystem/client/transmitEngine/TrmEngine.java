@@ -22,7 +22,7 @@ public class TrmEngine extends Thread {
 
 	public static final String VERSION = "5.0"; //$NON-NLS-1$
 
-	private static TrmEngine instance;
+	private static TrmEngine instance = null;
 
 	private static final Logger log = Logger.getLogger(TrmEngine.class);
 
@@ -40,31 +40,31 @@ public class TrmEngine extends Thread {
 		}
 	}
 
-	private long convertedFiles;
+	private long convertedFiles = 0;
 
-	private Converter[] converters;
+	private Converter[] converters = null;
 
-	private Gallery gallery;
+	private Gallery gallery = null;
 
-	private Condition picToTransmit, startNumSetCond;
+	private Condition picToTransmit = null, startNumSetCond = null;
 
-	private ReentrantLock picTransmitLock, picConvertLock, picNumLock;
+	private ReentrantLock picTransmitLock = null, picConvertLock = null, picNumLock = null;
 
-	private int startNum;
+	private int startNum = -1;
 
-	private boolean stopRequested, loggedIn, connected;
+	private boolean stopRequested = false, loggedIn = false, connected = false;
 
-	private Vector<File> toconvert;
+	private Vector<File> toconvert = null;
 
-	private long totalFiles;
+	private long totalFiles = 0;
 
-	private Vector<File> totransmit;
+	private Vector<File> totransmit = null;
 
-	private Transmitter transmit;
+	private Transmitter transmit = null;
 
-	private long transmitedFiles;
+	private long transmitedFiles = 0;
 
-	private String userName;
+	private String userName = "NotLoggedIn";
 
 	private TrmEngine() {
 		super();
