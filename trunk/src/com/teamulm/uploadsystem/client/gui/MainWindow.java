@@ -3,8 +3,6 @@ package com.teamulm.uploadsystem.client.gui;
 import java.io.File;
 import java.text.Collator;
 import java.text.MessageFormat;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.ArrayUtils;
@@ -53,9 +51,9 @@ import com.teamulm.uploadsystem.data.Gallery;
 
 public class MainWindow extends Window {
 
-	private final static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MainWindow.class);
-
 	public static final int PROGRESS_BAR_MAX = 1000;
+
+	private final static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MainWindow.class);
 
 	private CDateTime eventDate = null;
 
@@ -67,13 +65,13 @@ public class MainWindow extends Window {
 
 	private Gallery gallery = null;
 
-	private Label selectedPics = null;
-
-	private ProgressBar uploadProgressBar = null, convertProgressBar = null;
+	private Label labelEventDescription;
 
 	private Label labelEventTitle;
 
-	private Label labelEventDescription;
+	private Label selectedPics = null;
+
+	private ProgressBar uploadProgressBar = null, convertProgressBar = null;
 
 	public MainWindow() {
 		super((Shell) null);
@@ -99,26 +97,6 @@ public class MainWindow extends Window {
 		return super.close();
 	}
 
-	@Override
-	protected void configureShell(Shell newShell) {
-		super.configureShell(newShell);
-		newShell.setImage(new Image(Display.getCurrent(), "icons/icon.png")); //$NON-NLS-1$
-		newShell.setText(Messages.getString("mainWindow.dialog.title")); //$NON-NLS-1$
-	}
-
-	@Override
-	protected Control createContents(Composite parent) {
-		Composite composite = (Composite) super.createContents(parent);
-		FillLayout fillLayout = new FillLayout(SWT.HORIZONTAL);
-		fillLayout.marginHeight = 5;
-		fillLayout.marginWidth = 5;
-		fillLayout.spacing = 5;
-		composite.setLayout(fillLayout);
-		this.leftComposite(composite);
-		this.rightComposite(composite);
-		return composite;
-	}
-
 	public Gallery getGallery() {
 		if (this.gallery.isNewGallery()) {
 			this.gallery.setTitle(this.fieldTitle.getText());
@@ -126,6 +104,48 @@ public class MainWindow extends Window {
 			this.gallery.setIntern(this.fieldIntern.getSelection());
 		}
 		return this.gallery;
+	}
+
+	public void setConvertProgress(final int progress) {
+		this.getShell().getDisplay().asyncExec(new Runnable() {
+			public void run() {
+				MainWindow.this.convertProgressBar.setSelection(progress);
+			}
+		});
+
+	}
+
+	public void setGallery(Gallery gallery) {
+		log.debug("Setting gallery: " + gallery); //$NON-NLS-1$
+		this.gallery = gallery;
+		if (null == this.gallery) {
+			this.fieldLocation.setText(""); //$NON-NLS-1$
+			this.fieldTitle.setText(""); //$NON-NLS-1$
+			this.fieldDesc.setText(""); //$NON-NLS-1$
+			this.fieldIntern.setSelection(false);
+		} else {
+			this.fieldLocation.setText(this.gallery.getLocation());
+			this.fieldTitle.setText(this.gallery.getTitle());
+			this.fieldDesc.setText(this.gallery.getDesc());
+			this.fieldIntern.setSelection(this.gallery.isIntern());
+		}
+		if (null != this.gallery && this.gallery.isNewGallery()) {
+			this.fieldTitle.setEditable(true);
+			this.fieldDesc.setEditable(true);
+			this.fieldIntern.setEnabled(true);
+		} else {
+			this.fieldTitle.setEditable(false);
+			this.fieldDesc.setEditable(false);
+			this.fieldIntern.setEnabled(false);
+		}
+	}
+
+	public void setUploadProgress(final int progress) {
+		this.getShell().getDisplay().asyncExec(new Runnable() {
+			public void run() {
+				MainWindow.this.uploadProgressBar.setSelection(progress);
+			}
+		});
 	}
 
 	private LocalDate getGalleryDate() {
@@ -455,55 +475,27 @@ public class MainWindow extends Window {
 	}
 
 	private void selectYesterDay() {
-		Calendar cal = GregorianCalendar.getInstance();
-		cal.clear(Calendar.HOUR);
-		cal.clear(Calendar.MINUTE);
-		cal.clear(Calendar.SECOND);
-		cal.clear(Calendar.MILLISECOND);
-		cal.add(Calendar.DAY_OF_MONTH, -1);
-		this.eventDate.setSelection(cal.getTime());
+		this.eventDate.setSelection(new LocalDate().minusDays(1).toDateMidnight().toDate());
 	}
 
-	public void setConvertProgress(final int progress) {
-		this.getShell().getDisplay().asyncExec(new Runnable() {
-			public void run() {
-				MainWindow.this.convertProgressBar.setSelection(progress);
-			}
-		});
-
+	@Override
+	protected void configureShell(Shell newShell) {
+		super.configureShell(newShell);
+		newShell.setImage(new Image(Display.getCurrent(), "icons/icon.png")); //$NON-NLS-1$
+		newShell.setText(Messages.getString("mainWindow.dialog.title")); //$NON-NLS-1$
 	}
 
-	public void setGallery(Gallery gallery) {
-		log.debug("Setting gallery: " + gallery); //$NON-NLS-1$
-		this.gallery = gallery;
-		if (null == this.gallery) {
-			this.fieldLocation.setText(""); //$NON-NLS-1$
-			this.fieldTitle.setText(""); //$NON-NLS-1$
-			this.fieldDesc.setText(""); //$NON-NLS-1$
-			this.fieldIntern.setSelection(false);
-		} else {
-			this.fieldLocation.setText(this.gallery.getLocation());
-			this.fieldTitle.setText(this.gallery.getTitle());
-			this.fieldDesc.setText(this.gallery.getDesc());
-			this.fieldIntern.setSelection(this.gallery.isIntern());
-		}
-		if (null != this.gallery && this.gallery.isNewGallery()) {
-			this.fieldTitle.setEditable(true);
-			this.fieldDesc.setEditable(true);
-			this.fieldIntern.setEnabled(true);
-		} else {
-			this.fieldTitle.setEditable(false);
-			this.fieldDesc.setEditable(false);
-			this.fieldIntern.setEnabled(false);
-		}
-	}
-
-	public void setUploadProgress(final int progress) {
-		this.getShell().getDisplay().asyncExec(new Runnable() {
-			public void run() {
-				MainWindow.this.uploadProgressBar.setSelection(progress);
-			}
-		});
+	@Override
+	protected Control createContents(Composite parent) {
+		Composite composite = (Composite) super.createContents(parent);
+		FillLayout fillLayout = new FillLayout(SWT.HORIZONTAL);
+		fillLayout.marginHeight = 5;
+		fillLayout.marginWidth = 5;
+		fillLayout.spacing = 5;
+		composite.setLayout(fillLayout);
+		this.leftComposite(composite);
+		this.rightComposite(composite);
+		return composite;
 	}
 
 	private class ConvertUploadListener extends SelectionAdapter {
