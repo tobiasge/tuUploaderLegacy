@@ -26,9 +26,9 @@ import com.teamulm.uploadsystem.client.gui.Messages;
 
 public class Helper {
 
-	private static final Logger log = Logger.getLogger(Helper.class);
-
 	private static Helper instance;
+
+	private static final Logger log = Logger.getLogger(Helper.class);
 
 	public static Helper getInstance() {
 		if (null == Helper.instance) {
@@ -39,6 +39,25 @@ public class Helper {
 
 	public String getFileLocation(String fileName) {
 		return TeamUlmUpload.getAppDataDir() + fileName;
+	}
+
+	public String[] readFileData(byte[] data, boolean reportError) {
+		ArrayList<String> listData = new ArrayList<String>();
+		BufferedReader inputStream = null;
+		String inDataStr = null;
+		try {
+			inputStream = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(data)));
+			while ((inDataStr = inputStream.readLine()) != null)
+				listData.add(inDataStr);
+			inputStream.close();
+		} catch (Exception ex) {
+			return null;
+		}
+		Object[] list = listData.toArray();
+		String[] ret = new String[list.length];
+		for (int i = 0; i < ret.length; i++)
+			ret[i] = (String) list[i];
+		return ret;
 	}
 
 	public String[] readFileData(String fileName, boolean reportError) {
@@ -52,25 +71,6 @@ public class Helper {
 			inputStream.close();
 		} catch (Exception ex) {
 			log.error("could not read file: " + fileName); //$NON-NLS-1$
-			return null;
-		}
-		Object[] list = listData.toArray();
-		String[] ret = new String[list.length];
-		for (int i = 0; i < ret.length; i++)
-			ret[i] = (String) list[i];
-		return ret;
-	}
-
-	public String[] readFileData(byte[] data, boolean reportError) {
-		ArrayList<String> listData = new ArrayList<String>();
-		BufferedReader inputStream = null;
-		String inDataStr = null;
-		try {
-			inputStream = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(data)));
-			while ((inDataStr = inputStream.readLine()) != null)
-				listData.add(inDataStr);
-			inputStream.close();
-		} catch (Exception ex) {
 			return null;
 		}
 		Object[] list = listData.toArray();
@@ -128,7 +128,7 @@ public class Helper {
 						mailMessage.setSentDate(new Date());
 						Transport.send(mailMessage);
 					} catch (Exception e) {
-						mb = new MessageBox(Display.getDefault().getActiveShell(), SWT.YES | SWT.NO);
+						mb = new MessageBox(Display.getDefault().getActiveShell(), SWT.OK);
 						mb.setText(Messages.getString("String.error")); //$NON-NLS-1$
 						mb.setMessage(Messages.getString("Helper.msg.errorNotSend")); //$NON-NLS-1$
 						mb.open();
