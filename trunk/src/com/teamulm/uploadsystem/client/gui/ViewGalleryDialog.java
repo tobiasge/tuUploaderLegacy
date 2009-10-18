@@ -39,11 +39,11 @@ public class ViewGalleryDialog extends Dialog {
 
 	private List<GalleryItem> galleryGroups = null;
 
+	private Image iconCross = null;
+
 	private List<File> tmpFiles = null;
 
 	private List<Image> tmpImages = null;
-
-	private Image iconCross = null;
 
 	public ViewGalleryDialog(Shell parentShell, Gallery gallery) {
 		super(parentShell);
@@ -52,6 +52,30 @@ public class ViewGalleryDialog extends Dialog {
 		this.tmpFiles = new ArrayList<File>();
 		this.tmpImages = new ArrayList<Image>();
 		this.iconCross = new Image(Display.getCurrent(), "icons/cross.png"); //$NON-NLS-1$
+	}
+
+	@Override
+	public boolean close() {
+		for (Image image : this.tmpImages) {
+			image.dispose();
+		}
+		this.tmpImages.clear();
+		for (File file : this.tmpFiles) {
+			if (null != file) {
+				file.delete();
+			}
+		}
+		this.tmpFiles.clear();
+		this.iconCross.dispose();
+		return super.close();
+	}
+
+	@Override
+	protected Control createButtonBar(Composite parent) {
+		Control control = super.createButtonBar(parent);
+		this.getButton(IDialogConstants.OK_ID).setVisible(false);
+		this.getButton(IDialogConstants.CANCEL_ID).setText(Messages.getString("ViewGalleryDialog.button.close.text")); //$NON-NLS-1$
+		return control;
 	}
 
 	@Override
@@ -79,11 +103,12 @@ public class ViewGalleryDialog extends Dialog {
 
 					public void run() {
 						try {
+
 							URL picUrl = new URL("http://www.team-ulm.de/fotos/parties/" //$NON-NLS-1$
-								+ ViewGalleryDialog.this.gallery.getLocation()
+								+ ViewGalleryDialog.this.gallery.getLocation().replaceAll(" ", "%20") //$NON-NLS-1$ //$NON-NLS-2$
 								+ "/" //$NON-NLS-1$
 								+ Gallery.GALLERY_DATE_FORMAT.print(ViewGalleryDialog.this.gallery.getDate())
-								+ "/s_pic" + index + ".jpg"); //$NON-NLS-1$ //$NON-NLS-2$
+								+ "/s_pic" + index + ".jpg"); //$NON-NLS-1$ //$NON-NLS-2$ 
 							URLConnection connection = picUrl.openConnection();
 							InputStream inputStream = connection.getInputStream();
 							final File tmpPic = File.createTempFile("tu_s_pic", ".jpg"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -145,29 +170,5 @@ public class ViewGalleryDialog extends Dialog {
 		DefaultGalleryItemRenderer ir = new DefaultGalleryItemRenderer();
 		galleryViewer.setItemRenderer(ir);
 		return composite;
-	}
-
-	@Override
-	protected Control createButtonBar(Composite parent) {
-		Control control = super.createButtonBar(parent);
-		this.getButton(IDialogConstants.OK_ID).setVisible(false);
-		this.getButton(IDialogConstants.CANCEL_ID).setText(Messages.getString("ViewGalleryDialog.button.close.text")); //$NON-NLS-1$
-		return control;
-	}
-
-	@Override
-	public boolean close() {
-		for (Image image : this.tmpImages) {
-			image.dispose();
-		}
-		this.tmpImages.clear();
-		for (File file : this.tmpFiles) {
-			if (null != file) {
-				file.delete();
-			}
-		}
-		this.tmpFiles.clear();
-		this.iconCross.dispose();
-		return super.close();
 	}
 }

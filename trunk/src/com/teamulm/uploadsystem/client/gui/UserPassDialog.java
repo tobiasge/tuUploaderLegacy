@@ -14,16 +14,24 @@ import org.eclipse.swt.widgets.Text;
 
 public class UserPassDialog extends Dialog {
 
-	private Text textUserName = null;
+	private String passWord = null;
 
 	private Text textPassWord = null;
 
-	private String userName = null;
+	private Text textUserName = null;
 
-	private String passWord = null;
+	private String userName = null;
 
 	public UserPassDialog(Shell parentShell) {
 		super(parentShell);
+	}
+
+	public String getPassWord() {
+		return this.passWord;
+	}
+
+	public String getUserName() {
+		return this.userName;
 	}
 
 	@Override
@@ -58,14 +66,6 @@ public class UserPassDialog extends Dialog {
 		GridDataFactory.fillDefaults().applyTo(this.textPassWord);
 
 		return composite;
-	}
-
-	public String getUserName() {
-		return userName;
-	}
-
-	public String getPassWord() {
-		return passWord;
 	}
 
 	@Override
