@@ -36,11 +36,11 @@ import com.teamulm.uploadsystem.data.Location;
 
 public class GalleryDialog extends Dialog {
 
-	private static final String PLEASE_CHOOSE = Messages.getString("GalleryDialog.constant.pleaseSelect"); //$NON-NLS-1$
-
 	public static final int DESCRMAXLENGTH = 180;
 
 	public static final int TITLEMAXLENGTH = 33;
+
+	private static final String PLEASE_CHOOSE = Messages.getString("GalleryDialog.constant.pleaseSelect"); //$NON-NLS-1$
 
 	private LocalDate date;
 
@@ -127,6 +127,14 @@ public class GalleryDialog extends Dialog {
 		GridDataFactory.fillDefaults().grab(true, false).span(3, 1).applyTo(this.descField);
 	}
 
+	private void setNewGalEnabled(boolean enabled) {
+		this.galTable.setEnabled(!enabled);
+		this.titleField.setEnabled(enabled);
+		this.descField.setEnabled(enabled);
+		this.locationsBox.setEnabled(enabled);
+		this.isIntern.setEnabled(enabled);
+	}
+
 	@Override
 	protected Control createDialogArea(Composite parent) {
 		this.getShell().setText(
@@ -163,7 +171,7 @@ public class GalleryDialog extends Dialog {
 					Gallery gallery = GalleryDialog.this.myGalleries.get(GalleryDialog.this.galTable
 						.getSelectionIndex());
 					if (null != gallery) {
-						new ViewGalleryDialog(GalleryDialog.this.getShell(), gallery).open();
+						// new ViewGalleryDialog(GalleryDialog.this.getShell(), gallery).open();
 					}
 				}
 			}
@@ -214,14 +222,6 @@ public class GalleryDialog extends Dialog {
 			return;
 		}
 		super.okPressed();
-	}
-
-	private void setNewGalEnabled(boolean enabled) {
-		this.galTable.setEnabled(!enabled);
-		this.titleField.setEnabled(enabled);
-		this.descField.setEnabled(enabled);
-		this.locationsBox.setEnabled(enabled);
-		this.isIntern.setEnabled(enabled);
 	}
 
 	private class GalleryLoader extends Thread {
