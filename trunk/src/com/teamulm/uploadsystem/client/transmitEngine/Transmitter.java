@@ -35,6 +35,7 @@ import com.teamulm.uploadsystem.protocol.HelloCmd;
 import com.teamulm.uploadsystem.protocol.LockPathCmd;
 import com.teamulm.uploadsystem.protocol.LoginCmd;
 import com.teamulm.uploadsystem.protocol.NewGalleryCmd;
+import com.teamulm.uploadsystem.protocol.PathCmd;
 import com.teamulm.uploadsystem.protocol.PingCmd;
 import com.teamulm.uploadsystem.protocol.QuitCmd;
 import com.teamulm.uploadsystem.protocol.SaveFileCmd;
@@ -139,11 +140,11 @@ public class Transmitter extends Thread {
 				}
 				this.chef.setStartNumber(resp.getStartNumber());
 				return true;
-			} else if (resp.getErrorCode() == LockPathCmd.ERROR_LOC_BADLOC) {
+			} else if (resp.getErrorCode() == PathCmd.ERROR_LOC_BADLOC) {
 				TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
 					Messages.getString("Transmitter.logMessages.usedLoc")); //$NON-NLS-1$
 				return false;
-			} else if (resp.getErrorCode() == LockPathCmd.ERROR_LOC_NOTFREE) {
+			} else if (resp.getErrorCode() == PathCmd.ERROR_LOC_NOTFREE) {
 				TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
 					Messages.getString("Transmitter.logMessages.usedLoc")); //$NON-NLS-1$
 				return false;

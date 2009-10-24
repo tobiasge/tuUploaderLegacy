@@ -28,6 +28,7 @@ import com.teamulm.uploadsystem.protocol.HelloCmd;
 import com.teamulm.uploadsystem.protocol.LockPathCmd;
 import com.teamulm.uploadsystem.protocol.LoginCmd;
 import com.teamulm.uploadsystem.protocol.NewGalleryCmd;
+import com.teamulm.uploadsystem.protocol.PathCmd;
 import com.teamulm.uploadsystem.protocol.PingCmd;
 import com.teamulm.uploadsystem.protocol.QuitCmd;
 import com.teamulm.uploadsystem.protocol.SaveFileCmd;
@@ -255,7 +256,7 @@ public class UploadServ extends Thread {
 					log.info(this.clientip + ": " + request.toString());
 					LockPathCmd response = new LockPathCmd(CommandType.RESPONSE);
 					if (!DBConn.getInstance().checkLocation(request.getLocation())) {
-						response.setErrorCode(LockPathCmd.ERROR_LOC_BADLOC);
+						response.setErrorCode(PathCmd.ERROR_LOC_BADLOC);
 						response.setErrorMsg("location not valid");
 						response.setSuccess(false);
 						this.output.writeObject(response);
@@ -269,7 +270,7 @@ public class UploadServ extends Thread {
 						this.output.writeObject(response);
 						this.output.flush();
 					} else {
-						response.setErrorCode(LockPathCmd.ERROR_LOC_NOTFREE);
+						response.setErrorCode(PathCmd.ERROR_LOC_NOTFREE);
 						response.setErrorMsg("location is in use");
 						response.setSuccess(false);
 						this.output.writeObject(response);
