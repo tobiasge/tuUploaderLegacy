@@ -14,12 +14,12 @@ public class GetLocationsCmd extends Command {
 		super();
 	}
 
-	public GetLocationsCmd(boolean serverResponse) {
-		super(serverResponse);
+	public GetLocationsCmd(CommandType type) {
+		super(type);
 	}
 
 	public List<Location> getLocations() {
-		return locations;
+		return this.locations;
 	}
 
 	public void setLocations(List<Location> locations) {

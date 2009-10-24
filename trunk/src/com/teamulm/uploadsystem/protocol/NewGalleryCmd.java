@@ -11,20 +11,20 @@ public class NewGalleryCmd extends Command {
 
 	private Gallery gallery;
 
-	public Gallery getGallery() {
-		return gallery;
-	}
-
-	public void setGallery(Gallery gallery) {
-		this.gallery = gallery;
-	}
-
 	public NewGalleryCmd() {
 		super();
 	}
 
-	public NewGalleryCmd(boolean serverResponse) {
-		super(serverResponse);
+	public NewGalleryCmd(CommandType type) {
+		super(type);
+	}
+
+	public Gallery getGallery() {
+		return this.gallery;
+	}
+
+	public void setGallery(Gallery gallery) {
+		this.gallery = gallery;
 	}
 
 	@Override

@@ -33,6 +33,7 @@ import com.teamulm.uploadsystem.protocol.QuitCmd;
 import com.teamulm.uploadsystem.protocol.SaveFileCmd;
 import com.teamulm.uploadsystem.protocol.SaveGalleryCmd;
 import com.teamulm.uploadsystem.protocol.UnLockPathCmd;
+import com.teamulm.uploadsystem.protocol.Command.CommandType;
 
 /**
  * @author Tobias Genannt
@@ -105,7 +106,7 @@ public class UploadServ extends Thread {
 			// Version des Clients ueberpruefen
 			if (cmd instanceof HelloCmd) {
 				HelloCmd request = (HelloCmd) cmd;
-				HelloCmd response = new HelloCmd(true);
+				HelloCmd response = new HelloCmd(CommandType.RESPONSE);
 				if (!request.getProtocolVersionString().equalsIgnoreCase(UploadServ.VER)) {
 					log.error(this.clientip + ": Tried to connect with bad version: "
 						+ request.getProtocolVersionString());
@@ -129,7 +130,7 @@ public class UploadServ extends Thread {
 				if (cmd instanceof LoginCmd && !this.isAuthenticated()) {
 					LoginCmd request = (LoginCmd) cmd;
 					log.info(this.clientip + ": " + request.toString());
-					LoginCmd response = new LoginCmd(true);
+					LoginCmd response = new LoginCmd(CommandType.RESPONSE);
 					if (!this.authenticateUser(request.getUserName(), request.getPassWord())) {
 						response.setErrorMsg("Wrong username or password for " + request.getUserName());
 						response.setSuccess(false);
@@ -145,7 +146,7 @@ public class UploadServ extends Thread {
 				} else if (cmd instanceof PingCmd) {
 					PingCmd request = (PingCmd) cmd;
 					log.info(this.clientip + ": " + request.toString());
-					PingCmd response = new PingCmd(true);
+					PingCmd response = new PingCmd(CommandType.RESPONSE);
 					response.setSuccess(true);
 					this.output.writeObject(response);
 					this.output.flush();
@@ -157,7 +158,7 @@ public class UploadServ extends Thread {
 					}
 					SaveFileCmd request = (SaveFileCmd) cmd;
 					log.info(this.clientip + ": " + request.toString());
-					SaveFileCmd response = new SaveFileCmd(true);
+					SaveFileCmd response = new SaveFileCmd(CommandType.RESPONSE);
 					response.setSuccess(this.saveFile(request));
 					this.output.writeObject(response);
 					this.output.flush();
@@ -169,7 +170,7 @@ public class UploadServ extends Thread {
 					}
 					SaveGalleryCmd request = (SaveGalleryCmd) cmd;
 					log.info(this.clientip + ": " + request.toString());
-					SaveGalleryCmd response = new SaveGalleryCmd(true);
+					SaveGalleryCmd response = new SaveGalleryCmd(CommandType.RESPONSE);
 					this.gallery.setPictures((this.uploaded / 2 + this.gallery.getPictures()));
 					if (request.getGallery().isNewGallery()) {
 						this.gallery.setDesc(request.getGallery().getDesc());
@@ -202,7 +203,7 @@ public class UploadServ extends Thread {
 					}
 					NewGalleryCmd request = (NewGalleryCmd) cmd;
 					log.info(this.clientip + ": " + request.toString());
-					NewGalleryCmd response = new NewGalleryCmd(true);
+					NewGalleryCmd response = new NewGalleryCmd(CommandType.RESPONSE);
 					Gallery gal = new Gallery();
 					gal.setLocation(request.getGallery().getLocation());
 					gal.setDate(request.getGallery().getDate());
@@ -221,7 +222,7 @@ public class UploadServ extends Thread {
 					}
 					GetGalleriesCmd request = (GetGalleriesCmd) cmd;
 					log.info(this.clientip + ": " + request.toString());
-					GetGalleriesCmd response = new GetGalleriesCmd(true);
+					GetGalleriesCmd response = new GetGalleriesCmd(CommandType.RESPONSE);
 					ArrayList<Gallery> galleries = new ArrayList<Gallery>();
 					if (DBConn.getInstance().getGalleries(request.getDate(), galleries)) {
 						response.setSuccess(true);
@@ -240,9 +241,9 @@ public class UploadServ extends Thread {
 					UnLockPathCmd request = (UnLockPathCmd) cmd;
 					log.info(this.clientip + ": " + request.toString());
 					PicServer.getInstance().unlockLocation(request.getPath());
-					request.setServerResponse(true);
-					request.setSuccess(true);
-					this.output.writeObject(request);
+					UnLockPathCmd response = new UnLockPathCmd(CommandType.RESPONSE);
+					response.setSuccess(true);
+					this.output.writeObject(response);
 					this.output.flush();
 				} else if (cmd instanceof LockPathCmd) {
 					if (!this.isAuthenticated()) {
@@ -252,7 +253,7 @@ public class UploadServ extends Thread {
 					}
 					LockPathCmd request = (LockPathCmd) cmd;
 					log.info(this.clientip + ": " + request.toString());
-					LockPathCmd response = new LockPathCmd(true);
+					LockPathCmd response = new LockPathCmd(CommandType.RESPONSE);
 					if (!DBConn.getInstance().checkLocation(request.getLocation())) {
 						response.setErrorCode(LockPathCmd.ERROR_LOC_BADLOC);
 						response.setErrorMsg("location not valid");
@@ -278,7 +279,7 @@ public class UploadServ extends Thread {
 				} else if (cmd instanceof GetLocationsCmd) {
 					GetLocationsCmd request = (GetLocationsCmd) cmd;
 					log.info(this.clientip + ": " + request.toString());
-					GetLocationsCmd response = new GetLocationsCmd(true);
+					GetLocationsCmd response = new GetLocationsCmd(CommandType.RESPONSE);
 					List<Location> locations = DBConn.getInstance().getLocations();
 					if (null != locations) {
 						response.setLocations(locations);
@@ -290,7 +291,7 @@ public class UploadServ extends Thread {
 					this.output.flush();
 				} else if (cmd instanceof QuitCmd) {
 					log.info(this.clientip + ": client closed connection");
-					QuitCmd response = new QuitCmd(true);
+					QuitCmd response = new QuitCmd(CommandType.RESPONSE);
 					response.setSuccess(true);
 					this.output.writeObject(response);
 					this.output.flush();
@@ -406,7 +407,7 @@ public class UploadServ extends Thread {
 	}
 
 	private void sendAuthenticationNeeded(String message) throws IOException {
-		AuthenticationCmd response = new AuthenticationCmd(true);
+		AuthenticationCmd response = new AuthenticationCmd(CommandType.RESPONSE);
 		response.setSuccess(true);
 		response.setMessage(message);
 		this.output.writeObject(response);

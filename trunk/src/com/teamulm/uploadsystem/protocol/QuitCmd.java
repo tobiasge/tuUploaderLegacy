@@ -8,7 +8,7 @@ public class QuitCmd extends Command {
 		super();
 	}
 
-	public QuitCmd(boolean serverResponse) {
-		super(serverResponse);
+	public QuitCmd(CommandType type) {
+		super(type);
 	}
 }

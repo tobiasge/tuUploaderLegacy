@@ -9,20 +9,20 @@ public class AuthenticationCmd extends Command {
 
 	private String message;
 
+	public AuthenticationCmd() {
+		super();
+	}
+
+	public AuthenticationCmd(CommandType type) {
+		super(type);
+	}
+
 	public String getMessage() {
 		return this.message;
 	}
 
 	public void setMessage(String message) {
 		this.message = message;
-	}
-
-	public AuthenticationCmd() {
-		super();
-	}
-
-	public AuthenticationCmd(boolean serverResponse) {
-		super(serverResponse);
 	}
 
 	@Override

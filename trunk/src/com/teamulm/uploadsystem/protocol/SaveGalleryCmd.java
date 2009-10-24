@@ -12,12 +12,12 @@ public class SaveGalleryCmd extends Command {
 		super();
 	}
 
-	public SaveGalleryCmd(boolean serverResponse) {
-		super(serverResponse);
+	public SaveGalleryCmd(CommandType type) {
+		super(type);
 	}
 
 	public Gallery getGallery() {
-		return gallery;
+		return this.gallery;
 	}
 
 	public void setGallery(Gallery gallery) {
@@ -26,7 +26,7 @@ public class SaveGalleryCmd extends Command {
 
 	public String toString() {
 		String toString = "SaveGalleryCmd "; //$NON-NLS-1$
-		if (this.isServerResponse()) {
+		if (CommandType.RESPONSE == this.getType()) {
 			toString = toString.concat("(Response): commandSucceded() = " //$NON-NLS-1$
 				+ this.commandSucceded());
 		} else {

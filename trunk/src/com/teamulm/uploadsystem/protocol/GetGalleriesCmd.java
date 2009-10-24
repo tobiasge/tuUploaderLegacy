@@ -19,27 +19,27 @@ public class GetGalleriesCmd extends Command {
 		super();
 	}
 
-	public GetGalleriesCmd(boolean serverResponse) {
-		super(serverResponse);
-	}
-
-	public void setDate(String date) {
-		this.galDate = date;
+	public GetGalleriesCmd(CommandType type) {
+		super(type);
 	}
 
 	public String getDate() {
 		return this.galDate;
 	}
 
-	public void setGalleries(ArrayList<Gallery> galleries) {
-		this.galleries = galleries;
-	}
-
 	public ArrayList<Gallery> getGalleries() {
-		if (this.isServerResponse()) {
+		if (CommandType.RESPONSE == this.getType()) {
 			return this.galleries;
 		}
 		return null;
+	}
+
+	public void setDate(String date) {
+		this.galDate = date;
+	}
+
+	public void setGalleries(ArrayList<Gallery> galleries) {
+		this.galleries = galleries;
 	}
 
 	public String toString() {

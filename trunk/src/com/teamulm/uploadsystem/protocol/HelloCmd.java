@@ -13,12 +13,12 @@ public class HelloCmd extends Command {
 		super();
 	}
 
-	public HelloCmd(boolean serverResponse) {
-		super(serverResponse);
+	public HelloCmd(CommandType type) {
+		super(type);
 	}
 
 	public String getProtocolVersionString() {
-		return protocolVersionString;
+		return this.protocolVersionString;
 	}
 
 	public void setProtocolVersionString(String protocolVersionString) {

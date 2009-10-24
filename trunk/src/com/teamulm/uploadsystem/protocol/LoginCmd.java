@@ -7,32 +7,32 @@ public class LoginCmd extends Command {
 
 	private static final long serialVersionUID = -3858622134307879471L;
 
-	private String userName;
-
 	private String passWord;
+
+	private String userName;
 
 	public LoginCmd() {
 		super();
 	}
 
-	public LoginCmd(boolean serverResponse) {
-		super(serverResponse);
-	}
-
-	public String getUserName() {
-		return userName;
-	}
-
-	public void setUserName(String userName) {
-		this.userName = userName;
+	public LoginCmd(CommandType type) {
+		super(type);
 	}
 
 	public String getPassWord() {
-		return passWord;
+		return this.passWord;
+	}
+
+	public String getUserName() {
+		return this.userName;
 	}
 
 	public void setPassWord(String passWord) {
 		this.passWord = passWord;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
 	}
 
 	public String toString() {

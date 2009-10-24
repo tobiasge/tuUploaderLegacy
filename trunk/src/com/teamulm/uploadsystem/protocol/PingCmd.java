@@ -14,8 +14,8 @@ public class PingCmd extends Command {
 		this.millis = System.currentTimeMillis();
 	}
 
-	public PingCmd(boolean serverResponse) {
-		super(serverResponse);
+	public PingCmd(CommandType type) {
+		super(type);
 		this.millis = System.currentTimeMillis();
 	}
 
