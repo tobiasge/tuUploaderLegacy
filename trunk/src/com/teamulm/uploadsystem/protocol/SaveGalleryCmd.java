@@ -20,6 +20,7 @@ public class SaveGalleryCmd extends Command {
 		this.gallery = gallery;
 	}
 
+	@Override
 	public String toString() {
 		String toString = "SaveGalleryCmd "; //$NON-NLS-1$
 		if (CommandType.RESPONSE == this.getType()) {

@@ -31,6 +31,7 @@ public class LoginCmd extends Command {
 		this.userName = userName;
 	}
 
+	@Override
 	public String toString() {
 		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).appendSuper(super.toString()).append(
 			"UserName", this.userName).toString(); //$NON-NLS-1$

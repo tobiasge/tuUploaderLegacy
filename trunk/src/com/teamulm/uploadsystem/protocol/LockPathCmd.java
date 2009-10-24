@@ -8,6 +8,7 @@ public class LockPathCmd extends PathCmd {
 		super(type);
 	}
 
+	@Override
 	public String toString() {
 		String toString = "LockPathCmd "; //$NON-NLS-1$
 		if (CommandType.RESPONSE == this.getType()) {

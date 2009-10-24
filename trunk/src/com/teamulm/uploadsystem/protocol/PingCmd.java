@@ -18,6 +18,7 @@ public class PingCmd extends Command {
 		return this.millis;
 	}
 
+	@Override
 	public String toString() {
 		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).appendSuper(super.toString()).append(
 			"Millis", this.millis).toString(); //$NON-NLS-1$
