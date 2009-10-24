@@ -17,11 +17,18 @@ import org.jdom.input.SAXBuilder;
 
 public class DataBaseControler {
 
-	private static final Logger log = Logger.getLogger(DataBaseControler.class);
-
 	private static final String CONFIG = "allServers.xml";
 
 	private static DataBaseControler instance;
+
+	private static final Logger log = Logger.getLogger(DataBaseControler.class);
+
+	public static DataBaseControler getInstance() {
+		if (null == DataBaseControler.instance) {
+			DataBaseControler.instance = new DataBaseControler();
+		}
+		return DataBaseControler.instance;
+	}
 
 	private HashMap<String, DBConn> allDataBases;
 
@@ -33,46 +40,13 @@ public class DataBaseControler {
 		this.initConnections(DataBaseControler.CONFIG);
 	}
 
-	public static DataBaseControler getInstance() {
-		if (null == DataBaseControler.instance) {
-			DataBaseControler.instance = new DataBaseControler();
-		}
-		return DataBaseControler.instance;
-	}
-
 	public DBConn getDataBaseForTable(String table) {
 		DBConn dBase = null;
-		if (this.tableDataBaseMap.containsKey(table)
-				|| this.searchDataBaseFor(table)) {
+		if (this.tableDataBaseMap.containsKey(table) || this.searchDataBaseFor(table)) {
 			dBase = this.tableDataBaseMap.get(table);
 			return dBase;
 		} else {
 			return dBase;
-		}
-	}
-
-	private boolean searchDataBaseFor(String table) {
-		try {
-			Iterator<DBConn> dbIt = this.allDataBases.values().iterator();
-			while (dbIt.hasNext()) {
-				DBConn searchHere = dbIt.next();
-				PreparedStatement searchQuery = searchHere.getConnection()
-						.prepareStatement(
-								"SELECT COUNT(*) FROM information_schema.tables WHERE TABLE_NAME = "
-										+ "? AND TABLE_SCHEMA = ?");
-				searchQuery.setString(1, table);
-				searchQuery.setString(2, searchHere.getConnection()
-						.getCatalog());
-				ResultSet searchRes = searchQuery.executeQuery();
-				searchRes.next();
-				if (1 == searchRes.getInt(1)) {
-					this.tableDataBaseMap.put(table, searchHere);
-					return true;
-				}
-			}
-			return false;
-		} catch (SQLException sqlEx) {
-			return false;
 		}
 	}
 
@@ -98,17 +72,37 @@ public class DataBaseControler {
 				String dbUser = serv.getChildText("user");
 				String dbPass = serv.getChildText("pass");
 				String dbBase = serv.getChildText("base");
-				String dbURL = "jdbc:mysql://"
-						+ dbHost
-						+ "/"
-						+ dbBase
-						+ "?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true";
-				this.allDataBases.put(serverName, new DBConn(dbURL, dbUser,
-						dbPass, dbDriv, serverName));
+				String dbURL = "jdbc:mysql://" + dbHost + "/" + dbBase
+					+ "?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true";
+				this.allDataBases.put(serverName, new DBConn(dbURL, dbUser, dbPass, dbDriv, serverName));
 				log.info("Connection for " + serverName + " started");
 			}
-		} catch (IOException IOEx) {
-		} catch (JDOMException JDOMEEx) {
+		} catch (IOException ioException) {
+			log.error("Error reading configuration", ioException);
+		} catch (JDOMException jdomException) {
+			log.error("Error reading configuration", jdomException);
+		}
+	}
+
+	private boolean searchDataBaseFor(String table) {
+		try {
+			Iterator<DBConn> dbIt = this.allDataBases.values().iterator();
+			while (dbIt.hasNext()) {
+				DBConn searchHere = dbIt.next();
+				PreparedStatement searchQuery = searchHere.getConnection().prepareStatement(
+					"SELECT COUNT(*) FROM information_schema.tables WHERE TABLE_NAME = " + "? AND TABLE_SCHEMA = ?");
+				searchQuery.setString(1, table);
+				searchQuery.setString(2, searchHere.getConnection().getCatalog());
+				ResultSet searchRes = searchQuery.executeQuery();
+				searchRes.next();
+				if (1 == searchRes.getInt(1)) {
+					this.tableDataBaseMap.put(table, searchHere);
+					return true;
+				}
+			}
+			return false;
+		} catch (SQLException sqlEx) {
+			return false;
 		}
 	}
 }
