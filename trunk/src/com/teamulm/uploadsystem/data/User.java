@@ -2,6 +2,8 @@ package com.teamulm.uploadsystem.data;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
@@ -21,6 +23,16 @@ public class User implements Serializable {
 		this.username = userName;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof User) {
+			User rhs = (User) obj;
+			User lhs = (User) this;
+			return new EqualsBuilder().append(lhs.userid, rhs.userid).append(lhs.username, rhs.username).isEquals();
+		}
+		return false;
+	}
+
 	public String getPassword() {
 		return password;
 	}
@@ -31,6 +43,11 @@ public class User implements Serializable {
 
 	public String getUsername() {
 		return username;
+	}
+
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder(17, 13).append(this.userid).append(this.username).toHashCode();
 	}
 
 	public void setPassword(String password) {
