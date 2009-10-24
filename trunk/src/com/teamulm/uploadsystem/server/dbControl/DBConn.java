@@ -19,17 +19,17 @@ public class DBConn {
 	/** ***************ServerConfig**************** */
 	private String dbDriv;
 
-	private String dbUser;
-
 	private String dbPass;
 
 	private String dbURL;
-	private String serverName;
+
+	private String dbUser;
+	private Timer keepAliveTimer;
 	/** ******************************************* */
 
 	private Connection mySQL;
 
-	private Timer keepAliveTimer;
+	private String serverName;
 
 	protected DBConn(String dbURL, String dbUser, String dbPass, String dbDriv, String serverName) {
 		this.serverName = serverName;
@@ -42,6 +42,35 @@ public class DBConn {
 		keepAliveTimer.scheduleAtFixedRate(new KeepAliveTimerTask(), 0, 1000 * 55);
 	}
 
+	public ResultSet executeQuery(String query) {
+		try {
+			Statement stmt = this.mySQL.createStatement();
+			return stmt.executeQuery(query);
+		} catch (SQLException sqlException) {
+			log.error("Could not execute query for " + this.serverName, sqlException);
+			return null;
+		}
+	}
+
+	public int executeUpdate(String query) {
+		try {
+			Statement stmt = this.mySQL.createStatement();
+			return stmt.executeUpdate(query);
+		} catch (SQLException sqlException) {
+			log.error("Could not execute update for " + this.serverName, sqlException);
+			return -1;
+		}
+	}
+
+	public PreparedStatement prepareStatement(String query) {
+		try {
+			return this.getConnection().prepareStatement(query);
+		} catch (SQLException sqlException) {
+			log.error("Could not prepare statement for " + this.serverName, sqlException);
+			return null;
+		}
+	}
+
 	private boolean connect() {
 		try {
 			if (null != this.mySQL) {
@@ -51,44 +80,12 @@ public class DBConn {
 			this.mySQL = DriverManager.getConnection(this.dbURL, this.dbUser, this.dbPass);
 			this.mySQL.setAutoCommit(true);
 			return true;
-		} catch (Exception e) {
-			log.error("Failure in connect: " + e.getClass());
-			log.error("Failure in connect: " + e.getMessage());
-			return false;
+		} catch (SQLException sqlException) {
+			log.error("Could not connect to database", sqlException);
+		} catch (ClassNotFoundException classNotFoundException) {
+			log.error("Could not load database driver", classNotFoundException);
 		}
-	}
-
-	protected Connection getConnection() {
-		return this.mySQL;
-	}
-
-	public ResultSet executeQuery(String query) {
-		try {
-			Statement stmt = this.mySQL.createStatement();
-			return stmt.executeQuery(query);
-		} catch (SQLException e) {
-			log.error("Could not execute query for " + this.serverName);
-			return null;
-		}
-	}
-
-	public int executeUpdate(String query) {
-		try {
-			Statement stmt = this.mySQL.createStatement();
-			return stmt.executeUpdate(query);
-		} catch (SQLException e) {
-			log.error("Could not execute update for " + this.serverName);
-			return -1;
-		}
-	}
-
-	public PreparedStatement prepareStatement(String query) {
-		try {
-			return this.getConnection().prepareStatement(query);
-		} catch (SQLException SQLEx) {
-			log.error("Could not prepare statement for " + this.serverName);
-			return null;
-		}
+		return false;
 	}
 
 	private boolean isConnected() {
@@ -100,10 +97,14 @@ public class DBConn {
 				this.mySQL.createStatement().executeQuery("SELECT NOW()");
 				return true;
 			}
-		} catch (Exception e) {
-			log.warn("Connection to " + this.serverName + " lost");
+		} catch (SQLException sqlException) {
+			log.warn("Connection to " + this.serverName + " lost", sqlException);
 			return false;
 		}
+	}
+
+	protected Connection getConnection() {
+		return this.mySQL;
 	}
 
 	class KeepAliveTimerTask extends TimerTask {
@@ -126,10 +127,8 @@ public class DBConn {
 					this.counter = 0;
 					log.info("Success in KeepAliveTimerTask for " + DBConn.this.serverName);
 				}
-			} catch (Exception e) {
-				log.warn("Failure in KeepAliveTimerTask for " + DBConn.this.serverName + ": " + e.getClass());
-				log.warn("Failure in KeepAliveTimerTask for " + DBConn.this.serverName + ": " + e.getMessage());
-
+			} catch (SQLException sqlException) {
+				log.warn("Failure in KeepAliveTimerTask for " + DBConn.this.serverName, sqlException);
 				DBConn.this.connect();
 			}
 		}
