@@ -29,7 +29,6 @@ public class Location implements Serializable, Comparable<Location> {
 
 	@Override
 	public boolean equals(Object obj) {
-
 		if (obj instanceof Location) {
 			Location rhs = (Location) obj;
 			Location lhs = (Location) this;
@@ -39,11 +38,11 @@ public class Location implements Serializable, Comparable<Location> {
 	}
 
 	public int getId() {
-		return id;
+		return this.id;
 	}
 
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	@Override
