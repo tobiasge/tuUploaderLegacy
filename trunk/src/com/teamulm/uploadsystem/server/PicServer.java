@@ -16,111 +16,16 @@ import org.apache.log4j.PropertyConfigurator;
 
 public class PicServer extends Thread {
 
+	private static PicServer instance;
+
 	private static final Logger log = Logger.getLogger(PicServer.class);
 
 	private static final int PORT = 1807;
 
 	private static final String SERVERCONFFILE = "server.conf";
 
-	private static PicServer instance;
-
-	private Hashtable<Integer, Thread> childMap;
-
-	private ServerSocket listen;
-
-	private Hashtable<String, String> locationsMap;
-
-	private boolean Running;
-
-	public synchronized void logLastUpload(long userid, long uploadedPictures,
-			String galDate, String galLoc) {
-		DBConn.getInstance().saveLastUploadLogEntry(userid, uploadedPictures,
-				galDate, galLoc);
-	}
-
-	public boolean lockLocation(String loc, String user) {
-		if (this.locationsMap.containsKey(loc)) {
-			return false;
-		} else {
-			this.locationsMap.put(loc, user);
-			log.info("Location locked: " + loc + " by " + user);
-		}
-		return true;
-	}
-
-	public void unlockLocation(String loc) {
-		String user = this.locationsMap.remove(loc);
-		log.info("Location unlocked: " + loc + " by " + user);
-
-	}
-
-	public void signoff(int threadHash) {
-		this.childMap.remove(new Integer(threadHash));
-	}
-
-	public boolean hasClients() {
-		return !this.childMap.isEmpty();
-	}
-
-	public synchronized void requestStop() {
-		this.Running = false;
-	}
-
-	public synchronized boolean isRunning() {
-		return this.Running;
-	}
-
-	@Override
-	public void run() {
-		try {
-			this.listen = new ServerSocket(PicServer.PORT);
-			if (this.listen == null) {
-				log.error("Could not create communication socket");
-				System.exit(1);
-			}
-			log.info("New ServerSocket created - listening on Port: " + PORT);
-			while (this.isRunning()) {
-				Socket socket = this.listen.accept();
-				log.info("Connection from: "
-						+ socket.getInetAddress().getHostAddress());
-				if (this.isRunning()) {
-					UploadServ comlink = new UploadServ(this, socket,
-							this.childMap.size() + 1);
-					this.childMap.put(new Integer(comlink.hashCode()), comlink);
-					comlink.start();
-				} else {
-					log.warn("Shudown in progress. No new connections are accepted");
-					socket.close();
-				}
-			}
-		} catch (IOException e) {
-			log.error("Could not create communication socket: "
-					+ e.getMessage());
-
-		}
-	}
-
-	private PicServer() {
-		super("PicServer");
-		this.Running = true;
-		log.info("Server startup");
-		log.info("--------------------");
-		this.childMap = new Hashtable<Integer, Thread>();
-		this.locationsMap = new Hashtable<String, String>();
-	}
-
 	public static PicServer getInstance() {
 		return PicServer.instance;
-	}
-
-	public Properties getServerConf() {
-		Properties serverConf = new Properties();
-		try {
-			serverConf
-					.loadFromXML(new FileInputStream(PicServer.SERVERCONFFILE));
-		} catch (IOException e) {
-		}
-		return serverConf;
 	}
 
 	public static void main(String[] args) {
@@ -142,8 +47,7 @@ public class PicServer extends Thread {
 					int i = 0;
 					while (PicServer.instance.hasClients()) {
 						sleep(10000);
-						log.info("Waiting for Clients to disconnect. Round "
-								+ i);
+						log.info("Waiting for Clients to disconnect. Round " + i);
 						i++;
 					}
 					log.info("Finished");
@@ -152,5 +56,94 @@ public class PicServer extends Thread {
 				}
 			}
 		});
+	}
+
+	private Hashtable<Integer, Thread> childMap;
+
+	private ServerSocket listen;
+
+	private Hashtable<String, String> locationsMap;
+
+	private boolean Running;
+
+	private PicServer() {
+		super("PicServer");
+		this.Running = true;
+		log.info("Server startup");
+		log.info("--------------------");
+		this.childMap = new Hashtable<Integer, Thread>();
+		this.locationsMap = new Hashtable<String, String>();
+	}
+
+	public Properties getServerConf() {
+		Properties serverConf = new Properties();
+		try {
+			serverConf.loadFromXML(new FileInputStream(PicServer.SERVERCONFFILE));
+		} catch (IOException e) {
+		}
+		return serverConf;
+	}
+
+	public boolean hasClients() {
+		return !this.childMap.isEmpty();
+	}
+
+	public synchronized boolean isRunning() {
+		return this.Running;
+	}
+
+	public boolean lockLocation(String loc, String user) {
+		if (this.locationsMap.containsKey(loc)) {
+			return false;
+		} else {
+			this.locationsMap.put(loc, user);
+			log.info("Location locked: " + loc + " by " + user);
+		}
+		return true;
+	}
+
+	public synchronized void logLastUpload(long userid, long uploadedPictures, String galDate, String galLoc) {
+		DBConn.getInstance().saveLastUploadLogEntry(userid, uploadedPictures, galDate, galLoc);
+	}
+
+	public synchronized void requestStop() {
+		this.Running = false;
+	}
+
+	@Override
+	public void run() {
+		try {
+			this.listen = new ServerSocket(PicServer.PORT);
+			if (this.listen == null) {
+				log.error("Could not create communication socket");
+				System.exit(1);
+			}
+			log.info("New ServerSocket created - listening on Port: " + PORT);
+			while (this.isRunning()) {
+				Socket socket = this.listen.accept();
+				log.info("Connection from: " + socket.getInetAddress().getHostAddress());
+				if (this.isRunning()) {
+					UploadServ comlink = new UploadServ(this, socket, this.childMap.size() + 1);
+					this.childMap.put(new Integer(comlink.hashCode()), comlink);
+					comlink.start();
+				} else {
+					log.warn("Shudown in progress. No new connections are accepted");
+					socket.close();
+				}
+			}
+		} catch (IOException ioException) {
+			log.error("Could not create communication socket" + ioException);
+
+		}
+	}
+
+	public void signoff(int threadHash) {
+		this.childMap.remove(new Integer(threadHash));
+	}
+
+	public void unlockLocation(String loc) {
+		String user = this.locationsMap.remove(loc);
+		log.info("Location unlocked: " + loc + " by " + user);
+
 	}
 }
