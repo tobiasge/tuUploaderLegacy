@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.builder.CompareToBuilder;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -70,24 +74,35 @@ public class Gallery implements Serializable, Comparable<Gallery> {
 		this.deletedPictures.add(Integer.valueOf(picture));
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Gallery) {
+			Gallery rhs = (Gallery) obj;
+			Gallery lhs = (Gallery) this;
+			return new EqualsBuilder().append(lhs.galid, rhs.galid).append(lhs.location, rhs.location).append(lhs.date,
+				rhs.date).append(lhs.suffix, rhs.suffix).isEquals();
+		}
+		return false;
+	}
+
 	public LocalDate getDate() {
 		return this.date;
 	}
 
 	public List<Integer> getDeletedPictures() {
-		return deletedPictures;
+		return this.deletedPictures;
 	}
 
 	public String getDesc() {
-		return desc;
+		return this.desc;
 	}
 
 	public int getGalid() {
-		return galid;
+		return this.galid;
 	}
 
 	public String getLocation() {
-		return location;
+		return this.location;
 	}
 
 	public String getPath() {
@@ -95,23 +110,29 @@ public class Gallery implements Serializable, Comparable<Gallery> {
 	}
 
 	public List<User> getPhotographers() {
-		return photographers;
+		return this.photographers;
 	}
 
 	public int getPictures() {
-		return pictures;
+		return this.pictures;
 	}
 
 	public int getSuffix() {
-		return suffix;
+		return this.suffix;
 	}
 
 	public String getTitle() {
-		return title;
+		return this.title;
+	}
+
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder(11, 15).append(this.galid).append(this.location).append(this.date).append(
+			this.suffix).toHashCode();
 	}
 
 	public boolean isIntern() {
-		return intern;
+		return this.intern;
 	}
 
 	public boolean isNewGallery() {
@@ -182,6 +203,7 @@ public class Gallery implements Serializable, Comparable<Gallery> {
 	}
 
 	public String toString() {
-		return this.location;
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("Galid", this.galid).append(
+			"Location", this.location).append("Date", this.date).append("Suffix", this.suffix).toString();
 	}
 }
