@@ -9,14 +9,13 @@ public class PingCmd extends Command {
 
 	private long millis;
 
-	public PingCmd() {
-		super();
-		this.millis = System.currentTimeMillis();
-	}
-
 	public PingCmd(CommandType type) {
 		super(type);
 		this.millis = System.currentTimeMillis();
+	}
+
+	public long getMillis() {
+		return this.millis;
 	}
 
 	public String toString() {

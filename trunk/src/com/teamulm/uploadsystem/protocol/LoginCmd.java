@@ -11,10 +11,6 @@ public class LoginCmd extends Command {
 
 	private String userName;
 
-	public LoginCmd() {
-		super();
-	}
-
 	public LoginCmd(CommandType type) {
 		super(type);
 	}

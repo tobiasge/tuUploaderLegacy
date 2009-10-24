@@ -11,10 +11,6 @@ public class NewGalleryCmd extends Command {
 
 	private Gallery gallery;
 
-	public NewGalleryCmd() {
-		super();
-	}
-
 	public NewGalleryCmd(CommandType type) {
 		super(type);
 	}

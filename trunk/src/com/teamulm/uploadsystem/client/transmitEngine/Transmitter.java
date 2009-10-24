@@ -40,6 +40,7 @@ import com.teamulm.uploadsystem.protocol.QuitCmd;
 import com.teamulm.uploadsystem.protocol.SaveFileCmd;
 import com.teamulm.uploadsystem.protocol.SaveGalleryCmd;
 import com.teamulm.uploadsystem.protocol.UnLockPathCmd;
+import com.teamulm.uploadsystem.protocol.Command.CommandType;
 
 public class Transmitter extends Thread {
 
@@ -93,7 +94,7 @@ public class Transmitter extends Thread {
 		try {
 			this.keepAliveTimer.cancel();
 			this.Running = false;
-			this.sendAndRead(new QuitCmd());
+			this.sendAndRead(new QuitCmd(CommandType.REQUEST));
 			this.output.close();
 			this.input.close();
 		} catch (Exception e) {
@@ -102,7 +103,7 @@ public class Transmitter extends Thread {
 	}
 
 	public synchronized List<Location> getLocations() {
-		GetLocationsCmd cmd = new GetLocationsCmd();
+		GetLocationsCmd cmd = new GetLocationsCmd(CommandType.REQUEST);
 		try {
 			Command retVal = this.sendAndRead(cmd);
 			log.debug("Server said: " + retVal); //$NON-NLS-1$
@@ -123,7 +124,7 @@ public class Transmitter extends Thread {
 
 	public synchronized boolean lockLocation(Gallery gal) {
 		try {
-			LockPathCmd cmd = new LockPathCmd();
+			LockPathCmd cmd = new LockPathCmd(CommandType.REQUEST);
 			cmd.setDate(gal.getDate());
 			cmd.setLocation(gal.getLocation());
 			cmd.setSuffix(gal.getSuffix());
@@ -157,7 +158,7 @@ public class Transmitter extends Thread {
 	public synchronized boolean login(String username, String passwd) {
 		if (!this.isConnected())
 			return false;
-		LoginCmd cmd = new LoginCmd();
+		LoginCmd cmd = new LoginCmd(CommandType.REQUEST);
 		cmd.setUserName(username);
 		cmd.setPassWord(this.compute(passwd));
 		try {
@@ -172,7 +173,7 @@ public class Transmitter extends Thread {
 	}
 
 	public synchronized Gallery newGallery(String location, LocalDate date) {
-		NewGalleryCmd cmd = new NewGalleryCmd();
+		NewGalleryCmd cmd = new NewGalleryCmd(CommandType.REQUEST);
 		Gallery requestGallery = new Gallery();
 		requestGallery.setDate(date);
 		requestGallery.setLocation(location);
@@ -203,7 +204,7 @@ public class Transmitter extends Thread {
 					log.info("this.chef.getNextToTransmit() returned null"); //$NON-NLS-1$
 				} else {
 					log.info("Sende Datei " + this.akt.getName()); //$NON-NLS-1$
-					SaveFileCmd cmd = new SaveFileCmd();
+					SaveFileCmd cmd = new SaveFileCmd(CommandType.REQUEST);
 					cmd.setFileName(this.akt.getName());
 					cmd.setFileSize((int) this.akt.length());
 					cmd.setFileContent(this.getBytesFromFile(this.akt));
@@ -221,7 +222,7 @@ public class Transmitter extends Thread {
 					}
 				}
 			}
-			SaveGalleryCmd cmd = new SaveGalleryCmd();
+			SaveGalleryCmd cmd = new SaveGalleryCmd(CommandType.REQUEST);
 			cmd.setGallery(this.gallery);
 
 			retVal = this.sendAndRead(cmd);
@@ -255,7 +256,7 @@ public class Transmitter extends Thread {
 	public synchronized boolean verCheck() {
 		if (!this.isConnected())
 			return false;
-		HelloCmd cmd = new HelloCmd();
+		HelloCmd cmd = new HelloCmd(CommandType.REQUEST);
 		cmd.setProtocolVersionString(TrmEngine.VERSION);
 		try {
 			Command retVal = this.sendAndRead(cmd);
@@ -338,7 +339,7 @@ public class Transmitter extends Thread {
 	}
 
 	protected synchronized ArrayList<Gallery> getGalleriesFor(String date) {
-		GetGalleriesCmd cmd = new GetGalleriesCmd();
+		GetGalleriesCmd cmd = new GetGalleriesCmd(CommandType.REQUEST);
 		cmd.setDate(date);
 		try {
 			Command retVal = this.sendAndRead(cmd);
@@ -369,7 +370,7 @@ public class Transmitter extends Thread {
 
 	protected boolean unLockLocation(Gallery gal) {
 		try {
-			UnLockPathCmd cmd = new UnLockPathCmd();
+			UnLockPathCmd cmd = new UnLockPathCmd(CommandType.REQUEST);
 			cmd.setDate(gal.getDate());
 			cmd.setLocation(gal.getLocation());
 			cmd.setSuffix(gal.getSuffix());
@@ -393,7 +394,7 @@ public class Transmitter extends Thread {
 			if (Transmitter.this.connected && Transmitter.this.loggedIn) {
 				log.debug("sending PingCmd"); //$NON-NLS-1$
 				try {
-					log.debug("Server said: " + Transmitter.this.sendAndRead(new PingCmd())); //$NON-NLS-1$
+					log.debug("Server said: " + Transmitter.this.sendAndRead(new PingCmd(CommandType.REQUEST))); //$NON-NLS-1$
 				} catch (AuthenticationException authEx) {
 				}
 			}

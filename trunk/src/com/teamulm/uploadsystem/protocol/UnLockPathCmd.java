@@ -16,10 +16,6 @@ public class UnLockPathCmd extends Command {
 
 	private int suffix;
 
-	public UnLockPathCmd() {
-		super();
-	}
-
 	public UnLockPathCmd(CommandType type) {
 		super(type);
 	}

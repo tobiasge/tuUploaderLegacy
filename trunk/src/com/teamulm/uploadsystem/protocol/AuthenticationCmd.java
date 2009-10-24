@@ -9,10 +9,6 @@ public class AuthenticationCmd extends Command {
 
 	private String message;
 
-	public AuthenticationCmd() {
-		super();
-	}
-
 	public AuthenticationCmd(CommandType type) {
 		super(type);
 	}

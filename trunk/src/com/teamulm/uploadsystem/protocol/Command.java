@@ -21,11 +21,6 @@ public abstract class Command implements Serializable {
 
 	private CommandType type = null;
 
-	protected Command() {
-		this.type = CommandType.REQUEST;
-		this.success = false;
-	}
-
 	protected Command(CommandType type) {
 		this.type = type;
 		this.success = false;
@@ -63,14 +58,10 @@ public abstract class Command implements Serializable {
 		this.success = success;
 	}
 
-	public void setType(CommandType type) {
-		this.type = type;
-	}
-
 	@Override
 	public String toString() {
 		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-			.append("Toype", this.type).append("Success", this.success).toString(); //$NON-NLS-1$ //$NON-NLS-2$
+			.append("Type", this.type).append("Success", this.success).toString(); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public static enum CommandType {

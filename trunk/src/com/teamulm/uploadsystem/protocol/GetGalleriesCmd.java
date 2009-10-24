@@ -15,10 +15,6 @@ public class GetGalleriesCmd extends Command {
 
 	private ArrayList<Gallery> galleries;
 
-	public GetGalleriesCmd() {
-		super();
-	}
-
 	public GetGalleriesCmd(CommandType type) {
 		super(type);
 	}

@@ -10,10 +10,6 @@ public class GetLocationsCmd extends Command {
 
 	private List<Location> locations = null;
 
-	public GetLocationsCmd() {
-		super();
-	}
-
 	public GetLocationsCmd(CommandType type) {
 		super(type);
 	}

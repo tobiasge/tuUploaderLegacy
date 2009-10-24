@@ -13,10 +13,6 @@ public class SaveFileCmd extends Command {
 
 	private int fileSize;
 
-	public SaveFileCmd() {
-		super();
-	}
-
 	public SaveFileCmd(CommandType type) {
 		super(type);
 	}

@@ -9,10 +9,6 @@ public class HelloCmd extends Command {
 
 	private String protocolVersionString = "1.0"; //$NON-NLS-1$
 
-	public HelloCmd() {
-		super();
-	}
-
 	public HelloCmd(CommandType type) {
 		super(type);
 	}

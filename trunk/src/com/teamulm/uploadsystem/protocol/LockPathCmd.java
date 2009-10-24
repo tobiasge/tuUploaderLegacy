@@ -20,10 +20,6 @@ public class LockPathCmd extends Command {
 
 	private int suffix;
 
-	public LockPathCmd() {
-		super();
-	}
-
 	public LockPathCmd(CommandType type) {
 		super(type);
 	}

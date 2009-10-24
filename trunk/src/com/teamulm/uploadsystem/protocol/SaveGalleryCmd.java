@@ -8,10 +8,6 @@ public class SaveGalleryCmd extends Command {
 
 	private Gallery gallery;
 
-	public SaveGalleryCmd() {
-		super();
-	}
-
 	public SaveGalleryCmd(CommandType type) {
 		super(type);
 	}
