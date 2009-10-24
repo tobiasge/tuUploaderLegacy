@@ -7,10 +7,6 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 public abstract class Command implements Serializable {
 
-	public static final int ERROR_LOC_BADLOC = 2;
-
-	public static final int ERROR_LOC_NOTFREE = 1;
-
 	private static final long serialVersionUID = 5593609768805163288L;
 
 	private int errorCode;
