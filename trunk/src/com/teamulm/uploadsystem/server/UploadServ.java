@@ -43,30 +43,25 @@ public class UploadServ extends Thread {
 
 	private static final String VER = "5.0"; //$NON-NLS-1$
 
+	private boolean active;
+
+	private String baseDir;
+
 	private Socket client;
 
-	private int uploaded;
-
-	private User user;
+	private String clientip;
 
 	private Gallery gallery;
 
-	private String clientip;
+	private boolean hasLock;
 
 	private ObjectInputStream input;
 
 	private ObjectOutputStream output;
 
-	private boolean active;
+	private int uploaded;
 
-	private boolean hasLock;
-
-	private String baseDir;
-
-	private void initServer() {
-		Properties serverConf = PicServer.getInstance().getServerConf();
-		this.baseDir = serverConf.getProperty("baseDir");
-	}
+	private User user;
 
 	public UploadServ(PicServer master, Socket so, int number) {
 		super("UploadServ " + number);
@@ -85,58 +80,6 @@ public class UploadServ extends Thread {
 		}
 	}
 
-	private boolean authenticateUser(String user, String passwd) {
-		boolean authenticationOk = false;
-		this.user = DBConn.getInstance().getUserForName(user);
-		authenticationOk = (null != passwd) && (null != this.user) && (!passwd.equals(""))
-			&& (passwd.equalsIgnoreCase(this.user.getPassword()));
-		if (authenticationOk)
-			return true;
-		else {
-			this.user = null;
-			return false;
-		}
-	}
-
-	private boolean isAuthenticated() {
-		return null != this.user;
-	}
-
-	private void sendAuthenticationNeeded(String message) throws IOException {
-		AuthenticationCmd response = new AuthenticationCmd(true);
-		response.setSuccess(true);
-		response.setMessage(message);
-		this.output.writeObject(response);
-		this.output.flush();
-	}
-
-	private void ExceptionHandler(Exception exc) {
-		if (exc instanceof SocketTimeoutException) {
-			log.error(this.clientip + ": Client timed out");
-			this.cleanUp();
-		} else if (exc instanceof IOException) {
-			log.error(this.clientip + ": I/O Failure");
-			this.cleanUp();
-		} else if (exc instanceof SocketException) {
-			log.error(this.clientip + ": Lost Connection to " + this.clientip);
-			this.cleanUp();
-		} else {
-			log.error(this.clientip + ": Unknown Exception", exc);
-			exc.printStackTrace(System.err);
-			this.cleanUp();
-		}
-	}
-
-	private boolean makeDBEntry() {
-		if (DBConn.getInstance().saveGalleryToDataBase(this.gallery, this.user)) {
-			log.info(this.clientip + ": Gallery is saved");
-			return true;
-		} else {
-			log.error(this.clientip + ": Gallery saving failed");
-			return false;
-		}
-	}
-
 	public Gallery getGallery(String location, LocalDate date, int suffix) {
 		Gallery retVal;
 		File dir = new File(this.baseDir + Gallery.getPath(location, date, suffix));
@@ -152,54 +95,6 @@ public class UploadServ extends Thread {
 			retVal.setSuffix(suffix);
 		}
 		return retVal;
-	}
-
-	private boolean saveFile(SaveFileCmd cmd) {
-		try {
-			DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(this.baseDir
-				+ this.gallery.getPath() + cmd.getFileName())));
-			out.write(cmd.getFileContent(), 0, cmd.getFileSize());
-			out.flush();
-			out.close();
-			this.uploaded++;
-			log.info(this.clientip + ": File " + this.gallery.getPath() + cmd.getFileName() + " with size "
-				+ cmd.getFileSize() + " saved");
-			return true;
-		} catch (Exception e) {
-			log.error(this.clientip + ": File " + this.gallery.getPath() + cmd.getFileName() + " with size "
-				+ cmd.getFileSize() + " not saved");
-			this.ExceptionHandler(e);
-			return false;
-		}
-	}
-
-	private void cleanUp() {
-		if (!this.active)
-			return;
-		this.active = false;
-		if (this.hasLock) {
-			PicServer.getInstance().unlockLocation(this.gallery.getPath());
-			this.hasLock = false;
-		}
-		PicServer.getInstance().signoff(this.hashCode());
-		log.info(this.clientip + ": connection to client terminated");
-	}
-
-	private Command readCommand() {
-		try {
-			Command retVal = (Command) this.input.readObject();
-			return retVal;
-		} catch (ClassCastException e) {
-			log.error(this.clientip + ": readCommand(): failed with class problem");
-			this.ExceptionHandler(e);
-		} catch (ClassNotFoundException e) {
-			log.error(this.clientip + ": readCommand(): failed with class loader problem");
-			this.ExceptionHandler(e);
-		} catch (IOException e) {
-			log.error(this.clientip + ": readCommand(): failed with IO problem");
-			this.ExceptionHandler(e);
-		}
-		return null;
 	}
 
 	@Override
@@ -410,7 +305,111 @@ public class UploadServ extends Thread {
 				}
 			}
 		} catch (Exception e) {
-			this.ExceptionHandler(e);
+			this.handleException(e);
 		}
+	}
+
+	private boolean authenticateUser(String user, String passwd) {
+		boolean authenticationOk = false;
+		this.user = DBConn.getInstance().getUserForName(user);
+		authenticationOk = (null != passwd) && (null != this.user) && (!passwd.equals(""))
+			&& (passwd.equalsIgnoreCase(this.user.getPassword()));
+		if (authenticationOk)
+			return true;
+		else {
+			this.user = null;
+			return false;
+		}
+	}
+
+	private void cleanUp() {
+		if (!this.active)
+			return;
+		this.active = false;
+		if (this.hasLock) {
+			PicServer.getInstance().unlockLocation(this.gallery.getPath());
+			this.hasLock = false;
+		}
+		PicServer.getInstance().signoff(this.hashCode());
+		log.info(this.clientip + ": connection to client terminated");
+	}
+
+	private void handleException(Exception exc) {
+		if (exc instanceof SocketTimeoutException) {
+			log.error(this.clientip + ": Client timed out");
+			this.cleanUp();
+		} else if (exc instanceof IOException) {
+			log.error(this.clientip + ": I/O Failure");
+			this.cleanUp();
+		} else if (exc instanceof SocketException) {
+			log.error(this.clientip + ": Lost Connection");
+			this.cleanUp();
+		} else {
+			log.error(this.clientip + ": Unknown Exception", exc);
+			this.cleanUp();
+		}
+	}
+
+	private void initServer() {
+		Properties serverConf = PicServer.getInstance().getServerConf();
+		this.baseDir = serverConf.getProperty("baseDir");
+	}
+
+	private boolean isAuthenticated() {
+		return null != this.user;
+	}
+
+	private boolean makeDBEntry() {
+		if (DBConn.getInstance().saveGalleryToDataBase(this.gallery, this.user)) {
+			log.info(this.clientip + ": Gallery is saved");
+			return true;
+		} else {
+			log.error(this.clientip + ": Gallery saving failed");
+			return false;
+		}
+	}
+
+	private Command readCommand() {
+		try {
+			Command retVal = (Command) this.input.readObject();
+			return retVal;
+		} catch (ClassCastException e) {
+			log.error(this.clientip + ": readCommand(): failed with class problem");
+			this.handleException(e);
+		} catch (ClassNotFoundException e) {
+			log.error(this.clientip + ": readCommand(): failed with class loader problem");
+			this.handleException(e);
+		} catch (IOException e) {
+			log.error(this.clientip + ": readCommand(): failed with IO problem");
+			this.handleException(e);
+		}
+		return null;
+	}
+
+	private boolean saveFile(SaveFileCmd cmd) {
+		try {
+			DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(this.baseDir
+				+ this.gallery.getPath() + cmd.getFileName())));
+			out.write(cmd.getFileContent(), 0, cmd.getFileSize());
+			out.flush();
+			out.close();
+			this.uploaded++;
+			log.info(this.clientip + ": File " + this.gallery.getPath() + cmd.getFileName() + " with size "
+				+ cmd.getFileSize() + " saved");
+			return true;
+		} catch (Exception e) {
+			log.error(this.clientip + ": File " + this.gallery.getPath() + cmd.getFileName() + " with size "
+				+ cmd.getFileSize() + " not saved");
+			this.handleException(e);
+			return false;
+		}
+	}
+
+	private void sendAuthenticationNeeded(String message) throws IOException {
+		AuthenticationCmd response = new AuthenticationCmd(true);
+		response.setSuccess(true);
+		response.setMessage(message);
+		this.output.writeObject(response);
+		this.output.flush();
 	}
 }
