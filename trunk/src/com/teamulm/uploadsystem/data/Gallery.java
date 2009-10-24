@@ -202,6 +202,7 @@ public class Gallery implements Serializable, Comparable<Gallery> {
 		this.title = title;
 	}
 
+	@Override
 	public String toString() {
 		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("Galid", this.galid).append(
 			"Location", this.location).append("Date", this.date).append("Suffix", this.suffix).toString();
