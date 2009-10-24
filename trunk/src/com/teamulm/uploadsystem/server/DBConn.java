@@ -17,14 +17,11 @@ import com.teamulm.uploadsystem.server.dbControl.DataBaseControler;
 
 public class DBConn {
 
-	private static final Logger log = Logger.getLogger(DBConn.class);
-
 	private static final String GALLERY_FIELDS_TO_SELECT = "galid, pictures, suffix, location, description, title, intern, censored, userids, date_gal";
 
 	private static DBConn instance;
 
-	private DBConn() {
-	}
+	private static final Logger log = Logger.getLogger(DBConn.class);
 
 	public static DBConn getInstance() {
 		if (null == DBConn.instance) {
@@ -33,46 +30,51 @@ public class DBConn {
 		return DBConn.instance;
 	}
 
-	public User getUserForName(String username) {
+	private DBConn() {
+	}
+
+	public boolean checkLocation(String location) {
 		PreparedStatement request;
 		ResultSet result;
-		User retVal = null;
+		boolean retVal = false;
 		com.teamulm.uploadsystem.server.dbControl.DBConn connection = null;
-		if (null == (connection = DataBaseControler.getInstance().getDataBaseForTable("tu_users_login"))) {
+		if (null == (connection = DataBaseControler.getInstance().getDataBaseForTable("tu_fotos_locations"))) {
 			return retVal;
 		}
+		String query = "SELECT COUNT(*) AS number FROM tu_fotos_locations WHERE locName = ?";
 		try {
-			String query = "SELECT userid, passwort_enc, username FROM tu_users_login WHERE username = ? AND teammember = 1";
 			request = connection.prepareStatement(query);
-			request.setString(1, username);
+			request.setString(1, location);
 			result = request.executeQuery();
 			result.first();
-			retVal = new User(result.getInt("userid"), result.getString("passwort_enc"), result.getString("username"));
-		} catch (Exception e) {
-			log.error("Failure in getUserForName(): ", e);
+			retVal = (result.getInt("number") == 1);
+		} catch (SQLException sqlException) {
+			log.error("Failure in checkLocation()", sqlException);
 		}
 		return retVal;
 	}
 
-	private User getUserForId(int userId) {
+	public boolean getGalleries(String date, ArrayList<Gallery> galleries) {
 		PreparedStatement request;
 		ResultSet result;
-		User retVal = null;
 		com.teamulm.uploadsystem.server.dbControl.DBConn connection = null;
-		if (null == (connection = DataBaseControler.getInstance().getDataBaseForTable("tu_users_login"))) {
-			return retVal;
+		if (null == (connection = DataBaseControler.getInstance().getDataBaseForTable("tu_fotos"))) {
+			return false;
 		}
+		String query = "SELECT " + DBConn.GALLERY_FIELDS_TO_SELECT + " FROM tu_fotos WHERE "
+			+ "date_gal = STR_TO_DATE(?, '%d-%m-%Y')";
 		try {
-			String query = "SELECT userid, passwort_enc, username FROM tu_users_login WHERE userid = ?";
 			request = connection.prepareStatement(query);
-			request.setInt(1, userId);
+			request.setString(1, date);
 			result = request.executeQuery();
-			result.first();
-			retVal = new User(result.getInt("userid"), result.getString("passwort_enc"), result.getString("username"));
-		} catch (Exception e) {
-			log.error("Failure in getUserForId(): ", e);
+			while (result.next()) {
+				galleries.add(this.getFromRow(result));
+			}
+		} catch (SQLException sqlException) {
+			log.error("Failure in getGalleries()", sqlException);
+			return false;
 		}
-		return retVal;
+		return true;
 	}
 
 	public Gallery getGallery(String location, String date, int suffix) {
@@ -95,10 +97,33 @@ public class DBConn {
 				return retVal;
 			}
 			retVal = this.getFromRow(result);
-		} catch (Exception e) {
-			log.error("Failure in getGallery(): ", e);
+		} catch (SQLException sqlException) {
+			log.error("Failure in getGallery()", sqlException);
 		}
 		return retVal;
+	}
+
+	public List<Location> getLocations() {
+		PreparedStatement request;
+		ResultSet result;
+		com.teamulm.uploadsystem.server.dbControl.DBConn connection = null;
+		if (null == (connection = DataBaseControler.getInstance().getDataBaseForTable("tu_fotos_locations"))) {
+			return null;
+		}
+		List<Location> locations = new ArrayList<Location>();
+		try {
+			String query = "SELECT locID, locName FROM tu_fotos_locations";
+			request = connection.prepareStatement(query);
+			result = request.executeQuery();
+			while (result.next()) {
+				Location tmpLocation = new Location(result.getInt("locID"), result.getString("locName"));
+				locations.add(tmpLocation);
+			}
+		} catch (SQLException sqlException) {
+			log.error("Failure in getLocations()", sqlException);
+			return null;
+		}
+		return locations;
 	}
 
 	public int getNextSuffixFor(String location, String date) {
@@ -118,76 +143,31 @@ public class DBConn {
 			if (!result.first())
 				return 0;
 			return result.getInt("suffix") + 1;
-		} catch (Exception e) {
-			log.error("Failure in getNextSuffixFor(): ", e);
+		} catch (SQLException sqlException) {
+			log.error("Failure in getNextSuffixFor()", sqlException);
 		}
 		return 0;
 	}
 
-	public boolean getGalleries(String date, ArrayList<Gallery> galleries) {
+	public User getUserForName(String username) {
 		PreparedStatement request;
 		ResultSet result;
+		User retVal = null;
 		com.teamulm.uploadsystem.server.dbControl.DBConn connection = null;
-		if (null == (connection = DataBaseControler.getInstance().getDataBaseForTable("tu_fotos"))) {
-			return false;
-		}
-		String query = "SELECT " + DBConn.GALLERY_FIELDS_TO_SELECT + " FROM tu_fotos WHERE "
-			+ "date_gal = STR_TO_DATE(?, '%d-%m-%Y')";
-		try {
-			request = connection.prepareStatement(query);
-			request.setString(1, date);
-			result = request.executeQuery();
-			while (result.next()) {
-				galleries.add(this.getFromRow(result));
-			}
-		} catch (Exception e) {
-			log.error("Failure in getGalleries(): ", e);
-			return false;
-		}
-		return true;
-	}
-
-	public boolean checkLocation(String location) {
-		PreparedStatement request;
-		ResultSet result;
-		boolean retVal = false;
-		com.teamulm.uploadsystem.server.dbControl.DBConn connection = null;
-		if (null == (connection = DataBaseControler.getInstance().getDataBaseForTable("tu_fotos_locations"))) {
+		if (null == (connection = DataBaseControler.getInstance().getDataBaseForTable("tu_users_login"))) {
 			return retVal;
 		}
-		String query = "SELECT COUNT(*) AS number FROM tu_fotos_locations WHERE locName = ?";
 		try {
+			String query = "SELECT userid, passwort_enc, username FROM tu_users_login WHERE username = ? AND teammember = 1";
 			request = connection.prepareStatement(query);
-			request.setString(1, location);
+			request.setString(1, username);
 			result = request.executeQuery();
 			result.first();
-			retVal = (result.getInt("number") == 1);
-		} catch (Exception e) {
-			log.error("Failure in checkLocation(): ", e);
+			retVal = new User(result.getInt("userid"), result.getString("passwort_enc"), result.getString("username"));
+		} catch (SQLException sqlException) {
+			log.error("Failure in getUserForName()", sqlException);
 		}
 		return retVal;
-	}
-
-	public boolean saveLastUploadLogEntry(long userid, long uploadedPictures, String galDate, String galLoc) {
-		PreparedStatement request;
-		com.teamulm.uploadsystem.server.dbControl.DBConn connection = null;
-		if (null == (connection = DataBaseControler.getInstance().getDataBaseForTable("tu_fotos_lastUpload"))) {
-			return false;
-		}
-		try {
-			String query = "INSERT INTO tu_fotos_lastUpload(userid,galleryDate,galleryLocation,pictures) "
-				+ "VALUES(?,STR_TO_DATE(?, '%d-%m-%Y'),?,?)";
-			request = connection.prepareStatement(query);
-			request.setLong(1, userid);
-			request.setString(2, galDate);
-			request.setString(3, galLoc);
-			request.setLong(4, uploadedPictures);
-			request.executeUpdate();
-		} catch (Exception e) {
-			log.error("Failure in saveLastUploadLogEntry(): ", e);
-			return false;
-		}
-		return true;
 	}
 
 	public boolean saveGalleryToDataBase(Gallery gallery, User user) {
@@ -218,34 +198,33 @@ public class DBConn {
 				request.setInt(3, gallery.getGalid());
 				request.executeUpdate();
 			}
-		} catch (Exception e) {
-			log.error("Failure in saveGalleryToDataBase(): ", e);
+		} catch (SQLException sqlException) {
+			log.error("Failure in saveGalleryToDataBase()", sqlException);
 			return false;
 		}
 		return true;
 	}
 
-	public List<Location> getLocations() {
+	public boolean saveLastUploadLogEntry(long userid, long uploadedPictures, String galDate, String galLoc) {
 		PreparedStatement request;
-		ResultSet result;
 		com.teamulm.uploadsystem.server.dbControl.DBConn connection = null;
-		if (null == (connection = DataBaseControler.getInstance().getDataBaseForTable("tu_fotos_locations"))) {
-			return null;
+		if (null == (connection = DataBaseControler.getInstance().getDataBaseForTable("tu_fotos_lastUpload"))) {
+			return false;
 		}
-		List<Location> locations = new ArrayList<Location>();
 		try {
-			String query = "SELECT locID, locName FROM tu_fotos_locations";
+			String query = "INSERT INTO tu_fotos_lastUpload(userid,galleryDate,galleryLocation,pictures) "
+				+ "VALUES(?,STR_TO_DATE(?, '%d-%m-%Y'),?,?)";
 			request = connection.prepareStatement(query);
-			result = request.executeQuery();
-			while (result.next()) {
-				Location tmpLocation = new Location(result.getInt("locID"), result.getString("locName"));
-				locations.add(tmpLocation);
-			}
-		} catch (Exception e) {
-			log.error("Failure in getLocations(): ", e);
-			return null;
+			request.setLong(1, userid);
+			request.setString(2, galDate);
+			request.setString(3, galLoc);
+			request.setLong(4, uploadedPictures);
+			request.executeUpdate();
+		} catch (SQLException sqlException) {
+			log.error("Failure in saveLastUploadLogEntry()", sqlException);
+			return false;
 		}
-		return locations;
+		return true;
 	}
 
 	private Gallery getFromRow(ResultSet result) throws SQLException {
@@ -268,5 +247,26 @@ public class DBConn {
 		}
 		gallery.setNewGallery(false);
 		return gallery;
+	}
+
+	private User getUserForId(int userId) {
+		PreparedStatement request;
+		ResultSet result;
+		User retVal = null;
+		com.teamulm.uploadsystem.server.dbControl.DBConn connection = null;
+		if (null == (connection = DataBaseControler.getInstance().getDataBaseForTable("tu_users_login"))) {
+			return retVal;
+		}
+		try {
+			String query = "SELECT userid, passwort_enc, username FROM tu_users_login WHERE userid = ?";
+			request = connection.prepareStatement(query);
+			request.setInt(1, userId);
+			result = request.executeQuery();
+			result.first();
+			retVal = new User(result.getInt("userid"), result.getString("passwort_enc"), result.getString("username"));
+		} catch (SQLException sqlException) {
+			log.error("Failure in getUserForId()", sqlException);
+		}
+		return retVal;
 	}
 }
