@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.Hashtable;
 import java.util.Properties;
 
@@ -64,11 +65,11 @@ public class PicServer extends Thread {
 
 	private Hashtable<String, String> locationsMap;
 
-	private boolean Running;
+	private boolean running;
 
 	private PicServer() {
 		super("PicServer");
-		this.Running = true;
+		this.running = true;
 		log.info("Server startup");
 		log.info("--------------------");
 		this.childMap = new Hashtable<Integer, Thread>();
@@ -89,7 +90,7 @@ public class PicServer extends Thread {
 	}
 
 	public synchronized boolean isRunning() {
-		return this.Running;
+		return this.running;
 	}
 
 	public boolean lockLocation(String loc, String user) {
@@ -107,7 +108,7 @@ public class PicServer extends Thread {
 	}
 
 	public synchronized void requestStop() {
-		this.Running = false;
+		this.running = false;
 	}
 
 	@Override
@@ -118,8 +119,15 @@ public class PicServer extends Thread {
 				log.error("Could not create communication socket");
 				System.exit(1);
 			}
-			log.info("New ServerSocket created - listening on Port: " + PORT);
-			while (this.isRunning()) {
+			this.listen.setSoTimeout(1000 * 60);
+		} catch (IOException ioException) {
+			log.error("Could not create communication socket", ioException);
+			System.exit(1);
+		}
+
+		log.info("New ServerSocket created - listening on Port: " + PORT);
+		while (this.isRunning()) {
+			try {
 				Socket socket = this.listen.accept();
 				log.info("Connection from: " + socket.getInetAddress().getHostAddress());
 				if (this.isRunning()) {
@@ -130,10 +138,11 @@ public class PicServer extends Thread {
 					log.warn("Shudown in progress. No new connections are accepted");
 					socket.close();
 				}
+			} catch (SocketTimeoutException socketTimeoutException) {
+				// Ignored, but used to check if we have to shutdown
+			} catch (IOException ioException) {
+				log.error("Error creating communication link", ioException);
 			}
-		} catch (IOException ioException) {
-			log.error("Could not create communication socket" + ioException);
-
 		}
 	}
 
@@ -144,6 +153,5 @@ public class PicServer extends Thread {
 	public void unlockLocation(String loc) {
 		String user = this.locationsMap.remove(loc);
 		log.info("Location unlocked: " + loc + " by " + user);
-
 	}
 }
