@@ -11,11 +11,12 @@ public class User implements Serializable {
 
 	private static final long serialVersionUID = 6277405439383266829L;
 
-	private String password;
+	/** Stores the user password as an encrypted string */
+	private String password = "";
 
-	private int userid;
+	private int userid = -1;
 
-	private String username;
+	private String username = "";
 
 	public User(int userID, String passWord, String userName) {
 		this.userid = userID;

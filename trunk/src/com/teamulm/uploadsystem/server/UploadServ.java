@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.joda.time.LocalDate;
 
@@ -298,11 +299,11 @@ public class UploadServ extends Thread {
 	private boolean authenticateUser(String user, String passwd) {
 		boolean authenticationOk = false;
 		this.user = DBConn.getInstance().getUserForName(user);
-		authenticationOk = (null != passwd) && (null != this.user) && (!passwd.equals(""))
-			&& (passwd.equalsIgnoreCase(this.user.getPassword()));
-		if (authenticationOk)
+		authenticationOk = StringUtils.isNotBlank(passwd) && null != this.user
+			&& passwd.equalsIgnoreCase(this.user.getPassword());
+		if (authenticationOk) {
 			return true;
-		else {
+		} else {
 			this.user = null;
 			return false;
 		}
