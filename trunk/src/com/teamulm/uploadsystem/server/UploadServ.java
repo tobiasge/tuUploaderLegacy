@@ -113,14 +113,12 @@ public class UploadServ extends Thread {
 						+ request.getProtocolVersionString());
 					response.setErrorMsg("Protocolversion missmatch");
 					response.setSuccess(false);
-					this.output.writeObject(response);
-					this.output.flush();
+					this.writeResponse(response);
 					this.cleanUp();
 				} else {
 					response.setProtocolVersionString(UploadServ.VER);
 					response.setSuccess(true);
-					this.output.writeObject(response);
-					this.output.flush();
+					this.writeResponse(response);
 				}
 			} else {
 				log.error(this.clientip + ": Client did not send HELLO with version " + "(" + cmd.getClass() + ")");
@@ -135,22 +133,19 @@ public class UploadServ extends Thread {
 					if (!this.authenticateUser(request.getUserName(), request.getPassWord())) {
 						response.setErrorMsg("Wrong username or password for " + request.getUserName());
 						response.setSuccess(false);
-						this.output.writeObject(response);
-						this.output.flush();
+						this.writeResponse(response);
 						log.info(this.clientip + ": Bad user or password; User: " + request.getUserName());
 					} else {
 						response.setSuccess(true);
 						log.info(this.clientip + ": User " + request.getUserName() + " accepted");
-						this.output.writeObject(response);
-						this.output.flush();
+						this.writeResponse(response);
 					}
 				} else if (cmd instanceof PingCmd) {
 					PingCmd request = (PingCmd) cmd;
 					log.info(this.clientip + ": " + request.toString());
 					PingCmd response = new PingCmd(CommandType.RESPONSE);
 					response.setSuccess(true);
-					this.output.writeObject(response);
-					this.output.flush();
+					this.writeResponse(response);
 				} else if (cmd instanceof SaveFileCmd) {
 					if (!this.isAuthenticated()) {
 						this.sendAuthenticationNeeded("Befehl " + cmd.getClass()
@@ -161,8 +156,7 @@ public class UploadServ extends Thread {
 					log.info(this.clientip + ": " + request.toString());
 					SaveFileCmd response = new SaveFileCmd(CommandType.RESPONSE);
 					response.setSuccess(this.saveFile(request));
-					this.output.writeObject(response);
-					this.output.flush();
+					this.writeResponse(response);
 				} else if (cmd instanceof SaveGalleryCmd) {
 					if (!this.isAuthenticated()) {
 						this.sendAuthenticationNeeded("Befehl " + cmd.getClass()
@@ -186,15 +180,13 @@ public class UploadServ extends Thread {
 						log.info(this.clientip + ": DB Entry done");
 						response.setSuccess(true);
 						response.setGallery(this.gallery);
-						this.output.writeObject(response);
-						this.output.flush();
+						this.writeResponse(response);
 					} else {
 						response.setSuccess(false);
 						response.setGallery(this.gallery);
 						response.setErrorMsg("gallery data could not be saved");
 						log.error(this.clientip + ": DB Entry failed");
-						this.output.writeObject(response);
-						this.output.flush();
+						this.writeResponse(response);
 					}
 				} else if (cmd instanceof NewGalleryCmd) {
 					if (!this.isAuthenticated()) {
@@ -212,8 +204,7 @@ public class UploadServ extends Thread {
 						Gallery.GALLERY_DATE_FORMAT.print(request.getGallery().getDate())));
 					response.setGallery(gal);
 					response.setSuccess(true);
-					this.output.writeObject(response);
-					this.output.flush();
+					this.writeResponse(response);
 					this.gallery = gal;
 				} else if (cmd instanceof GetGalleriesCmd) {
 					if (!this.isAuthenticated()) {
@@ -231,8 +222,7 @@ public class UploadServ extends Thread {
 						response.setSuccess(false);
 					}
 					response.setGalleries(galleries);
-					this.output.writeObject(response);
-					this.output.flush();
+					this.writeResponse(response);
 				} else if (cmd instanceof UnLockPathCmd) {
 					if (!this.isAuthenticated()) {
 						this.sendAuthenticationNeeded("Befehl " + cmd.getClass()
@@ -244,8 +234,7 @@ public class UploadServ extends Thread {
 					PicServer.getInstance().unlockLocation(request.getPath());
 					UnLockPathCmd response = new UnLockPathCmd(CommandType.RESPONSE);
 					response.setSuccess(true);
-					this.output.writeObject(response);
-					this.output.flush();
+					this.writeResponse(response);
 				} else if (cmd instanceof LockPathCmd) {
 					if (!this.isAuthenticated()) {
 						this.sendAuthenticationNeeded("Befehl " + cmd.getClass()
@@ -259,22 +248,19 @@ public class UploadServ extends Thread {
 						response.setErrorCode(PathCmd.ERROR_LOC_BADLOC);
 						response.setErrorMsg("location not valid");
 						response.setSuccess(false);
-						this.output.writeObject(response);
-						this.output.flush();
+						this.writeResponse(response);
 						log.info(this.clientip + ": invalid location selected");
 					} else if (PicServer.getInstance().lockLocation(request.getPath(), this.user.getUsername())) {
 						response.setSuccess(true);
 						this.hasLock = true;
 						this.gallery = this.getGallery(request.getLocation(), request.getDate(), request.getSuffix());
 						response.setStartNumber(this.gallery.getPictures() + 1);
-						this.output.writeObject(response);
-						this.output.flush();
+						this.writeResponse(response);
 					} else {
 						response.setErrorCode(PathCmd.ERROR_LOC_NOTFREE);
 						response.setErrorMsg("location is in use");
 						response.setSuccess(false);
-						this.output.writeObject(response);
-						this.output.flush();
+						this.writeResponse(response);
 						log.info(this.clientip + ": selected location is used");
 					}
 				} else if (cmd instanceof GetLocationsCmd) {
@@ -288,14 +274,12 @@ public class UploadServ extends Thread {
 					} else {
 						response.setSuccess(false);
 					}
-					this.output.writeObject(response);
-					this.output.flush();
+					this.writeResponse(response);
 				} else if (cmd instanceof QuitCmd) {
 					log.info(this.clientip + ": client closed connection");
 					QuitCmd response = new QuitCmd(CommandType.RESPONSE);
 					response.setSuccess(true);
-					this.output.writeObject(response);
-					this.output.flush();
+					this.writeResponse(response);
 					this.client.close();
 					this.cleanUp();
 				} else {
@@ -411,6 +395,10 @@ public class UploadServ extends Thread {
 		AuthenticationCmd response = new AuthenticationCmd(CommandType.RESPONSE);
 		response.setSuccess(true);
 		response.setMessage(message);
+		this.writeResponse(response);
+	}
+
+	private void writeResponse(Command response) throws IOException {
 		this.output.writeObject(response);
 		this.output.flush();
 	}
