@@ -94,46 +94,46 @@ public class Helper {
 				mb.setText(Messages.getString("Helper.title.errorReport")); //$NON-NLS-1$
 				mb.setMessage(Messages.getString("Helper.msg.errorReport")); //$NON-NLS-1$
 
-				if (SWT.YES != mb.open())
+				if (SWT.YES != mb.open()) {
 					return;
-				else {
-					if (null != TeamUlmUpload.getInstance() && null != TeamUlmUpload.getInstance().getMainWindow()) {
-						TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
-							Messages.getString("Helper.logMessages.sendreport")); //$NON-NLS-1$
+				}
+
+				if (null != TeamUlmUpload.getInstance() && null != TeamUlmUpload.getInstance().getMainWindow()) {
+					TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
+						Messages.getString("Helper.logMessages.sendreport")); //$NON-NLS-1$
+				}
+				String[] lines = Helper.this.readFileData(TeamUlmUpload.logFileName, false);
+				String report = ""; //$NON-NLS-1$
+				if (null != lines) {
+					for (String line : lines) {
+						report += line + "\n"; //$NON-NLS-1$
 					}
-					String[] lines = Helper.this.readFileData(TeamUlmUpload.logFileName, false);
-					String report = ""; //$NON-NLS-1$
-					if (null != lines) {
-						for (String line : lines) {
-							report += line + "\n"; //$NON-NLS-1$
-						}
-					} else {
-						report = "Konnte Log nicht lesen"; //$NON-NLS-1$
-					}
-					try {
-						Properties mailProperties = new Properties();
-						mailProperties.setProperty("mail.smtp.host", "hermes.nb.team-ulm.de"); //$NON-NLS-1$ //$NON-NLS-2$
-						Session mailSession = Session.getDefaultInstance(mailProperties);
-						MimeMessage mailMessage = new MimeMessage(mailSession);
-						InternetAddress from = new InternetAddress();
-						from.setAddress("uploaderror@team-ulm.de"); //$NON-NLS-1$
-						from.setPersonal(TrmEngine.getInstance().getUserName());
-						InternetAddress to = new InternetAddress();
-						to.setAddress("tobias.genannt@team-ulm.de"); //$NON-NLS-1$
-						to.setPersonal("Tobias Genannt"); //$NON-NLS-1$
-						mailMessage.addFrom(new Address[] { from });
-						mailMessage.addRecipient(Message.RecipientType.TO, to);
-						mailMessage.setSubject("Error: " + error.getClass()); //$NON-NLS-1$
-						mailMessage.setText(stackTrace + "\n\nLogfile:" + report, "UTF-8", "plain"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-						mailMessage.setHeader("X-Mailer", "TU-Uploader"); //$NON-NLS-1$ //$NON-NLS-2$
-						mailMessage.setSentDate(new Date());
-						Transport.send(mailMessage);
-					} catch (Exception e) {
-						mb = new MessageBox(Display.getDefault().getActiveShell(), SWT.OK);
-						mb.setText(Messages.getString("String.error")); //$NON-NLS-1$
-						mb.setMessage(Messages.getString("Helper.msg.errorNotSend")); //$NON-NLS-1$
-						mb.open();
-					}
+				} else {
+					report = "Konnte Log nicht lesen"; //$NON-NLS-1$
+				}
+				try {
+					Properties mailProperties = new Properties();
+					mailProperties.setProperty("mail.smtp.host", "hermes.nb.team-ulm.de"); //$NON-NLS-1$ //$NON-NLS-2$
+					Session mailSession = Session.getDefaultInstance(mailProperties);
+					MimeMessage mailMessage = new MimeMessage(mailSession);
+					InternetAddress from = new InternetAddress();
+					from.setAddress("uploaderror@team-ulm.de"); //$NON-NLS-1$
+					from.setPersonal(TrmEngine.getInstance().getUserName());
+					InternetAddress to = new InternetAddress();
+					to.setAddress("tobias.genannt@team-ulm.de"); //$NON-NLS-1$
+					to.setPersonal("Tobias Genannt"); //$NON-NLS-1$
+					mailMessage.addFrom(new Address[] { from });
+					mailMessage.addRecipient(Message.RecipientType.TO, to);
+					mailMessage.setSubject("Error: " + error.getClass()); //$NON-NLS-1$
+					mailMessage.setText(stackTrace + "\n\nLogfile:" + report, "UTF-8", "plain"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					mailMessage.setHeader("X-Mailer", "TU-Uploader"); //$NON-NLS-1$ //$NON-NLS-2$
+					mailMessage.setSentDate(new Date());
+					Transport.send(mailMessage);
+				} catch (Exception e) {
+					mb = new MessageBox(Display.getDefault().getActiveShell(), SWT.OK);
+					mb.setText(Messages.getString("String.error")); //$NON-NLS-1$
+					mb.setMessage(Messages.getString("Helper.msg.errorNotSend")); //$NON-NLS-1$
+					mb.open();
 				}
 			}
 		});
