@@ -26,7 +26,6 @@ import com.teamulm.uploadsystem.client.gui.MainWindow;
 import com.teamulm.uploadsystem.client.gui.Messages;
 import com.teamulm.uploadsystem.data.Gallery;
 import com.teamulm.uploadsystem.data.Location;
-import com.teamulm.uploadsystem.exception.AuthenticationException;
 import com.teamulm.uploadsystem.protocol.AuthenticationCmd;
 import com.teamulm.uploadsystem.protocol.Command;
 import com.teamulm.uploadsystem.protocol.GetGalleriesCmd;
@@ -61,17 +60,16 @@ public class Transmitter extends Thread {
 
 	private ObjectOutputStream output;
 
-	private boolean Running, loggedIn;
+	private boolean running, loggedIn;
 
 	private Socket server;
 
 	private InetAddress serverAdress;
 
 	public Transmitter(TrmEngine chef) {
-		super();
-		this.setName("Transmitter"); //$NON-NLS-1$
+		super("Transmitter"); //$NON-NLS-1$
 		this.chef = chef;
-		this.Running = true;
+		this.running = true;
 		this.loggedIn = false;
 		try {
 			int serverPort = Integer.parseInt(TeamUlmUpload.getInstance().getClientConf().getProperty("serverPort")); //$NON-NLS-1$
@@ -94,7 +92,7 @@ public class Transmitter extends Thread {
 	public synchronized void disconnect() {
 		try {
 			this.keepAliveTimer.cancel();
-			this.Running = false;
+			this.running = false;
 			this.sendAndRead(new QuitCmd(CommandType.REQUEST));
 			this.output.close();
 			this.input.close();
@@ -200,7 +198,7 @@ public class Transmitter extends Thread {
 		TeamUlmUpload.getInstance().getMainWindow().setUploadProgress(0);
 		Command retVal;
 		try {
-			while (this.Running && this.chef.isThereSomethingToTtansmit()) {
+			while (this.running && this.chef.isThereSomethingToTtansmit()) {
 				if ((this.akt = this.chef.getNextToTransmit()) == null) {
 					log.info("this.chef.getNextToTransmit() returned null"); //$NON-NLS-1$
 				} else {
@@ -241,17 +239,15 @@ public class Transmitter extends Thread {
 			TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
 				Messages.getString("Transmitter.logMessages.disconnected")); //$NON-NLS-1$
 			sleep(10);
-		} catch (AuthenticationException authEx) {
-			TeamUlmUpload.getInstance().getMainWindow().addStatusLine(authEx.getMessage());
 		} catch (Exception e) {
 			Helper.getInstance().systemCrashHandler(e);
-			this.Running = false;
+			this.running = false;
 		}
 		TeamUlmUpload.getInstance().getMainWindow().setUploadProgress(MainWindow.PROGRESS_BAR_MAX);
 	}
 
 	public synchronized void stopIT() {
-		this.Running = false;
+		this.running = false;
 	}
 
 	public synchronized boolean verCheck() {
@@ -314,14 +310,15 @@ public class Transmitter extends Thread {
 		return bytes;
 	}
 
-	private synchronized Command sendAndRead(Command command) throws AuthenticationException {
+	private synchronized Command sendAndRead(Command command) {
 		try {
 			this.output.writeObject(command);
 			this.output.flush();
 			Command retVal = (Command) this.input.readObject();
 			if (retVal instanceof AuthenticationCmd) {
 				AuthenticationCmd cmd = (AuthenticationCmd) retVal;
-				throw new AuthenticationException(cmd.getMessage());
+				TeamUlmUpload.getInstance().getMainWindow().addStatusLine(cmd.getMessage());
+				return null;
 			}
 			return retVal;
 		} catch (ClassCastException e) {
@@ -362,7 +359,7 @@ public class Transmitter extends Thread {
 	}
 
 	protected void requestStop() {
-		this.Running = false;
+		this.running = false;
 	}
 
 	protected void setGallery(Gallery gallery) {
@@ -394,10 +391,7 @@ public class Transmitter extends Thread {
 		public void run() {
 			if (Transmitter.this.connected && Transmitter.this.loggedIn) {
 				log.debug("sending PingCmd"); //$NON-NLS-1$
-				try {
-					log.debug("Server said: " + Transmitter.this.sendAndRead(new PingCmd(CommandType.REQUEST))); //$NON-NLS-1$
-				} catch (AuthenticationException authEx) {
-				}
+				log.debug("Server said: " + Transmitter.this.sendAndRead(new PingCmd(CommandType.REQUEST))); //$NON-NLS-1$
 			}
 		}
 	}
