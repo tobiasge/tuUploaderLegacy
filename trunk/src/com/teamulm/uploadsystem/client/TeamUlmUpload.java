@@ -29,43 +29,20 @@ import com.teamulm.uploadsystem.client.transmitEngine.TrmEngine;
 
 public class TeamUlmUpload {
 
-	private static final Logger log = Logger.getLogger(TeamUlmUpload.class);
-
 	public static final String CLIENTCONFFILE = "client.conf"; //$NON-NLS-1$
-
-	private static TeamUlmUpload instance = null;
-
-	private static String appDataDir;
 
 	public static String logFileName;
 
-	private MainWindow mainWindow;
+	private static String appDataDir;
 
-	private TeamUlmUpload() {
-		Thread.currentThread().setName("Main"); //$NON-NLS-1$
-		OperatingSystemMXBean sysInfo1 = ManagementFactory.getOperatingSystemMXBean();
-		MemoryMXBean sysInfo2 = ManagementFactory.getMemoryMXBean();
-		log.info("Program Startup - Version " + TrmEngine.VERSION); //$NON-NLS-1$
-		log.info("Running on: " + sysInfo1.getName() + " " + sysInfo1.getVersion()); //$NON-NLS-1$ //$NON-NLS-2$
-		log.info("Systemtype is " + sysInfo1.getArch() + " working on " + sysInfo1.getAvailableProcessors() //$NON-NLS-1$ //$NON-NLS-2$
-			+ " CPU(s)"); //$NON-NLS-1$
-		log.info("Memory Usage is: " + sysInfo2.getHeapMemoryUsage()); //$NON-NLS-1$
-	}
+	private static TeamUlmUpload instance = null;
+
+	private static final Logger log = Logger.getLogger(TeamUlmUpload.class);
 
 	public static TeamUlmUpload getInstance() {
 		if (null == TeamUlmUpload.instance)
 			TeamUlmUpload.instance = new TeamUlmUpload();
 		return TeamUlmUpload.instance;
-	}
-
-	public Properties getClientConf() {
-		Properties serverConf = new Properties();
-		try {
-			serverConf.loadFromXML(new FileInputStream(TeamUlmUpload.CLIENTCONFFILE));
-		} catch (IOException e) {
-			Helper.getInstance().systemCrashHandler(e);
-		}
-		return serverConf;
 	}
 
 	public static void main(String[] args) {
@@ -82,22 +59,7 @@ public class TeamUlmUpload {
 		TeamUlmUpload.getInstance().start();
 	}
 
-	private void start() {
-		this.mainWindow = new MainWindow();
-		this.mainWindow.setBlockOnOpen(true);
-		this.mainWindow.open();
-		Display.getCurrent().dispose();
-	}
-
-	public MainWindow getMainWindow() {
-		return mainWindow;
-	}
-
-	public void setMainWindow(MainWindow mainWindow) {
-		this.mainWindow = mainWindow;
-	}
-
-	public static String getAppDataDir() {
+	private static String getAppDataDir() {
 		String appData;
 		if (StringUtils.isBlank(TeamUlmUpload.appDataDir)) {
 			// Getting Windows AppData directory
@@ -122,5 +84,43 @@ public class TeamUlmUpload {
 		}
 		System.out.println("TeamUlmUpload.appDataDir = '" + TeamUlmUpload.appDataDir + "'"); //$NON-NLS-1$ //$NON-NLS-2$
 		return TeamUlmUpload.appDataDir;
+	}
+
+	private MainWindow mainWindow;
+
+	private TeamUlmUpload() {
+		Thread.currentThread().setName("Main"); //$NON-NLS-1$
+		OperatingSystemMXBean sysInfo1 = ManagementFactory.getOperatingSystemMXBean();
+		MemoryMXBean sysInfo2 = ManagementFactory.getMemoryMXBean();
+		log.info("Program Startup - Version " + TrmEngine.VERSION); //$NON-NLS-1$
+		log.info("Running on: " + sysInfo1.getName() + " " + sysInfo1.getVersion()); //$NON-NLS-1$ //$NON-NLS-2$
+		log.info("Systemtype is " + sysInfo1.getArch() + " working on " + sysInfo1.getAvailableProcessors() //$NON-NLS-1$ //$NON-NLS-2$
+			+ " CPU(s)"); //$NON-NLS-1$
+		log.info("Memory Usage is: " + sysInfo2.getHeapMemoryUsage()); //$NON-NLS-1$
+	}
+
+	public Properties getClientConf() {
+		Properties serverConf = new Properties();
+		try {
+			serverConf.loadFromXML(new FileInputStream(TeamUlmUpload.CLIENTCONFFILE));
+		} catch (IOException e) {
+			Helper.getInstance().systemCrashHandler(e);
+		}
+		return serverConf;
+	}
+
+	public MainWindow getMainWindow() {
+		return mainWindow;
+	}
+
+	public void setMainWindow(MainWindow mainWindow) {
+		this.mainWindow = mainWindow;
+	}
+
+	private void start() {
+		this.mainWindow = new MainWindow();
+		this.mainWindow.setBlockOnOpen(true);
+		this.mainWindow.open();
+		Display.getCurrent().dispose();
 	}
 }
