@@ -37,10 +37,6 @@ public class Helper {
 		return Helper.instance;
 	}
 
-	public String getFileLocation(String fileName) {
-		return TeamUlmUpload.getAppDataDir() + fileName;
-	}
-
 	public String[] readFileData(String fileName, boolean reportError) {
 		ArrayList<String> listData = new ArrayList<String>();
 		BufferedReader inputStream = null;
