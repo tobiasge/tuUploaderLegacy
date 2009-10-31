@@ -28,8 +28,6 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.VerifyEvent;
-import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
@@ -330,17 +328,7 @@ public class MainWindow extends Window {
 		this.fieldTitle = new Text(composite, SWT.BORDER);
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(this.fieldTitle);
 		this.fieldTitle.setEditable(false);
-		this.fieldTitle.addVerifyListener(new VerifyListener() {
-			public void verifyText(VerifyEvent verifyEvent) {
-				String text = ((Text) verifyEvent.widget).getText();
-				if (GalleryDialog.TITLEMAXLENGTH < text.length() + 1) {
-					if (verifyEvent.character != SWT.BS && verifyEvent.character != SWT.DEL) {
-						verifyEvent.doit = false;
-					}
-				}
-
-			}
-		});
+		this.fieldTitle.setTextLimit(GalleryDialog.TITLEMAXLENGTH);
 		this.fieldTitle.addModifyListener(new ModifyListener() {
 
 			public void modifyText(ModifyEvent modifyEvent) {
@@ -358,16 +346,7 @@ public class MainWindow extends Window {
 		this.fieldDesc = new Text(composite, SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).hint(120, 60).applyTo(this.fieldDesc);
 		this.fieldDesc.setEditable(false);
-		this.fieldDesc.addVerifyListener(new VerifyListener() {
-			public void verifyText(VerifyEvent verifyEvent) {
-				String text = ((Text) verifyEvent.widget).getText();
-				if (GalleryDialog.DESCRMAXLENGTH < text.length() + 1) {
-					if (verifyEvent.character != SWT.BS && verifyEvent.character != SWT.DEL) {
-						verifyEvent.doit = false;
-					}
-				}
-			}
-		});
+		this.fieldDesc.setTextLimit(GalleryDialog.DESCRMAXLENGTH);
 		this.fieldDesc.addModifyListener(new ModifyListener() {
 
 			public void modifyText(ModifyEvent modifyEvent) {
@@ -510,11 +489,11 @@ public class MainWindow extends Window {
 				return;
 			}
 			if (MainWindow.this.gallery.isNewGallery()) {
-				if (0 == MainWindow.this.fieldTitle.getText().length()) {
+				if (StringUtils.isBlank(MainWindow.this.fieldTitle.getText())) {
 					MainWindow.this.addStatusLine(Messages.getString("MainWindow.logMessages.missingTitle")); //$NON-NLS-1$
 					return;
 				}
-				if (0 == MainWindow.this.fieldDesc.getText().length()) {
+				if (StringUtils.isBlank(MainWindow.this.fieldDesc.getText())) {
 					MainWindow.this.addStatusLine(Messages.getString("MainWindow.logMessages.missingDesc")); //$NON-NLS-1$
 					return;
 				}
