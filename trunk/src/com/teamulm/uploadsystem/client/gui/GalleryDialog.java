@@ -244,7 +244,8 @@ public class GalleryDialog extends Dialog {
 						return;
 					}
 					GalleryDialog.this.myGalleries = list;
-					for (Gallery gallery : list) {
+					Collections.sort(GalleryDialog.this.myGalleries);
+					for (Gallery gallery : GalleryDialog.this.myGalleries) {
 						TableItem item = new TableItem(GalleryDialog.this.galTable, SWT.DEFAULT);
 						item.setText(new String[] { gallery.getLocation(), gallery.getTitle(),
 							"" + gallery.getPictures(), //$NON-NLS-1$
