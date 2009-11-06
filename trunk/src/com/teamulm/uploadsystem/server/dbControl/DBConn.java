@@ -15,8 +15,6 @@ public class DBConn {
 
 	private static final Logger log = Logger.getLogger(com.teamulm.uploadsystem.server.dbControl.DBConn.class);
 
-	/** ******************************************* */
-	/** ***************ServerConfig**************** */
 	private String dbDriv;
 
 	private String dbPass;
@@ -24,8 +22,8 @@ public class DBConn {
 	private String dbURL;
 
 	private String dbUser;
+
 	private Timer keepAliveTimer;
-	/** ******************************************* */
 
 	private Connection mySQL;
 
