@@ -50,8 +50,8 @@ public class NoBlackBorderConverter extends ImageConverter {
 				log.debug("Upright picture found."); //$NON-NLS-1$
 				double downRatio = (double) this.bigPicSize.width / (double) pic.getHeight();
 				int newWidth = (int) ((double) pic.getWidth() * downRatio);
-				this.writeImage(outFile, this.toBufferedImage(pic.getScaledInstance(newWidth,
-					this.bigPicSize.width, BufferedImage.SCALE_SMOOTH)));
+				this.writeImage(outFile, this.toBufferedImage(pic.getScaledInstance(newWidth, this.bigPicSize.width,
+					BufferedImage.SCALE_SMOOTH)));
 				return true;
 			} else if (this.isDefaultPicture(pic.getWidth(), pic.getHeight())) {
 				log.debug("Normal picture found."); //$NON-NLS-1$
@@ -91,13 +91,12 @@ public class NoBlackBorderConverter extends ImageConverter {
 			if (this.isUprightPicture(pic.getWidth(), pic.getHeight())) {
 				BufferedImage target = new BufferedImage(this.smallPicSize.width, this.smallPicSize.height,
 					BufferedImage.TYPE_INT_RGB);
-				double downRatio = (double) this.smallPicSize.width / (double) pic.getHeight();
+				double downRatio = (double) this.smallPicSize.height / (double) pic.getHeight();
 				int newWidth = (int) ((double) pic.getWidth() * downRatio);
 				Graphics graf = target.getGraphics();
 				graf.setColor(Color.BLACK);
 				graf.drawRect(0, 0, this.smallPicSize.width, this.smallPicSize.height);
-				Image temp = pic.getScaledInstance(newWidth, this.smallPicSize.height,
-					BufferedImage.SCALE_SMOOTH);
+				Image temp = pic.getScaledInstance(newWidth, this.smallPicSize.height, BufferedImage.SCALE_SMOOTH);
 				int xMove = (int) (((double) smallPicSize.width - newWidth) / (double) 2);
 				graf.drawImage(temp, xMove, 0, null);
 				graf.dispose();
