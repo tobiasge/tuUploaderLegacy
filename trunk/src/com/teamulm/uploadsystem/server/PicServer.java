@@ -21,8 +21,6 @@ public class PicServer extends Thread {
 
 	private static final Logger log = Logger.getLogger(PicServer.class);
 
-	private static final int PORT = 1807;
-
 	private static final String SERVERCONFFILE = "server.conf";
 
 	public static PicServer getInstance() {
@@ -67,6 +65,8 @@ public class PicServer extends Thread {
 
 	private boolean running;
 
+	private Properties serverConf = null;
+
 	private PicServer() {
 		super("PicServer");
 		this.running = true;
@@ -77,12 +77,15 @@ public class PicServer extends Thread {
 	}
 
 	public Properties getServerConf() {
-		Properties serverConf = new Properties();
-		try {
-			serverConf.loadFromXML(new FileInputStream(PicServer.SERVERCONFFILE));
-		} catch (IOException e) {
+		if (null == this.serverConf) {
+			this.serverConf = new Properties();
+			try {
+				this.serverConf.loadFromXML(new FileInputStream(PicServer.SERVERCONFFILE));
+			} catch (IOException ioException) {
+				log.error("", ioException);
+			}
 		}
-		return serverConf;
+		return this.serverConf;
 	}
 
 	public boolean hasClients() {
@@ -114,7 +117,8 @@ public class PicServer extends Thread {
 	@Override
 	public void run() {
 		try {
-			this.listen = new ServerSocket(PicServer.PORT);
+			this.listen = new ServerSocket(Integer.parseInt(this.getServerConf().getProperty("serverPort",
+				"1807")));
 			if (this.listen == null) {
 				log.error("Could not create communication socket");
 				System.exit(1);
@@ -125,7 +129,7 @@ public class PicServer extends Thread {
 			System.exit(1);
 		}
 
-		log.info("New ServerSocket created - listening on Port: " + PORT);
+		log.info("New ServerSocket created - listening on Port: " + this.listen.getLocalPort());
 		while (this.isRunning()) {
 			try {
 				Socket socket = this.listen.accept();
