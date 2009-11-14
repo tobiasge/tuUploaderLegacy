@@ -8,11 +8,12 @@
 	<classpathentry kind="lib" path="lib/commons-lang-2.4.jar"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.core.commands.jar"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.equinox.common.jar"/>
-	<classpathentry kind="lib" path="lib/org.eclipse.jface.jar" sourcepath="C:/ProgramFiles/Eclipse/plugins/org.eclipse.jface.source_3.5.0.I20090313-0100.jar"/>
-	<classpathentry kind="lib" path="lib/org.eclipse.osgi.jar" sourcepath="C:/ProgramFiles/Eclipse/plugins/org.eclipse.osgi.source_3.5.0.v20090311-1300.jar"/>
-	<classpathentry kind="lib" path="lib/swt-win-32.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.jface.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.osgi.jar"/>
+	<classpathentry kind="lib" path="lib/joda-time-1.6.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.nebula.widgets.cdatetime"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.nebula.widgets.gallery"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.nebula.cwt"/>
+	<classpathentry kind="lib" path="lib/swt-win-32.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
