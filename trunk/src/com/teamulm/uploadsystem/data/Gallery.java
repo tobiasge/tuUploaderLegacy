@@ -17,15 +17,15 @@ public class Gallery implements Serializable, Comparable<Gallery> {
 
 	public final static DateTimeFormatter GALLERY_DATE_FORMAT = DateTimeFormat.forPattern("dd-MM-yyyy"); //$NON-NLS-1$
 
+	private static final String FS = System.getProperty("file.separator"); //$NON-NLS-1$
+
 	private static final long serialVersionUID = -9028890879729734915L;
 
 	public static String getPath(String location, LocalDate date, int suffix) {
 		if (suffix == 0) {
-			return location + System.getProperty("file.separator") + Gallery.GALLERY_DATE_FORMAT.print(date) //$NON-NLS-1$
-				+ System.getProperty("file.separator"); //$NON-NLS-1$
+			return location + Gallery.FS + Gallery.GALLERY_DATE_FORMAT.print(date) + Gallery.FS;
 		} else {
-			return location + System.getProperty("file.separator") + Gallery.GALLERY_DATE_FORMAT.print(date) + "-" //$NON-NLS-1$ //$NON-NLS-2$
-				+ suffix + System.getProperty("file.separator"); //$NON-NLS-1$
+			return location + Gallery.FS + Gallery.GALLERY_DATE_FORMAT.print(date) + "-" + suffix + Gallery.FS; //$NON-NLS-1$
 		}
 	}
 
@@ -204,7 +204,7 @@ public class Gallery implements Serializable, Comparable<Gallery> {
 
 	@Override
 	public String toString() {
-		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("Galid", this.galid).append(
-			"Location", this.location).append("Date", this.date).append("Suffix", this.suffix).toString();
+		return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE).append("Galid", this.galid).append( //$NON-NLS-1$
+			"Location", this.location).append("Date", this.date).append("Suffix", this.suffix).toString(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 }
