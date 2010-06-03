@@ -88,10 +88,8 @@ public class Converter extends Thread {
 					outSmaPicName = new File(this.savePath + this.fileSep + this.smallPicName + number + ".jpg"); //$NON-NLS-1$
 					if (this.copyFile(actFile, outBigPicName)
 						&& this.myImageConverter.createPreview(outBigPicName, outSmaPicName)) {
-
 						this.chef.setToTransmit(outSmaPicName);
 						this.chef.setToTransmit(outBigPicName);
-
 					}
 				} else {
 					if (!this.myImageConverter.isKownFormat(actPic.getWidth(), actPic.getHeight())) {
@@ -107,7 +105,6 @@ public class Converter extends Thread {
 						&& this.myImageConverter.createPreview(outBigPicName, outSmaPicName)) {
 						this.chef.setToTransmit(outSmaPicName);
 						this.chef.setToTransmit(outBigPicName);
-
 					}
 				}
 			}
