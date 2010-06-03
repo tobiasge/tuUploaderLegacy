@@ -6,11 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +23,10 @@ import com.teamulm.uploadsystem.client.gui.MainWindow;
 import com.teamulm.uploadsystem.client.gui.Messages;
 import com.teamulm.uploadsystem.data.Gallery;
 import com.teamulm.uploadsystem.data.Location;
+import com.teamulm.uploadsystem.data.User;
 import com.teamulm.uploadsystem.protocol.AuthenticationCmd;
 import com.teamulm.uploadsystem.protocol.Command;
+import com.teamulm.uploadsystem.protocol.Command.CommandType;
 import com.teamulm.uploadsystem.protocol.GetGalleriesCmd;
 import com.teamulm.uploadsystem.protocol.GetLocationsCmd;
 import com.teamulm.uploadsystem.protocol.HelloCmd;
@@ -40,7 +39,6 @@ import com.teamulm.uploadsystem.protocol.QuitCmd;
 import com.teamulm.uploadsystem.protocol.SaveFileCmd;
 import com.teamulm.uploadsystem.protocol.SaveGalleryCmd;
 import com.teamulm.uploadsystem.protocol.UnLockPathCmd;
-import com.teamulm.uploadsystem.protocol.Command.CommandType;
 
 public class Transmitter extends Thread {
 
@@ -137,12 +135,12 @@ public class Transmitter extends Thread {
 				this.chef.setStartNumber(resp.getStartNumber());
 				return true;
 			} else if (resp.getErrorCode() == PathCmd.ERROR_LOC_BADLOC) {
-				TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
-					Messages.getString("Transmitter.logMessages.usedLoc")); //$NON-NLS-1$
+				TeamUlmUpload.getInstance().getMainWindow()
+					.addStatusLine(Messages.getString("Transmitter.logMessages.usedLoc")); //$NON-NLS-1$
 				return false;
 			} else if (resp.getErrorCode() == PathCmd.ERROR_LOC_NOTFREE) {
-				TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
-					Messages.getString("Transmitter.logMessages.usedLoc")); //$NON-NLS-1$
+				TeamUlmUpload.getInstance().getMainWindow()
+					.addStatusLine(Messages.getString("Transmitter.logMessages.usedLoc")); //$NON-NLS-1$
 				return false;
 			} else
 				return false;
@@ -157,7 +155,7 @@ public class Transmitter extends Thread {
 			return false;
 		LoginCmd cmd = new LoginCmd(CommandType.REQUEST);
 		cmd.setUserName(username);
-		cmd.setPassWord(this.compute(passwd));
+		cmd.setPassWord(User.computeMD5CheckSum(passwd));
 		try {
 			Command retVal = this.sendAndRead(cmd);
 			log.debug("Server said: " + retVal); //$NON-NLS-1$
@@ -191,8 +189,8 @@ public class Transmitter extends Thread {
 
 	@Override
 	public void run() {
-		TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
-			Messages.getString("Transmitter.logMessages.startedTransmit")); //$NON-NLS-1$
+		TeamUlmUpload.getInstance().getMainWindow()
+			.addStatusLine(Messages.getString("Transmitter.logMessages.startedTransmit")); //$NON-NLS-1$
 		TeamUlmUpload.getInstance().getMainWindow().setUploadProgress(0);
 		Command retVal = null;
 		File currentFile = null;
@@ -214,9 +212,13 @@ public class Transmitter extends Thread {
 						currentFile.delete();
 					} else {
 						log.info("Datei " + currentFile.getName() + " nicht gesendet"); //$NON-NLS-1$ //$NON-NLS-2$
-						TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
-							MessageFormat.format(Messages.getString("Transmitter.logMessages.fileNotSent"), currentFile //$NON-NLS-1$
-								.getName()));
+						TeamUlmUpload
+							.getInstance()
+							.getMainWindow()
+							.addStatusLine(
+								MessageFormat.format(
+									Messages.getString("Transmitter.logMessages.fileNotSent"), currentFile //$NON-NLS-1$
+										.getName()));
 					}
 				}
 			}
@@ -226,17 +228,17 @@ public class Transmitter extends Thread {
 			retVal = this.sendAndRead(cmd);
 			log.debug("Server said: " + retVal); //$NON-NLS-1$
 			if (retVal instanceof SaveGalleryCmd && retVal.commandSucceded()) {
-				TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
-					Messages.getString("Transmitter.logMessages.gallerySaved")); //$NON-NLS-1$
+				TeamUlmUpload.getInstance().getMainWindow()
+					.addStatusLine(Messages.getString("Transmitter.logMessages.gallerySaved")); //$NON-NLS-1$
 			} else {
-				TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
-					Messages.getString("Transmitter.logMessages.gallerySaveError")); //$NON-NLS-1$
+				TeamUlmUpload.getInstance().getMainWindow()
+					.addStatusLine(Messages.getString("Transmitter.logMessages.gallerySaveError")); //$NON-NLS-1$
 			}
-			TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
-				Messages.getString("Transmitter.logMessages.finishedTransmit")); //$NON-NLS-1$
+			TeamUlmUpload.getInstance().getMainWindow()
+				.addStatusLine(Messages.getString("Transmitter.logMessages.finishedTransmit")); //$NON-NLS-1$
 			this.disconnect();
-			TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
-				Messages.getString("Transmitter.logMessages.disconnected")); //$NON-NLS-1$
+			TeamUlmUpload.getInstance().getMainWindow()
+				.addStatusLine(Messages.getString("Transmitter.logMessages.disconnected")); //$NON-NLS-1$
 			sleep(10);
 		} catch (Exception e) {
 			Helper.getInstance().systemCrashHandler(e);
@@ -262,31 +264,6 @@ public class Transmitter extends Thread {
 			Helper.getInstance().systemCrashHandler(e);
 			return false;
 		}
-	}
-
-	private String compute(String inStr) {
-		MessageDigest md5 = null;
-		byte[] byteArray = null;
-		try {
-			md5 = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
-			byteArray = inStr.getBytes("UTF-8"); //$NON-NLS-1$
-		} catch (NoSuchAlgorithmException e) {
-			Helper.getInstance().systemCrashHandler(e);
-			return ""; //$NON-NLS-1$
-		} catch (UnsupportedEncodingException e) {
-			Helper.getInstance().systemCrashHandler(e);
-			return ""; //$NON-NLS-1$
-		}
-
-		byte[] md5Bytes = md5.digest(byteArray);
-		StringBuffer hexValue = new StringBuffer();
-		for (int i = 0; i < md5Bytes.length; i++) {
-			int val = ((int) md5Bytes[i]) & 0xff;
-			if (val < 16)
-				hexValue.append("0"); //$NON-NLS-1$
-			hexValue.append(Integer.toHexString(val));
-		}
-		return hexValue.toString();
 	}
 
 	private byte[] getBytesFromFile(File file) throws IOException {

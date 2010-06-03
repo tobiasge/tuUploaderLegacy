@@ -20,7 +20,7 @@ import com.teamulm.uploadsystem.data.Location;
 
 public class TrmEngine extends Thread {
 
-	public static final String VERSION = "5.0"; //$NON-NLS-1$
+	public static final String VERSION = "5.2"; //$NON-NLS-1$
 
 	private static TrmEngine instance = null;
 
@@ -262,8 +262,11 @@ public class TrmEngine extends Thread {
 		} finally {
 			this.picTransmitLock.unlock();
 		}
-		TeamUlmUpload.getInstance().getMainWindow().setUploadProgress(
-			(int) ((MainWindow.PROGRESS_BAR_MAX / TrmEngine.this.totalFiles) * TrmEngine.this.transmitedFiles));
+		TeamUlmUpload
+			.getInstance()
+			.getMainWindow()
+			.setUploadProgress(
+				(int) ((MainWindow.PROGRESS_BAR_MAX / TrmEngine.this.totalFiles) * TrmEngine.this.transmitedFiles));
 		return retVal;
 	}
 
@@ -284,8 +287,11 @@ public class TrmEngine extends Thread {
 		this.convertedFiles++;
 		this.picToTransmit.signal();
 		this.picTransmitLock.unlock();
-		TeamUlmUpload.getInstance().getMainWindow().setConvertProgress(
-			(int) ((MainWindow.PROGRESS_BAR_MAX / TrmEngine.this.totalFiles) * TrmEngine.this.convertedFiles));
+		TeamUlmUpload
+			.getInstance()
+			.getMainWindow()
+			.setConvertProgress(
+				(int) ((MainWindow.PROGRESS_BAR_MAX / TrmEngine.this.totalFiles) * TrmEngine.this.convertedFiles));
 	}
 
 	protected void unSetStartNumber() {

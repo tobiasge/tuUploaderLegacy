@@ -23,6 +23,7 @@ import com.teamulm.uploadsystem.data.Location;
 import com.teamulm.uploadsystem.data.User;
 import com.teamulm.uploadsystem.protocol.AuthenticationCmd;
 import com.teamulm.uploadsystem.protocol.Command;
+import com.teamulm.uploadsystem.protocol.Command.CommandType;
 import com.teamulm.uploadsystem.protocol.GetGalleriesCmd;
 import com.teamulm.uploadsystem.protocol.GetLocationsCmd;
 import com.teamulm.uploadsystem.protocol.HelloCmd;
@@ -35,7 +36,6 @@ import com.teamulm.uploadsystem.protocol.QuitCmd;
 import com.teamulm.uploadsystem.protocol.SaveFileCmd;
 import com.teamulm.uploadsystem.protocol.SaveGalleryCmd;
 import com.teamulm.uploadsystem.protocol.UnLockPathCmd;
-import com.teamulm.uploadsystem.protocol.Command.CommandType;
 
 /**
  * @author Tobias Genannt
@@ -44,7 +44,9 @@ public class UploadServ extends Thread {
 
 	private static final Logger log = Logger.getLogger(UploadServ.class);
 
-	private static final String VER = "5.0"; //$NON-NLS-1$
+	private static final String SALT_SUFFIX = "gRanulat"; //$NON-NLS-1$
+
+	private static final String VER = "5.2"; //$NON-NLS-1$
 
 	private boolean active;
 
@@ -300,7 +302,7 @@ public class UploadServ extends Thread {
 		boolean authenticationOk = false;
 		this.user = DBConn.getInstance().getUserForName(user);
 		authenticationOk = StringUtils.isNotBlank(passwd) && null != this.user
-			&& passwd.equalsIgnoreCase(this.user.getPassword());
+			&& this.user.getPassword().equals(this.processPassword(this.user.getUsername(), passwd));
 		if (authenticationOk) {
 			return true;
 		} else {
@@ -354,6 +356,10 @@ public class UploadServ extends Thread {
 			log.error(this.clientip + ": Gallery saving failed");
 			return false;
 		}
+	}
+
+	private String processPassword(String userName, String passWord) {
+		return User.computeMD5CheckSum(userName.toUpperCase().concat(UploadServ.SALT_SUFFIX).concat(passWord));
 	}
 
 	private Command readCommand() {

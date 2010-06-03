@@ -1,6 +1,9 @@
 package com.teamulm.uploadsystem.data;
 
 import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -10,6 +13,29 @@ import org.apache.commons.lang.builder.ToStringStyle;
 public class User implements Serializable {
 
 	private static final long serialVersionUID = 6277405439383266829L;
+
+	public static String computeMD5CheckSum(String inStr) {
+		MessageDigest md5 = null;
+		byte[] byteArray = null;
+		try {
+			md5 = MessageDigest.getInstance("MD5"); //$NON-NLS-1$
+			byteArray = inStr.getBytes("UTF-8"); //$NON-NLS-1$
+		} catch (NoSuchAlgorithmException e) {
+			return ""; //$NON-NLS-1$
+		} catch (UnsupportedEncodingException e) {
+			return ""; //$NON-NLS-1$
+		}
+
+		byte[] md5Bytes = md5.digest(byteArray);
+		StringBuffer hexValue = new StringBuffer();
+		for (int i = 0; i < md5Bytes.length; i++) {
+			int val = ((int) md5Bytes[i]) & 0xff;
+			if (val < 16)
+				hexValue.append("0"); //$NON-NLS-1$
+			hexValue.append(Integer.toHexString(val));
+		}
+		return hexValue.toString();
+	}
 
 	/** Stores the user password as an encrypted string */
 	private String password = "";
