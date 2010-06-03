@@ -46,8 +46,6 @@ public class Transmitter extends Thread {
 
 	private static final Logger log = Logger.getLogger(Transmitter.class);
 
-	private File akt;
-
 	private TrmEngine chef;
 
 	private boolean connected;
@@ -196,27 +194,28 @@ public class Transmitter extends Thread {
 		TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
 			Messages.getString("Transmitter.logMessages.startedTransmit")); //$NON-NLS-1$
 		TeamUlmUpload.getInstance().getMainWindow().setUploadProgress(0);
-		Command retVal;
+		Command retVal = null;
+		File currentFile = null;
 		try {
 			while (this.running && this.chef.isThereSomethingToTtansmit()) {
-				if ((this.akt = this.chef.getNextToTransmit()) == null) {
+				if ((currentFile = this.chef.getNextToTransmit()) == null) {
 					log.info("this.chef.getNextToTransmit() returned null"); //$NON-NLS-1$
 				} else {
-					log.info("Sende Datei " + this.akt.getName()); //$NON-NLS-1$
+					log.info("Sende Datei " + currentFile.getName()); //$NON-NLS-1$
 					SaveFileCmd cmd = new SaveFileCmd(CommandType.REQUEST);
-					cmd.setFileName(this.akt.getName());
-					cmd.setFileSize((int) this.akt.length());
-					cmd.setFileContent(this.getBytesFromFile(this.akt));
+					cmd.setFileName(currentFile.getName());
+					cmd.setFileSize((int) currentFile.length());
+					cmd.setFileContent(this.getBytesFromFile(currentFile));
 
 					retVal = this.sendAndRead(cmd);
 					log.debug("Server said: " + retVal); //$NON-NLS-1$
 					if (retVal instanceof SaveFileCmd && retVal.commandSucceded()) {
-						log.info("Datei " + this.akt.getAbsolutePath() + " gesendet"); //$NON-NLS-1$ //$NON-NLS-2$
-						this.akt.delete();
+						log.info("Datei " + currentFile.getAbsolutePath() + " gesendet"); //$NON-NLS-1$ //$NON-NLS-2$
+						currentFile.delete();
 					} else {
-						log.info("Datei " + this.akt.getName() + " nicht gesendet"); //$NON-NLS-1$ //$NON-NLS-2$
+						log.info("Datei " + currentFile.getName() + " nicht gesendet"); //$NON-NLS-1$ //$NON-NLS-2$
 						TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
-							MessageFormat.format(Messages.getString("Transmitter.logMessages.fileNotSent"), this.akt //$NON-NLS-1$
+							MessageFormat.format(Messages.getString("Transmitter.logMessages.fileNotSent"), currentFile //$NON-NLS-1$
 								.getName()));
 					}
 				}
