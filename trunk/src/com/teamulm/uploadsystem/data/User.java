@@ -61,15 +61,15 @@ public class User implements Serializable {
 	}
 
 	public String getPassword() {
-		return password;
+		return this.password;
 	}
 
 	public int getUserid() {
-		return userid;
+		return this.userid;
 	}
 
 	public String getUsername() {
-		return username;
+		return this.username;
 	}
 
 	@Override
