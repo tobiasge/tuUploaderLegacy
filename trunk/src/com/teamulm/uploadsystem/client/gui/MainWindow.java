@@ -499,7 +499,7 @@ public class MainWindow extends Window {
 				}
 			}
 
-			if (!TrmEngine.getInstance().lockLocation(MainWindow.this.gallery)) {
+			if (!TrmEngine.getInstance().lockLocation(MainWindow.this.getGallery())) {
 				return;
 			}
 			File[] files = new File[MainWindow.this.fileList.getItemCount()];

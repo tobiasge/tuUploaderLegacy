@@ -148,8 +148,7 @@ public class TrmEngine extends Thread {
 			return false;
 		}
 		this.gallery = gal;
-		if (null != this.transmit)
-			this.transmit.setGallery(gal);
+		this.transmit.setGallery(gal);
 		return this.transmit.lockLocation(gal);
 	}
 
@@ -218,11 +217,6 @@ public class TrmEngine extends Thread {
 		this.toconvert = new Vector<File>();
 		for (File fi : files)
 			this.toconvert.add(fi);
-	}
-
-	public void setGallery(Gallery gallery) {
-		this.gallery = gallery;
-		this.transmit.setGallery(gallery);
 	}
 
 	public synchronized boolean unLockLocation(Gallery gal) {
