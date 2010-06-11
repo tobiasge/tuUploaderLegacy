@@ -53,6 +53,8 @@ public class MainWindow extends Window {
 
 	private final static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MainWindow.class);
 
+	private boolean createHqPictures = true;
+
 	private CDateTime eventDate = null;
 
 	private Button fieldIntern = null;
@@ -70,6 +72,8 @@ public class MainWindow extends Window {
 	private Label selectedPics = null;
 
 	private ProgressBar uploadProgressBar = null, convertProgressBar = null;
+
+	private Button buttonCreateHqPicture;
 
 	public MainWindow() {
 		super((Shell) null);
@@ -284,8 +288,7 @@ public class MainWindow extends Window {
 							} else if (TrmEngine.getInstance().connect()) {
 								MainWindow.this.addStatusLine(Messages.getString("MainWindow.logMessages.connectOk")); //$NON-NLS-1$
 							} else {
-								MainWindow.this
-									.addStatusLine(Messages.getString("MainWindow.logMessages.connectNotOk")); //$NON-NLS-1$
+								MainWindow.this.addStatusLine(Messages.getString("MainWindow.logMessages.connectNotOk")); //$NON-NLS-1$
 							}
 							if (!TrmEngine.getInstance().isConnected()) {
 								return;
@@ -332,10 +335,8 @@ public class MainWindow extends Window {
 		this.fieldTitle.addModifyListener(new ModifyListener() {
 
 			public void modifyText(ModifyEvent modifyEvent) {
-				MainWindow.this.labelEventTitle
-					.setText(MessageFormat
-						.format(
-							Messages.getString("MainWindow.label.eventTitle.text"), MainWindow.this.fieldTitle.getText().length(), GalleryDialog.TITLEMAXLENGTH)); //$NON-NLS-1$
+				MainWindow.this.labelEventTitle.setText(MessageFormat.format(
+					Messages.getString("MainWindow.label.eventTitle.text"), MainWindow.this.fieldTitle.getText().length(), GalleryDialog.TITLEMAXLENGTH)); //$NON-NLS-1$
 			}
 		});
 		this.labelEventDescription = new Label(composite, SWT.NONE);
@@ -350,10 +351,8 @@ public class MainWindow extends Window {
 		this.fieldDesc.addModifyListener(new ModifyListener() {
 
 			public void modifyText(ModifyEvent modifyEvent) {
-				MainWindow.this.labelEventDescription
-					.setText(MessageFormat
-						.format(
-							Messages.getString("MainWindow.label.eventDesc.text"), MainWindow.this.fieldDesc.getText().length(), GalleryDialog.DESCRMAXLENGTH)); //$NON-NLS-1$
+				MainWindow.this.labelEventDescription.setText(MessageFormat.format(
+					Messages.getString("MainWindow.label.eventDesc.text"), MainWindow.this.fieldDesc.getText().length(), GalleryDialog.DESCRMAXLENGTH)); //$NON-NLS-1$
 			}
 		});
 
@@ -379,6 +378,8 @@ public class MainWindow extends Window {
 	}
 
 	private void reset() {
+		this.createHqPictures = true;
+		this.buttonCreateHqPicture.setSelection(true);
 		this.convertProgressBar.setSelection(0);
 		this.uploadProgressBar.setSelection(0);
 		this.setGallery(null);
@@ -417,8 +418,8 @@ public class MainWindow extends Window {
 		statusListMenuItemCopy.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				String logText = StringUtils.join(MainWindow.this.statusList.getItems(), System
-					.getProperty("line.separator")); //$NON-NLS-1$
+				String logText = StringUtils.join(MainWindow.this.statusList.getItems(),
+					System.getProperty("line.separator")); //$NON-NLS-1$
 				Clipboard cb = new Clipboard(Display.getCurrent());
 				TextTransfer textTransfer = TextTransfer.getInstance();
 				cb.setContents(new Object[] { logText }, new Transfer[] { textTransfer });
@@ -427,6 +428,17 @@ public class MainWindow extends Window {
 		});
 		this.statusList.setMenu(statusListMenu);
 		this.addStatusLine("Copyright by ibTEC Team-Ulm GbR"); //$NON-NLS-1$
+
+		this.buttonCreateHqPicture = new Button(composite, SWT.CHECK);
+		this.buttonCreateHqPicture.setText(Messages.getString("MainWindow.button.createHqPic.text")); //$NON-NLS-1$
+		this.buttonCreateHqPicture.setSelection(true);
+		this.buttonCreateHqPicture.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				MainWindow.this.createHqPictures = MainWindow.this.buttonCreateHqPicture.getSelection();
+			}
+		});
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(buttonCreateHqPicture);
 
 		Composite buttonComposite = new Composite(composite, SWT.NONE);
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(buttonComposite);
@@ -508,6 +520,7 @@ public class MainWindow extends Window {
 				File file = new File(fileName);
 				files[index++] = file;
 			}
+			TrmEngine.getInstance().setCreateHqPictures(MainWindow.this.createHqPictures);
 			TrmEngine.getInstance().setFiles(files);
 			TrmEngine.getInstance().start();
 		}

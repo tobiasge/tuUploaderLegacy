@@ -20,7 +20,7 @@ import com.teamulm.uploadsystem.data.Location;
 
 public class TrmEngine extends Thread {
 
-	public static final String VERSION = "5.2"; //$NON-NLS-1$
+	public static final String VERSION = "7.0"; //$NON-NLS-1$
 
 	private static TrmEngine instance = null;
 
@@ -40,9 +40,11 @@ public class TrmEngine extends Thread {
 		}
 	}
 
-	private long convertedFiles = 0;
+	private int convertedFiles = 0;
 
 	private Converter[] converters = null;
+
+	private boolean createHqPictures = true;
 
 	private Gallery gallery = null;
 
@@ -62,7 +64,7 @@ public class TrmEngine extends Thread {
 
 	private Transmitter transmit = null;
 
-	private long transmitedFiles = 0;
+	private int transmitedFiles = 0;
 
 	private String userName = "NotLoggedIn";
 
@@ -101,7 +103,7 @@ public class TrmEngine extends Thread {
 	}
 
 	public synchronized void fileWasIgnored() {
-		this.totalFiles = this.totalFiles - 2;
+		this.totalFiles = this.totalFiles - (this.createHqPictures ? 3 : 2);
 	}
 
 	public synchronized ArrayList<Gallery> getGalleriesFor(String date) {
@@ -131,12 +133,20 @@ public class TrmEngine extends Thread {
 		return retVal;
 	}
 
+	public int getTransmitedFiles() {
+		return this.transmitedFiles;
+	}
+
 	public String getUserName() {
 		return userName;
 	}
 
 	public boolean isConnected() {
 		return this.connected;
+	}
+
+	public boolean isCreateHqPictures() {
+		return this.createHqPictures;
 	}
 
 	public boolean isLoggedIn() {
@@ -185,7 +195,7 @@ public class TrmEngine extends Thread {
 			return;
 		}
 		for (int i = 0; i < this.converters.length; i++) {
-			this.converters[i] = new Converter(this, i);
+			this.converters[i] = new Converter(this, this.createHqPictures, i);
 			this.converters[i].setPriority(3);
 		}
 		try {
@@ -212,8 +222,12 @@ public class TrmEngine extends Thread {
 		}
 	}
 
+	public void setCreateHqPictures(boolean createHqPictures) {
+		this.createHqPictures = createHqPictures;
+	}
+
 	public void setFiles(File[] files) {
-		this.totalFiles = files.length * 2;
+		this.totalFiles = files.length * (this.createHqPictures ? 3 : 2);
 		this.toconvert = new Vector<File>();
 		for (File fi : files)
 			this.toconvert.add(fi);

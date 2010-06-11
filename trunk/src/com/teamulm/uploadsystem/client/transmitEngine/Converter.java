@@ -14,10 +14,6 @@ package com.teamulm.uploadsystem.client.transmitEngine;
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.text.MessageFormat;
 
 import javax.imageio.ImageIO;
@@ -41,7 +37,13 @@ public class Converter extends Thread {
 
 	private TrmEngine chef;
 
+	private boolean createHqPictures;
+
 	private final String fileSep = System.getProperty("file.separator"); //$NON-NLS-1$
+
+	private String hqPicName = "h_pic"; //$NON-NLS-1$
+
+	private Dimension hqPicSize = new Dimension(1600, 1200);
 
 	private int ident;
 
@@ -55,20 +57,29 @@ public class Converter extends Thread {
 
 	private boolean stopRequest;
 
-	public Converter(TrmEngine chef, int ident) {
+	public Converter(TrmEngine chef, boolean createHqPictures, int ident) {
 		super();
 		this.setName("Converter " + ident); //$NON-NLS-1$
 		this.savePath = System.getProperty("java.io.tmpdir"); //$NON-NLS-1$
 		this.chef = chef;
 		this.stopRequest = false;
 		this.ident = ident;
-		this.myImageConverter = ImageConverterFactory.getConverter(smallPicSize, bigPicSize);
+		this.createHqPictures = createHqPictures;
+		if (createHqPictures) {
+			this.myImageConverter = ImageConverterFactory.getConverter(smallPicSize, bigPicSize, hqPicSize);
+		} else {
+			this.myImageConverter = ImageConverterFactory.getConverter(smallPicSize, bigPicSize);
+		}
 	}
 
 	@Override
 	public void run() {
-		TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
-			MessageFormat.format(Messages.getString("Converter.logMessages.startingConvert"), this.ident)); //$NON-NLS-1$
+		TeamUlmUpload
+			.getInstance()
+			.getMainWindow()
+			.addStatusLine(
+				MessageFormat.format(Messages.getString("Converter.logMessages.startingConvert"), this.ident)); //$NON-NLS-1$
+		File outHqPicName = null;
 		File outBigPicName = null;
 		File outSmaPicName = null;
 		File actFile = null;
@@ -76,32 +87,36 @@ public class Converter extends Thread {
 		try {
 			while (!this.stopRequest && ((actFile = this.chef.getNextToConvert()) != null)) {
 				BufferedImage actPic = ImageIO.read(actFile);
-				if ((actPic.getWidth() < this.bigPicSize.width) && (actPic.getHeight() < this.bigPicSize.height)) {
+				if (!this.myImageConverter.isPicBigEnough(actPic)) {
 					log.info("Thread: " + this.ident + " Übersprungen wegen Größe " + actFile.getName() + " -> Breit: " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						+ actPic.getWidth() + " Hoch: " + actPic.getHeight()); //$NON-NLS-1$
-					TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
-						Messages.getString("Converter.logMessages.picTooSmall")); //$NON-NLS-1$
-				} else if ((actPic.getWidth() == this.bigPicSize.width)
-					&& (actPic.getHeight() == this.bigPicSize.height)) {
-					number = this.chef.getNextPicNum();
-					outBigPicName = new File(this.savePath + this.fileSep + this.bigPicName + number + ".jpg"); //$NON-NLS-1$
-					outSmaPicName = new File(this.savePath + this.fileSep + this.smallPicName + number + ".jpg"); //$NON-NLS-1$
-					if (this.copyFile(actFile, outBigPicName)
+					TeamUlmUpload.getInstance().getMainWindow()
+						.addStatusLine(Messages.getString("Converter.logMessages.picTooSmall")); //$NON-NLS-1$
+					this.chef.fileWasIgnored();
+					continue;
+				}
+				if (!this.myImageConverter.isKownFormat(actPic.getWidth(), actPic.getHeight())) {
+					TeamUlmUpload.getInstance().getMainWindow()
+						.addStatusLine(Messages.getString("Converter.logMessages.wrongFormat")); //$NON-NLS-1$
+					this.chef.fileWasIgnored();
+					continue;
+				}
+
+				number = this.chef.getNextPicNum();
+				outHqPicName = new File(this.savePath + this.fileSep + this.hqPicName + number + ".jpg"); //$NON-NLS-1$
+				outBigPicName = new File(this.savePath + this.fileSep + this.bigPicName + number + ".jpg"); //$NON-NLS-1$
+				outSmaPicName = new File(this.savePath + this.fileSep + this.smallPicName + number + ".jpg"); //$NON-NLS-1$
+
+				if (this.createHqPictures) {
+					if (this.myImageConverter.createPic(actFile, outHqPicName, true)
+						&& this.myImageConverter.createPic(outHqPicName, outBigPicName, false)
 						&& this.myImageConverter.createPreview(outBigPicName, outSmaPicName)) {
+						this.chef.setToTransmit(outHqPicName);
 						this.chef.setToTransmit(outSmaPicName);
 						this.chef.setToTransmit(outBigPicName);
 					}
 				} else {
-					if (!this.myImageConverter.isKownFormat(actPic.getWidth(), actPic.getHeight())) {
-						TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
-							Messages.getString("Converter.logMessages.wrongFormat")); //$NON-NLS-1$
-						this.chef.fileWasIgnored();
-						continue;
-					}
-					number = this.chef.getNextPicNum();
-					outBigPicName = new File(this.savePath + this.fileSep + this.bigPicName + number + ".jpg"); //$NON-NLS-1$
-					outSmaPicName = new File(this.savePath + this.fileSep + this.smallPicName + number + ".jpg"); //$NON-NLS-1$
-					if (this.myImageConverter.createPic(actFile, outBigPicName)
+					if (this.myImageConverter.createPic(actFile, outBigPicName, false)
 						&& this.myImageConverter.createPreview(outBigPicName, outSmaPicName)) {
 						this.chef.setToTransmit(outSmaPicName);
 						this.chef.setToTransmit(outBigPicName);
@@ -111,25 +126,15 @@ public class Converter extends Thread {
 			sleep(5);
 		} catch (Exception e) {
 			log.error("", e); //$NON-NLS-1$
-			TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
-				MessageFormat.format(Messages.getString("Converter.logMessages.notConverted"), actFile.getName(), //$NON-NLS-1$
-					this.ident));
+			TeamUlmUpload
+				.getInstance()
+				.getMainWindow()
+				.addStatusLine(
+					MessageFormat.format(Messages.getString("Converter.logMessages.notConverted"), actFile.getName(), //$NON-NLS-1$
+						this.ident));
 			Helper.getInstance().systemCrashHandler(e);
 		}
 		TeamUlmUpload.getInstance().getMainWindow().setConvertProgress(MainWindow.PROGRESS_BAR_MAX);
-	}
-
-	private boolean copyFile(File in, File out) {
-		try {
-			FileChannel sourceChannel = new FileInputStream(in).getChannel();
-			FileChannel destinationChannel = new FileOutputStream(out).getChannel();
-			sourceChannel.transferTo(0, sourceChannel.size(), destinationChannel);
-			sourceChannel.close();
-			destinationChannel.close();
-			return true;
-		} catch (IOException e) {
-			return false;
-		}
 	}
 
 	protected synchronized void requestStop() {

@@ -11,28 +11,50 @@ import com.teamulm.uploadsystem.client.Helper;
 
 public abstract class ImageConverter {
 
-	protected Dimension smallPicSize;
-
 	protected Dimension bigPicSize;
 
 	protected Dimension bigSLRPicSize;
 
-	protected ImageConverter(Dimension smallPicSize, Dimension bigPicSize) {
-		this.initSizes(smallPicSize, bigPicSize);
+	protected Dimension hqPicSize;
+
+	protected Dimension hqSLRPicSize;
+
+	protected Dimension smallPicSize;
+
+	protected ImageConverter(Dimension smallPicSize, Dimension bigPicSize, Dimension hqPicSize) {
+		this.initSizes(smallPicSize, bigPicSize, hqPicSize);
 	}
 
-	protected void initSizes(Dimension smallPicSize, Dimension bigPicSize) {
+	public abstract boolean createPic(File inFile, File outFile, boolean createHqPicture);
+
+	public abstract boolean createPreview(File inFile, File outFile);
+
+	public boolean isKownFormat(int width, int height) {
+		return this.isDefaultPicture(width, height) || this.isSLRPicture(width, height)
+			|| this.isUprightPicture(width, height);
+	}
+
+	public boolean isPicBigEnough(BufferedImage pic) {
+		if (null == this.hqPicSize) {
+			return (pic.getWidth() >= this.bigPicSize.width) && (pic.getHeight() >= this.bigPicSize.height);
+		} else {
+			return (pic.getWidth() >= this.hqPicSize.width) && (pic.getHeight() >= this.hqPicSize.height);
+		}
+
+	}
+
+	protected void initSizes(Dimension smallPicSize, Dimension bigPicSize, Dimension hqPicSize) {
 		this.smallPicSize = smallPicSize;
 		this.bigPicSize = bigPicSize;
 		int bigSLRWidth = bigPicSize.width;
 		int bigSLRHeight = (int) ((double) 2 / (double) 3 * (double) bigSLRWidth);
 		this.bigSLRPicSize = new Dimension(bigSLRWidth, bigSLRHeight);
-	}
-
-	protected boolean isSLRPicture(int width, int height) {
-		double aspectRatio = (double) width / (double) height;
-		double diff = Math.abs(aspectRatio - ((double) 3 / (double) 2));
-		return diff < (double) 0.05;
+		if (null != hqPicSize) {
+			this.hqPicSize = hqPicSize;
+			int hqSLRWidth = hqPicSize.width;
+			int hqSLRHeight = (int) ((double) 2 / (double) 3 * (double) hqSLRWidth);
+			this.hqSLRPicSize = new Dimension(hqSLRWidth, hqSLRHeight);
+		}
 	}
 
 	protected boolean isDefaultPicture(int width, int height) {
@@ -41,13 +63,14 @@ public abstract class ImageConverter {
 		return diff < (double) 0.05;
 	}
 
-	protected boolean isUprightPicture(int width, int height) {
-		return height > width;
+	protected boolean isSLRPicture(int width, int height) {
+		double aspectRatio = (double) width / (double) height;
+		double diff = Math.abs(aspectRatio - ((double) 3 / (double) 2));
+		return diff < (double) 0.05;
 	}
 
-	public boolean isKownFormat(int width, int height) {
-		return this.isDefaultPicture(width, height) || this.isSLRPicture(width, height)
-				|| this.isUprightPicture(width, height);
+	protected boolean isUprightPicture(int width, int height) {
+		return height > width;
 	}
 
 	protected BufferedImage toBufferedImage(Image image) {
@@ -77,9 +100,5 @@ public abstract class ImageConverter {
 		}
 		return tmp;
 	}
-
-	public abstract boolean createPic(File inFile, File outFile);
-
-	public abstract boolean createPreview(File inFile, File outFile);
 
 }

@@ -258,12 +258,12 @@ public class DBConn {
 			return retVal;
 		}
 		try {
-			String query = "SELECT userid, passwort_enc, username FROM tu_users_login WHERE userid = ?";
+			String query = "SELECT userid, password, username FROM tu_users_login WHERE userid = ?";
 			request = connection.prepareStatement(query);
 			request.setInt(1, userId);
 			result = request.executeQuery();
 			result.first();
-			retVal = new User(result.getInt("userid"), result.getString("passwort_enc"), result.getString("username"));
+			retVal = new User(result.getInt("userid"), result.getString("password"), result.getString("username"));
 		} catch (SQLException sqlException) {
 			log.error("Failure in getUserForId()", sqlException);
 		}

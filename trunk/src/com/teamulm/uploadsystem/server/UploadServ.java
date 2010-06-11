@@ -46,7 +46,7 @@ public class UploadServ extends Thread {
 
 	private static final String SALT_SUFFIX = "gRanulat"; //$NON-NLS-1$
 
-	private static final String VER = "5.2"; //$NON-NLS-1$
+	private static final String VER = "7.0"; //$NON-NLS-1$
 
 	private boolean active;
 
@@ -64,14 +64,11 @@ public class UploadServ extends Thread {
 
 	private ObjectOutputStream output;
 
-	private int uploaded;
-
 	private User user;
 
 	public UploadServ(PicServer master, Socket so, int number) {
 		super("UploadServ " + number);
 		this.hasLock = false;
-		this.uploaded = 0;
 		this.client = so;
 		this.clientip = so.getInetAddress().getHostAddress();
 		this.initServer();
@@ -169,15 +166,15 @@ public class UploadServ extends Thread {
 					SaveGalleryCmd request = (SaveGalleryCmd) cmd;
 					log.info(this.clientip + ": " + request.toString());
 					SaveGalleryCmd response = new SaveGalleryCmd(CommandType.RESPONSE);
-					this.gallery.setPictures((this.uploaded / 2 + this.gallery.getPictures()));
+					this.gallery.setPictures(request.getUploadedPictures() + this.gallery.getPictures());
 					if (request.getGallery().isNewGallery()) {
 						this.gallery.setDesc(request.getGallery().getDesc());
 						this.gallery.setTitle(request.getGallery().getTitle());
 						this.gallery.setIntern(request.getGallery().isIntern());
 					}
 					if (this.makeDBEntry()) {
-						if (this.uploaded > 2) {
-							PicServer.getInstance().logLastUpload(this.user.getUserid(), this.uploaded / 2,
+						if (request.getUploadedPictures() > 2) {
+							PicServer.getInstance().logLastUpload(this.user.getUserid(), request.getUploadedPictures(),
 								Gallery.GALLERY_DATE_FORMAT.print(this.gallery.getDate()), this.gallery.getLocation());
 						}
 						log.info(this.clientip + ": DB Entry done");
@@ -386,7 +383,6 @@ public class UploadServ extends Thread {
 			out.write(cmd.getFileContent(), 0, cmd.getFileSize());
 			out.flush();
 			out.close();
-			this.uploaded++;
 			log.info(this.clientip + ": File " + this.gallery.getPath() + cmd.getFileName() + " with size "
 				+ cmd.getFileSize() + " saved");
 			return true;

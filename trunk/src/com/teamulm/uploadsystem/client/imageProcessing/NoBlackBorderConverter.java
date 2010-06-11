@@ -23,44 +23,53 @@ import com.teamulm.uploadsystem.client.gui.Messages;
 
 public class NoBlackBorderConverter extends ImageConverter {
 
-	private static final Logger log = Logger.getLogger(DefaultImageConverter.class);
+	private static final Logger log = Logger.getLogger(NoBlackBorderConverter.class);
 
-	public NoBlackBorderConverter(Dimension smallPicSize, Dimension bigPicSize) {
-		super(smallPicSize, bigPicSize);
+	public NoBlackBorderConverter(Dimension smallPicSize, Dimension bigPicSize, Dimension hqPicSize) {
+		super(smallPicSize, bigPicSize, hqPicSize);
 	}
 
-	public boolean createPic(File inFile, File outFile) {
+	public boolean createPic(File inFile, File outFile, boolean createHqPicture) {
+		Dimension targetSize = null;
+		Dimension targetSLRSize = null;
+		if (createHqPicture) {
+			targetSize = this.hqPicSize;
+			targetSLRSize = this.hqSLRPicSize;
+		} else {
+			targetSize = this.bigPicSize;
+			targetSLRSize = this.bigSLRPicSize;
+		}
 		try {
 			BufferedImage pic = this.readImage(inFile);
 			if (this.isSLRPicture(pic.getWidth(), pic.getHeight())) {
 				log.debug("SLR picture found."); //$NON-NLS-1$
-				BufferedImage target = new BufferedImage(this.bigPicSize.width, this.bigPicSize.height,
+				BufferedImage target = new BufferedImage(targetSize.width, targetSize.height,
 					BufferedImage.TYPE_INT_RGB);
 				Graphics graf = target.getGraphics();
 				graf.setColor(Color.BLACK);
-				graf.drawRect(0, 0, this.bigPicSize.width, this.bigPicSize.height);
-				Image temp = pic.getScaledInstance(this.bigSLRPicSize.width, this.bigSLRPicSize.height,
+				graf.drawRect(0, 0, targetSize.width, targetSize.height);
+				Image temp = pic.getScaledInstance(targetSLRSize.width, targetSLRSize.height,
 					BufferedImage.SCALE_SMOOTH);
-				int yMove = (int) (((double) bigPicSize.height - (double) bigSLRPicSize.height) / (double) 2);
+				int yMove = (int) (((double) targetSize.height - (double) bigSLRPicSize.height) / (double) 2);
 				graf.drawImage(temp, 0, yMove, null);
 				graf.dispose();
 				this.writeImage(outFile, target);
 				return true;
 			} else if (this.isUprightPicture(pic.getWidth(), pic.getHeight())) {
 				log.debug("Upright picture found."); //$NON-NLS-1$
-				double downRatio = (double) this.bigPicSize.width / (double) pic.getHeight();
+				double downRatio = (double) targetSize.width / (double) pic.getHeight();
 				int newWidth = (int) ((double) pic.getWidth() * downRatio);
-				this.writeImage(outFile, this.toBufferedImage(pic.getScaledInstance(newWidth, this.bigPicSize.width,
-					BufferedImage.SCALE_SMOOTH)));
+				this.writeImage(outFile,
+					this.toBufferedImage(pic.getScaledInstance(newWidth, targetSize.width, BufferedImage.SCALE_SMOOTH)));
 				return true;
 			} else if (this.isDefaultPicture(pic.getWidth(), pic.getHeight())) {
 				log.debug("Normal picture found."); //$NON-NLS-1$
-				this.writeImage(outFile, this.toBufferedImage(pic.getScaledInstance(this.bigPicSize.width,
-					this.bigPicSize.height, BufferedImage.SCALE_SMOOTH)));
+				this.writeImage(outFile, this.toBufferedImage(pic.getScaledInstance(targetSize.width,
+					targetSize.height, BufferedImage.SCALE_SMOOTH)));
 				return true;
 			} else {
-				TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
-					Messages.getString("DefaultImageConverter.logMessages.wrongFormat")); //$NON-NLS-1$
+				TeamUlmUpload.getInstance().getMainWindow()
+					.addStatusLine(Messages.getString("DefaultImageConverter.logMessages.wrongFormat")); //$NON-NLS-1$
 				return false;
 			}
 		} catch (IOException e) {

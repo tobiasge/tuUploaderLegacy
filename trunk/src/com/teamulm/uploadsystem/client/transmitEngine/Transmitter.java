@@ -224,6 +224,7 @@ public class Transmitter extends Thread {
 			}
 			SaveGalleryCmd cmd = new SaveGalleryCmd(CommandType.REQUEST);
 			cmd.setGallery(this.gallery);
+			cmd.setUploadedPictures(this.chef.getTransmitedFiles() / (this.chef.isCreateHqPictures() ? 3 : 2));
 
 			retVal = this.sendAndRead(cmd);
 			log.debug("Server said: " + retVal); //$NON-NLS-1$

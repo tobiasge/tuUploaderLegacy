@@ -8,6 +8,8 @@ public class SaveGalleryCmd extends Command {
 
 	private Gallery gallery;
 
+	private int uploadedPictures = 0;
+
 	public SaveGalleryCmd(CommandType type) {
 		super(type);
 	}
@@ -16,8 +18,16 @@ public class SaveGalleryCmd extends Command {
 		return this.gallery;
 	}
 
+	public int getUploadedPictures() {
+		return this.uploadedPictures;
+	}
+
 	public void setGallery(Gallery gallery) {
 		this.gallery = gallery;
+	}
+
+	public void setUploadedPictures(int uploadedPictures) {
+		this.uploadedPictures = uploadedPictures;
 	}
 
 	@Override
