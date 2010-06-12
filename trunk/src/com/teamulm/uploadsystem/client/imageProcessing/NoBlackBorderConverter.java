@@ -50,7 +50,7 @@ public class NoBlackBorderConverter extends ImageConverter {
 				graf.drawRect(0, 0, targetSize.width, targetSize.height);
 				Image temp = pic.getScaledInstance(targetSLRSize.width, targetSLRSize.height,
 					BufferedImage.SCALE_SMOOTH);
-				int yMove = (int) (((double) targetSize.height - (double) bigSLRPicSize.height) / (double) 2);
+				int yMove = (int) (((double) targetSize.height - (double) targetSLRSize.height) / (double) 2);
 				graf.drawImage(temp, 0, yMove, null);
 				graf.dispose();
 				this.writeImage(outFile, target);
@@ -87,7 +87,7 @@ public class NoBlackBorderConverter extends ImageConverter {
 		ImageWriter writer = (ImageWriter) iter.next();
 		ImageWriteParam iwp = writer.getDefaultWriteParam();
 		iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-		iwp.setCompressionQuality(0.9F);
+		iwp.setCompressionQuality(0.95F);
 		FileImageOutputStream output = new FileImageOutputStream(outFile);
 		writer.setOutput(output);
 		IIOImage image = new IIOImage(img, null, null);
