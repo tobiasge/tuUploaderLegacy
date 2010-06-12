@@ -46,7 +46,7 @@ public class UploadServ extends Thread {
 
 	private static final String SALT_SUFFIX = "gRanulat"; //$NON-NLS-1$
 
-	private static final String VER = "7.0"; //$NON-NLS-1$
+	private static final String VER = "7.1"; //$NON-NLS-1$
 
 	private boolean active;
 
