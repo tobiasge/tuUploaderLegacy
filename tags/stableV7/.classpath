@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/mail.jar"/>
+	<classpathentry kind="lib" path="lib/jdom.jar"/>
+	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.core.commands.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.equinox.common.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.jface.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.osgi.jar"/>
+	<classpathentry kind="lib" path="lib/joda-time-1.6.jar"/>
+	<classpathentry kind="lib" path="lib/swt-win-64.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang-2.5.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.nebula.widgets.cdatetime"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.nebula.widgets.gallery"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.nebula.cwt"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
