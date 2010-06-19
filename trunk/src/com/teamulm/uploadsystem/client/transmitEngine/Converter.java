@@ -86,6 +86,13 @@ public class Converter extends Thread {
 		int number = 0;
 		try {
 			while (!this.stopRequest && ((actFile = this.chef.getNextToConvert()) != null)) {
+				if ((actFile = this.myImageConverter.correctPictureOrientation(actFile)) == null) {
+					TeamUlmUpload.getInstance().getMainWindow()
+						.addStatusLine(Messages.getString("Converter.logMessages.picRotError")); //$NON-NLS-1$
+					this.chef.fileWasIgnored();
+					continue;
+				}
+
 				BufferedImage actPic = ImageIO.read(actFile);
 				if (!this.myImageConverter.isPicBigEnough(actPic)) {
 					log.info("Thread: " + this.ident + " Übersprungen wegen Größe " + actFile.getName() + " -> Breit: " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
