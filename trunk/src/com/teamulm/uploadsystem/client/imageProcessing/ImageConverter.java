@@ -5,8 +5,17 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.awt.image.PixelGrabber;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 
+import mediautil.image.jpeg.LLJTran;
+
+import com.drew.imaging.jpeg.JpegMetadataReader;
+import com.drew.metadata.Directory;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.ExifDirectory;
 import com.teamulm.uploadsystem.client.Helper;
 
 public abstract class ImageConverter {
@@ -23,6 +32,44 @@ public abstract class ImageConverter {
 
 	protected ImageConverter(Dimension smallPicSize, Dimension bigPicSize, Dimension hqPicSize) {
 		this.initSizes(smallPicSize, bigPicSize, hqPicSize);
+	}
+
+	public File correctPictureOrientation(File picture) {
+		try {
+			Metadata metadata = JpegMetadataReader.readMetadata(picture);
+			Directory exifDirectory = metadata.getDirectory(ExifDirectory.class);
+			int orientation = Integer.parseInt(exifDirectory.getString(ExifDirectory.TAG_ORIENTATION));
+			if (1 == orientation) {
+				return picture;
+			}
+			File tmpImg = File.createTempFile("Team-Ulm.de-Uploader-Tmp-Pic-", ".jpg");
+			Helper.getInstance().copyFile(picture, tmpImg);
+			tmpImg.deleteOnExit();
+
+			LLJTran llj = new LLJTran(tmpImg);
+			llj.read(LLJTran.READ_ALL, true);
+			int lljOptions = LLJTran.OPT_DEFAULTS | LLJTran.OPT_XFORM_ORIENTATION;
+			switch (orientation) {
+			case 6: // 90 deg clockwise rotation
+				llj.transform(LLJTran.ROT_90, lljOptions);
+				break;
+			case 3: // 180 deg rotation
+				llj.transform(LLJTran.ROT_180, lljOptions);
+				break;
+			case 8: // 270 deg rotation
+				llj.transform(LLJTran.ROT_270, lljOptions);
+				break;
+			default:
+				return null;
+			}
+			OutputStream out = new BufferedOutputStream(new FileOutputStream(tmpImg.getPath()));
+			llj.save(out, LLJTran.OPT_WRITE_ALL);
+			out.close();
+			return tmpImg;
+		} catch (Exception e) {
+			Helper.getInstance().systemCrashHandler(e);
+			return null;
+		}
 	}
 
 	public abstract boolean createPic(File inFile, File outFile, boolean createHqPicture);
