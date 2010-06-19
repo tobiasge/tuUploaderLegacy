@@ -1,10 +1,14 @@
 package com.teamulm.uploadsystem.client;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
@@ -35,6 +39,23 @@ public class Helper {
 			Helper.instance = new Helper();
 		}
 		return Helper.instance;
+	}
+
+	public void copyFile(File in, File out) throws IOException {
+		FileChannel inChannel = new FileInputStream(in).getChannel();
+		FileChannel outChannel = new FileOutputStream(out).getChannel();
+		try {
+			inChannel.transferTo(0, inChannel.size(), outChannel);
+		} catch (IOException ioException) {
+			throw ioException;
+		} finally {
+			if (inChannel != null) {
+				inChannel.close();
+			}
+			if (outChannel != null) {
+				outChannel.close();
+			}
+		}
 	}
 
 	public String[] readFileData(String fileName, boolean reportError) {
@@ -75,8 +96,8 @@ public class Helper {
 				}
 
 				if (null != TeamUlmUpload.getInstance() && null != TeamUlmUpload.getInstance().getMainWindow()) {
-					TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
-						Messages.getString("Helper.logMessages.sendreport")); //$NON-NLS-1$
+					TeamUlmUpload.getInstance().getMainWindow()
+						.addStatusLine(Messages.getString("Helper.logMessages.sendreport")); //$NON-NLS-1$
 				}
 				String[] lines = Helper.this.readFileData(TeamUlmUpload.logFileName, false);
 				String report = ""; //$NON-NLS-1$
