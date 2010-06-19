@@ -24,14 +24,17 @@ public abstract class ImageConverter {
 
 	protected Dimension bigSLRPicSize;
 
-	protected Dimension hqPicSize;
-
 	protected Dimension hqSLRPicSize;
+
+	protected Dimension maxHqPicSize;
+
+	protected Dimension minHqPicSize;
 
 	protected Dimension smallPicSize;
 
-	protected ImageConverter(Dimension smallPicSize, Dimension bigPicSize, Dimension hqPicSize) {
-		this.initSizes(smallPicSize, bigPicSize, hqPicSize);
+	protected ImageConverter(Dimension smallPicSize, Dimension bigPicSize, Dimension minHqPicSize,
+		Dimension maxHqPicSize) {
+		this.initSizes(smallPicSize, bigPicSize, minHqPicSize, maxHqPicSize);
 	}
 
 	public File correctPictureOrientation(File picture) {
@@ -72,7 +75,9 @@ public abstract class ImageConverter {
 		}
 	}
 
-	public abstract boolean createPic(File inFile, File outFile, boolean createHqPicture);
+	public abstract boolean createHqPic(File inFile, File outFile);
+
+	public abstract boolean createPic(File inFile, File outFile);
 
 	public abstract boolean createPreview(File inFile, File outFile);
 
@@ -82,23 +87,25 @@ public abstract class ImageConverter {
 	}
 
 	public boolean isPicBigEnough(BufferedImage pic) {
-		if (null == this.hqPicSize) {
-			return (pic.getWidth() >= this.bigPicSize.width) && (pic.getHeight() >= this.bigPicSize.height);
+		if (null == this.maxHqPicSize) {
+			return pic.getWidth() >= this.bigPicSize.width && pic.getHeight() >= this.bigPicSize.height;
 		} else {
-			return (pic.getWidth() >= this.hqPicSize.width) && (pic.getHeight() >= this.hqPicSize.height);
+			return pic.getWidth() >= this.minHqPicSize.width && pic.getHeight() >= this.minHqPicSize.height;
 		}
 
 	}
 
-	protected void initSizes(Dimension smallPicSize, Dimension bigPicSize, Dimension hqPicSize) {
+	protected void initSizes(Dimension smallPicSize, Dimension bigPicSize, Dimension minHqPicSize,
+		Dimension maxHqPicSize) {
 		this.smallPicSize = smallPicSize;
 		this.bigPicSize = bigPicSize;
 		int bigSLRWidth = bigPicSize.width;
 		int bigSLRHeight = (int) ((double) 2 / (double) 3 * (double) bigSLRWidth);
 		this.bigSLRPicSize = new Dimension(bigSLRWidth, bigSLRHeight);
-		if (null != hqPicSize) {
-			this.hqPicSize = hqPicSize;
-			int hqSLRWidth = hqPicSize.width;
+		if (null != maxHqPicSize) {
+			this.maxHqPicSize = maxHqPicSize;
+			this.minHqPicSize = minHqPicSize;
+			int hqSLRWidth = maxHqPicSize.width;
 			int hqSLRHeight = (int) ((double) 2 / (double) 3 * (double) hqSLRWidth);
 			this.hqSLRPicSize = new Dimension(hqSLRWidth, hqSLRHeight);
 		}

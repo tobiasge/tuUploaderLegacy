@@ -43,9 +43,11 @@ public class Converter extends Thread {
 
 	private String hqPicName = "h_pic"; //$NON-NLS-1$
 
-	private Dimension hqPicSize = new Dimension(1600, 1200);
-
 	private int ident;
+
+	private Dimension maxHqPicSize = new Dimension(1600, 1200);
+
+	private Dimension minHqPicSize = new Dimension(1200, 900);
 
 	private ImageConverter myImageConverter;
 
@@ -66,7 +68,8 @@ public class Converter extends Thread {
 		this.ident = ident;
 		this.createHqPictures = createHqPictures;
 		if (createHqPictures) {
-			this.myImageConverter = ImageConverterFactory.getConverter(smallPicSize, bigPicSize, hqPicSize);
+			this.myImageConverter = ImageConverterFactory.getConverter(smallPicSize, bigPicSize, minHqPicSize,
+				maxHqPicSize);
 		} else {
 			this.myImageConverter = ImageConverterFactory.getConverter(smallPicSize, bigPicSize);
 		}
@@ -115,15 +118,15 @@ public class Converter extends Thread {
 				outSmaPicName = new File(this.savePath + this.fileSep + this.smallPicName + number + ".jpg"); //$NON-NLS-1$
 
 				if (this.createHqPictures) {
-					if (this.myImageConverter.createPic(actFile, outHqPicName, true)
-						&& this.myImageConverter.createPic(outHqPicName, outBigPicName, false)
+					if (this.myImageConverter.createHqPic(actFile, outHqPicName)
+						&& this.myImageConverter.createPic(outHqPicName, outBigPicName)
 						&& this.myImageConverter.createPreview(outBigPicName, outSmaPicName)) {
 						this.chef.setToTransmit(outHqPicName);
 						this.chef.setToTransmit(outSmaPicName);
 						this.chef.setToTransmit(outBigPicName);
 					}
 				} else {
-					if (this.myImageConverter.createPic(actFile, outBigPicName, false)
+					if (this.myImageConverter.createPic(actFile, outBigPicName)
 						&& this.myImageConverter.createPreview(outBigPicName, outSmaPicName)) {
 						this.chef.setToTransmit(outSmaPicName);
 						this.chef.setToTransmit(outBigPicName);
