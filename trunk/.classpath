@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/mail.jar"/>
 	<classpathentry kind="lib" path="lib/jdom.jar"/>
@@ -12,8 +13,11 @@
 	<classpathentry kind="lib" path="lib/joda-time-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/swt-win-64.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/metadata-extractor-2.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/mediautil-1.0.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.nebula.widgets.cdatetime"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.nebula.widgets.gallery"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.nebula.cwt"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
