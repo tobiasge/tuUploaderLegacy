@@ -83,9 +83,6 @@ public class Helper {
 		Display.getDefault().asyncExec(new Runnable() {
 
 			public void run() {
-				StringWriter sw = new StringWriter();
-				error.printStackTrace(new PrintWriter(sw));
-				String stackTrace = sw.toString();
 
 				MessageBox mb = new MessageBox(Display.getDefault().getActiveShell(), SWT.YES | SWT.NO);
 				mb.setText(Messages.getString("Helper.title.errorReport")); //$NON-NLS-1$
@@ -94,6 +91,10 @@ public class Helper {
 				if (SWT.YES != mb.open()) {
 					return;
 				}
+
+				StringWriter sw = new StringWriter();
+				error.printStackTrace(new PrintWriter(sw));
+				String stackTrace = sw.toString();
 
 				if (null != TeamUlmUpload.getInstance() && null != TeamUlmUpload.getInstance().getMainWindow()) {
 					TeamUlmUpload.getInstance().getMainWindow()
