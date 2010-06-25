@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="4.2.8" transformSequenceNumber="2">
-  <directoryPresets config="F:/WorkSpace/UploadSystem/icons" />
+  <directoryPresets config="F:/WorkSpace/UploadSystem/lib/mediautil-1.0.jar" />
   <application name="Team-Ulm Fotoupload" distributionSourceDir="" applicationId="6142-8812-7794-1535" mediaDir="." mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.platform}_${compiler:sys.version}" compression="9" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" keepModificationTimes="false" missingFilesStrategy="warn" shortName="Team-Ulm Fotoupload" publisher="Team-Ulm.de" publisherWeb="" version="7.0" allPathsRelative="false" backupOnSave="false" autoSave="false" convertDotsToUnderscores="true" macSignature="????" installerName="" javaMinVersion="1.5" javaMaxVersion="" allowBetaVM="false" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="false" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="de" customLocalizationFile="" />
@@ -58,6 +58,7 @@
       <fileEntry mountPoint="95" file="F:/WorkSpace/UploadSystem/lib/swt-win-64.jar" overwrite="1" shared="false" mode="644" uninstallMode="2" />
       <fileEntry mountPoint="95" file="F:/WorkSpace/UploadSystem/lib/commons-lang-2.5.jar" overwrite="1" shared="false" mode="644" uninstallMode="2" />
       <fileEntry mountPoint="95" file="F:/WorkSpace/UploadSystem/lib/metadata-extractor-2.3.1.jar" overwrite="1" shared="false" mode="644" uninstallMode="2" />
+      <fileEntry mountPoint="95" file="F:/WorkSpace/UploadSystem/lib/mediautil-1.0.jar" overwrite="1" shared="false" mode="644" uninstallMode="2" />
       <fileEntry mountPoint="863" file="F:/WorkSpace/UploadSystem/icons/cross.png" overwrite="1" shared="false" mode="644" uninstallMode="2" />
       <fileEntry mountPoint="863" file="F:/WorkSpace/UploadSystem/icons/icon.gif" overwrite="1" shared="false" mode="644" uninstallMode="2" />
       <fileEntry mountPoint="863" file="F:/WorkSpace/UploadSystem/icons/icon.png" overwrite="1" shared="false" mode="644" uninstallMode="2" />
@@ -89,6 +90,7 @@
           <archive location="lib/org.eclipse.jface.jar" failOnError="true" />
           <archive location="lib/org.eclipse.osgi.jar" failOnError="true" />
           <archive location="lib/joda-time-1.6.jar" failOnError="true" />
+          <archive location="lib/mediautil-1.0.jar" failOnError="true" />
           <archive location="lib/metadata-extractor-2.3.1.jar" failOnError="true" />
           <archive location="lib/swt-gtk-32.jar" failOnError="false" />
           <archive location="lib/swt-gtk-64.jar" failOnError="false" />
