@@ -49,6 +49,8 @@ public abstract class ImageConverter {
 			Helper.getInstance().copyFile(picture, tmpImg);
 			tmpImg.deleteOnExit();
 
+			// Reduce Log-level for mediautil
+			mediautil.gen.Log.debugLevel = mediautil.gen.Log.LEVEL_ERROR;
 			LLJTran llj = new LLJTran(tmpImg);
 			llj.read(LLJTran.READ_ALL, true);
 			int lljOptions = LLJTran.OPT_DEFAULTS | LLJTran.OPT_XFORM_ORIENTATION;
