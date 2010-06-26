@@ -210,7 +210,7 @@ public class Transmitter extends Thread {
 					if (retVal instanceof SaveFileCmd && retVal.commandSucceded()) {
 						log.info("Datei " + currentFile.getAbsolutePath() + " gesendet"); //$NON-NLS-1$ //$NON-NLS-2$
 						if (!currentFile.delete()) {
-							log.warn("File " + currentFile.getName() + " could not be deleted");
+							log.warn("File " + currentFile.getName() + " could not be deleted"); //$NON-NLS-1$ //$NON-NLS-2$
 						}
 					} else {
 						log.info("Datei " + currentFile.getName() + " nicht gesendet"); //$NON-NLS-1$ //$NON-NLS-2$
