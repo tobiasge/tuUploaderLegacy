@@ -209,7 +209,9 @@ public class Transmitter extends Thread {
 					log.debug("Server said: " + retVal); //$NON-NLS-1$
 					if (retVal instanceof SaveFileCmd && retVal.commandSucceded()) {
 						log.info("Datei " + currentFile.getAbsolutePath() + " gesendet"); //$NON-NLS-1$ //$NON-NLS-2$
-						currentFile.delete();
+						if (!currentFile.delete()) {
+							log.warn("File " + currentFile.getName() + " could not be deleted");
+						}
 					} else {
 						log.info("Datei " + currentFile.getName() + " nicht gesendet"); //$NON-NLS-1$ //$NON-NLS-2$
 						TeamUlmUpload

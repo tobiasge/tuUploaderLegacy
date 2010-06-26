@@ -114,8 +114,11 @@ public class Converter extends Thread {
 
 				number = this.chef.getNextPicNum();
 				outHqPicName = new File(this.savePath + this.fileSep + this.hqPicName + number + ".jpg"); //$NON-NLS-1$
+				outHqPicName.deleteOnExit();
 				outBigPicName = new File(this.savePath + this.fileSep + this.bigPicName + number + ".jpg"); //$NON-NLS-1$
+				outBigPicName.deleteOnExit();
 				outSmaPicName = new File(this.savePath + this.fileSep + this.smallPicName + number + ".jpg"); //$NON-NLS-1$
+				outSmaPicName.deleteOnExit();
 
 				if (this.createHqPictures) {
 					if (this.myImageConverter.createHqPic(actFile, outHqPicName)
