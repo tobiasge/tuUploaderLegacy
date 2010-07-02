@@ -13,8 +13,8 @@
 	<classpathentry kind="lib" path="lib/joda-time-1.6.jar"/>
 	<classpathentry kind="lib" path="lib/swt-win-64.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang-2.5.jar"/>
-	<classpathentry kind="lib" path="lib/metadata-extractor-2.3.1.jar"/>
-	<classpathentry kind="lib" path="lib/mediautil-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/metadata-extractor-2.3.1.jar" sourcepath="libSrc/metadata-extractor-2.3.1-src.jar"/>
+	<classpathentry kind="lib" path="lib/mediautil-1.0.jar" sourcepath="libSrc/mediautil"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.nebula.widgets.cdatetime"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.nebula.widgets.gallery"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.nebula.cwt"/>
