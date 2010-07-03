@@ -53,7 +53,13 @@ public class MainWindow extends Window {
 
 	private final static org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MainWindow.class);
 
+	private Button buttonCreateHqPicture;
+
+	private Button buttonDoOrietationCorrection;
+
 	private boolean createHqPictures = true;
+
+	private boolean doOrietationCorrection = true;
 
 	private CDateTime eventDate = null;
 
@@ -72,8 +78,6 @@ public class MainWindow extends Window {
 	private Label selectedPics = null;
 
 	private ProgressBar uploadProgressBar = null, convertProgressBar = null;
-
-	private Button buttonCreateHqPicture;
 
 	public MainWindow() {
 		super((Shell) null);
@@ -106,6 +110,10 @@ public class MainWindow extends Window {
 			this.gallery.setIntern(this.fieldIntern.getSelection());
 		}
 		return this.gallery;
+	}
+
+	public boolean isDoOrietationCorrection() {
+		return this.doOrietationCorrection;
 	}
 
 	public void setConvertProgress(final int progress) {
@@ -392,26 +400,26 @@ public class MainWindow extends Window {
 
 	private Composite rightComposite(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NONE);
-		GridLayoutFactory.fillDefaults().numColumns(1).equalWidth(false).applyTo(composite);
+		GridLayoutFactory.fillDefaults().numColumns(2).equalWidth(false).applyTo(composite);
 
 		Label labelConvertProgress = new Label(composite, SWT.NONE);
 		labelConvertProgress.setText(Messages.getString("MainWindow.label.convertProgress.text")); //$NON-NLS-1$
-		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelConvertProgress);
+		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(labelConvertProgress);
 
 		this.convertProgressBar = new ProgressBar(composite, SWT.HORIZONTAL | SWT.BORDER);
-		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(this.convertProgressBar);
+		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(this.convertProgressBar);
 		this.convertProgressBar.setMaximum(PROGRESS_BAR_MAX);
 
 		Label labelUploadProgress = new Label(composite, SWT.NONE);
 		labelUploadProgress.setText(Messages.getString("MainWindow.label.uploadProgress.text")); //$NON-NLS-1$
-		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(labelUploadProgress);
+		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(labelUploadProgress);
 
 		this.uploadProgressBar = new ProgressBar(composite, SWT.HORIZONTAL | SWT.BORDER);
-		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(this.uploadProgressBar);
+		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(this.uploadProgressBar);
 		this.uploadProgressBar.setMaximum(PROGRESS_BAR_MAX);
 
 		this.statusList = new List(composite, SWT.V_SCROLL | SWT.BORDER);
-		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).hint(290, 340).applyTo(this.statusList);
+		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).hint(290, 340).applyTo(this.statusList);
 		Menu statusListMenu = new Menu(this.getShell(), SWT.POP_UP);
 		MenuItem statusListMenuItemCopy = new MenuItem(statusListMenu, SWT.PUSH);
 		statusListMenuItemCopy.setText(Messages.getString("MainWindow.list.status.menu.copy.text")); //$NON-NLS-1$
@@ -440,8 +448,20 @@ public class MainWindow extends Window {
 		});
 		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(buttonCreateHqPicture);
 
+		this.buttonDoOrietationCorrection = new Button(composite, SWT.CHECK);
+		this.buttonDoOrietationCorrection.setText(Messages
+			.getString("MainWindow.button.buttonDoOrietationCorrection.text")); //$NON-NLS-1$
+		this.buttonDoOrietationCorrection.setSelection(true);
+		this.buttonDoOrietationCorrection.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				MainWindow.this.doOrietationCorrection = MainWindow.this.buttonDoOrietationCorrection.getSelection();
+			}
+		});
+		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(buttonDoOrietationCorrection);
+
 		Composite buttonComposite = new Composite(composite, SWT.NONE);
-		GridDataFactory.fillDefaults().span(1, 1).grab(true, false).applyTo(buttonComposite);
+		GridDataFactory.fillDefaults().span(2, 1).grab(true, false).applyTo(buttonComposite);
 		GridLayoutFactory.fillDefaults().equalWidth(false).numColumns(3).applyTo(buttonComposite);
 
 		Button buttonUpload = new Button(buttonComposite, SWT.PUSH);
