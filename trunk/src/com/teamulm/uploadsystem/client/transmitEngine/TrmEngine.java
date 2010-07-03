@@ -46,6 +46,8 @@ public class TrmEngine extends Thread {
 
 	private boolean createHqPictures = true;
 
+	private boolean doOrietationCorrection = true;
+
 	private Gallery gallery = null;
 
 	private Condition picToTransmit = null, startNumSetCond = null;
@@ -195,7 +197,7 @@ public class TrmEngine extends Thread {
 			return;
 		}
 		for (int i = 0; i < this.converters.length; i++) {
-			this.converters[i] = new Converter(this, this.createHqPictures, i);
+			this.converters[i] = new Converter(this, this.createHqPictures, this.doOrietationCorrection, i);
 			this.converters[i].setPriority(3);
 		}
 		try {
@@ -224,6 +226,10 @@ public class TrmEngine extends Thread {
 
 	public void setCreateHqPictures(boolean createHqPictures) {
 		this.createHqPictures = createHqPictures;
+	}
+
+	public void setDoOrietationCorrection(boolean doOrietationCorrection) {
+		this.doOrietationCorrection = doOrietationCorrection;
 	}
 
 	public void setFiles(File[] files) {

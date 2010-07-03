@@ -39,6 +39,8 @@ public class Converter extends Thread {
 
 	private boolean createHqPictures;
 
+	private boolean doOrietationCorrection;
+
 	private final String fileSep = System.getProperty("file.separator"); //$NON-NLS-1$
 
 	private String hqPicName = "h_pic"; //$NON-NLS-1$
@@ -59,7 +61,7 @@ public class Converter extends Thread {
 
 	private boolean stopRequest;
 
-	public Converter(TrmEngine chef, boolean createHqPictures, int ident) {
+	public Converter(TrmEngine chef, boolean createHqPictures, boolean doOrietationCorrection, int ident) {
 		super();
 		this.setName("Converter " + ident); //$NON-NLS-1$
 		this.savePath = System.getProperty("java.io.tmpdir"); //$NON-NLS-1$
@@ -67,6 +69,7 @@ public class Converter extends Thread {
 		this.stopRequest = false;
 		this.ident = ident;
 		this.createHqPictures = createHqPictures;
+		this.doOrietationCorrection = doOrietationCorrection;
 		if (createHqPictures) {
 			this.myImageConverter = ImageConverterFactory.getConverter(smallPicSize, bigPicSize, minHqPicSize,
 				maxHqPicSize);
@@ -89,13 +92,14 @@ public class Converter extends Thread {
 		int number = 0;
 		try {
 			while (!this.stopRequest && ((actFile = this.chef.getNextToConvert()) != null)) {
-				if ((actFile = this.myImageConverter.correctPictureOrientation(actFile)) == null) {
-					TeamUlmUpload.getInstance().getMainWindow()
-						.addStatusLine(Messages.getString("Converter.logMessages.picRotError")); //$NON-NLS-1$
-					this.chef.fileWasIgnored();
-					continue;
+				if (this.doOrietationCorrection) {
+					if ((actFile = this.myImageConverter.correctPictureOrientation(actFile)) == null) {
+						TeamUlmUpload.getInstance().getMainWindow()
+							.addStatusLine(Messages.getString("Converter.logMessages.picRotError")); //$NON-NLS-1$
+						this.chef.fileWasIgnored();
+						continue;
+					}
 				}
-
 				BufferedImage actPic = ImageIO.read(actFile);
 				if (!this.myImageConverter.isPicBigEnough(actPic)) {
 					log.info("Thread: " + this.ident + " Übersprungen wegen Größe " + actFile.getName() + " -> Breit: " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -136,7 +140,7 @@ public class Converter extends Thread {
 					}
 				}
 			}
-			sleep(5);
+			Thread.sleep(5);
 		} catch (Exception e) {
 			log.error("", e); //$NON-NLS-1$
 			TeamUlmUpload

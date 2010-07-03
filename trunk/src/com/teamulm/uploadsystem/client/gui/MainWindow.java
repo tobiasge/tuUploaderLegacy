@@ -103,6 +103,10 @@ public class MainWindow extends Window {
 		return super.close();
 	}
 
+	public boolean doOrietationCorrection() {
+		return this.doOrietationCorrection;
+	}
+
 	public Gallery getGallery() {
 		if (this.gallery.isNewGallery()) {
 			this.gallery.setTitle(this.fieldTitle.getText());
@@ -110,10 +114,6 @@ public class MainWindow extends Window {
 			this.gallery.setIntern(this.fieldIntern.getSelection());
 		}
 		return this.gallery;
-	}
-
-	public boolean isDoOrietationCorrection() {
-		return this.doOrietationCorrection;
 	}
 
 	public void setConvertProgress(final int progress) {
@@ -541,6 +541,7 @@ public class MainWindow extends Window {
 				files[index++] = file;
 			}
 			TrmEngine.getInstance().setCreateHqPictures(MainWindow.this.createHqPictures);
+			TrmEngine.getInstance().setDoOrietationCorrection(MainWindow.this.doOrietationCorrection);
 			TrmEngine.getInstance().setFiles(files);
 			TrmEngine.getInstance().start();
 		}
