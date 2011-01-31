@@ -81,9 +81,7 @@ public class MainWindow extends Window {
 
 	public MainWindow() {
 		super((Shell) null);
-		int style = this.getShellStyle();
-		style &= ~(SWT.MAX | SWT.RESIZE);
-		this.setShellStyle(style);
+		this.setShellStyle(this.getShellStyle() & ~(SWT.MAX | SWT.RESIZE));
 	}
 
 	public void addStatusLine(final String line) {
@@ -511,7 +509,7 @@ public class MainWindow extends Window {
 
 	private class ConvertUploadListener extends SelectionAdapter {
 		@Override
-		public void widgetSelected(SelectionEvent arg0) {
+		public void widgetSelected(SelectionEvent selectionEvent) {
 			if (0 == MainWindow.this.fileList.getItemCount()) {
 				MainWindow.this.addStatusLine(Messages.getString("MainWindow.logMessages.missingFiles")); //$NON-NLS-1$
 				return;
