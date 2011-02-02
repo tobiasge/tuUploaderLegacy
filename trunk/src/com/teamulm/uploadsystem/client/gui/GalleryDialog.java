@@ -236,7 +236,6 @@ public class GalleryDialog extends Dialog {
 		@Override
 		public void run() {
 			final ArrayList<Gallery> list = TrmEngine.getInstance().getGalleriesFor(this.date);
-			Collections.sort(list);
 			Display.getDefault().asyncExec(new Runnable() {
 
 				public void run() {
@@ -252,8 +251,8 @@ public class GalleryDialog extends Dialog {
 							gallery.isIntern() ? Messages.getString("String.yes") : Messages.getString("String.no") }); //$NON-NLS-1$ //$NON-NLS-2$
 						item.setData(gallery);
 					}
-					TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
-						Messages.getString("GalleryDialog.logMessages.galleriesLoaded")); //$NON-NLS-1$
+					TeamUlmUpload.getInstance().getMainWindow()
+						.addStatusLine(Messages.getString("GalleryDialog.logMessages.galleriesLoaded")); //$NON-NLS-1$
 				}
 			});
 		}
@@ -270,10 +269,13 @@ public class GalleryDialog extends Dialog {
 
 		@Override
 		public void run() {
+			if (LocationsLoader.this.locationsBox.isDisposed()) {
+				return;
+			}
 			List<Location> locations = TrmEngine.getInstance().getLocations();
 			if (null == locations) {
-				TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
-					Messages.getString("GalleryDialog.logMessages.locationsNotLoaded")); //$NON-NLS-1$
+				TeamUlmUpload.getInstance().getMainWindow()
+					.addStatusLine(Messages.getString("GalleryDialog.logMessages.locationsNotLoaded")); //$NON-NLS-1$
 				return;
 			}
 			final String[] locNames = new String[locations.size() + 1];
@@ -291,8 +293,8 @@ public class GalleryDialog extends Dialog {
 					}
 					LocationsLoader.this.locationsBox.setItems(locNames);
 					LocationsLoader.this.locationsBox.setText(GalleryDialog.PLEASE_CHOOSE);
-					TeamUlmUpload.getInstance().getMainWindow().addStatusLine(
-						Messages.getString("GalleryDialog.logMessages.locationsLoaded")); //$NON-NLS-1$
+					TeamUlmUpload.getInstance().getMainWindow()
+						.addStatusLine(Messages.getString("GalleryDialog.logMessages.locationsLoaded")); //$NON-NLS-1$
 				}
 			});
 		}
