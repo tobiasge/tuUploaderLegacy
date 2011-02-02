@@ -62,7 +62,8 @@ public class ViewGalleryDialog extends Dialog {
 		this.tmpImages.clear();
 		for (File file : this.tmpFiles) {
 			if (null != file) {
-				file.delete();
+				if (!file.delete())
+					file.deleteOnExit();
 			}
 		}
 		this.tmpFiles.clear();
