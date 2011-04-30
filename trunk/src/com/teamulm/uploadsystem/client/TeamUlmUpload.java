@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.OperatingSystemMXBean;
+import java.lang.management.RuntimeMXBean;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
@@ -92,8 +94,12 @@ public class TeamUlmUpload {
 		Thread.currentThread().setName("Main"); //$NON-NLS-1$
 		OperatingSystemMXBean sysInfo1 = ManagementFactory.getOperatingSystemMXBean();
 		MemoryMXBean sysInfo2 = ManagementFactory.getMemoryMXBean();
+		RuntimeMXBean RuntimemxBean = ManagementFactory.getRuntimeMXBean();
+		List<String> arguments = RuntimemxBean.getInputArguments();
+
 		log.info("Program Startup - Version " + TrmEngine.VERSION); //$NON-NLS-1$
 		log.info("Running on: " + sysInfo1.getName() + " " + sysInfo1.getVersion()); //$NON-NLS-1$ //$NON-NLS-2$
+		log.info("Started with: " + StringUtils.join(arguments, " ")); //$NON-NLS-1$
 		log.info("Systemtype is " + sysInfo1.getArch() + " working on " + sysInfo1.getAvailableProcessors() //$NON-NLS-1$ //$NON-NLS-2$
 			+ " CPU(s)"); //$NON-NLS-1$
 		log.info("Memory Usage is: " + sysInfo2.getHeapMemoryUsage()); //$NON-NLS-1$
