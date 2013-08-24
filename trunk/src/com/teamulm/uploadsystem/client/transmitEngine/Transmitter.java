@@ -274,6 +274,7 @@ public class Transmitter extends Thread {
 		long length = file.length();
 		if (length > Integer.MAX_VALUE) {
 			log.error("File is too large to process"); //$NON-NLS-1$
+			is.close();
 			return null;
 		}
 		byte[] bytes = new byte[(int) length];
@@ -283,6 +284,7 @@ public class Transmitter extends Thread {
 			offset += numRead;
 		}
 		if (offset < bytes.length) {
+		    is.close();
 			throw new IOException("Could not completely read file " + file.getName()); //$NON-NLS-1$
 		}
 		is.close();

@@ -83,7 +83,7 @@ public class ViewGalleryDialog extends Dialog {
 	protected Control createDialogArea(Composite parent) {
 		this.getShell().setText(
 			MessageFormat.format(Messages.getString("ViewGalleryDialog.dialog.title"), this.gallery.getLocation(), //$NON-NLS-1$
-				this.gallery.getDate().toDateMidnight().toDate()));
+				this.gallery.getDate().toDateTimeAtStartOfDay().toDate()));
 		Composite composite = (Composite) super.createDialogArea(parent);
 		GridLayoutFactory.fillDefaults().applyTo(composite);
 		final org.eclipse.nebula.widgets.gallery.Gallery galleryViewer = new org.eclipse.nebula.widgets.gallery.Gallery(

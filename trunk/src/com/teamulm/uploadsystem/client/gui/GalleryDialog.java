@@ -138,7 +138,7 @@ public class GalleryDialog extends Dialog {
 	@Override
 	protected Control createDialogArea(Composite parent) {
 		this.getShell().setText(
-			MessageFormat.format(Messages.getString("GalleryDialog.dialog.title"), this.date.toDateMidnight() //$NON-NLS-1$
+			MessageFormat.format(Messages.getString("GalleryDialog.dialog.title"), this.date.toDateTimeAtStartOfDay() //$NON-NLS-1$
 				.toDate()));
 		Composite composite = (Composite) super.createDialogArea(parent);
 		GridLayoutFactory.fillDefaults().margins(5, 5).applyTo(composite);

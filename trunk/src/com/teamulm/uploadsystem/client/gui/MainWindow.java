@@ -484,7 +484,7 @@ public class MainWindow extends Window {
 	}
 
 	private void selectYesterDay() {
-		this.eventDate.setSelection(new LocalDate().minusDays(1).toDateMidnight().toDate());
+		this.eventDate.setSelection(new LocalDate().minusDays(1).toDateTimeAtStartOfDay().toDate());
 	}
 
 	@Override

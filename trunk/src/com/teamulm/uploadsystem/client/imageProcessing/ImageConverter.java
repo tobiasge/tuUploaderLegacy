@@ -15,7 +15,7 @@ import mediautil.image.jpeg.LLJTran;
 import com.drew.imaging.jpeg.JpegMetadataReader;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
-import com.drew.metadata.exif.ExifDirectory;
+import com.drew.metadata.exif.ExifIFD0Directory;
 import com.teamulm.uploadsystem.client.Helper;
 
 public abstract class ImageConverter {
@@ -40,8 +40,8 @@ public abstract class ImageConverter {
 	public File correctPictureOrientation(File picture) {
 		try {
 			Metadata metadata = JpegMetadataReader.readMetadata(picture);
-			Directory exifDirectory = metadata.getDirectory(ExifDirectory.class);
-			int orientation = Integer.parseInt(exifDirectory.getString(ExifDirectory.TAG_ORIENTATION));
+			Directory exifDirectory = metadata.getDirectory(ExifIFD0Directory.class);
+			int orientation = Integer.parseInt(exifDirectory.getString(ExifIFD0Directory.TAG_ORIENTATION));
 			if (1 == orientation) {
 				return picture;
 			}

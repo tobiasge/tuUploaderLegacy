@@ -187,7 +187,7 @@ public class DBConn {
 				request.setString(4, gallery.getTitle());
 				request.setInt(5, user.getUserid());
 				request.setInt(6, gallery.getPictures());
-				request.setDate(7, new java.sql.Date(gallery.getDate().toDateMidnight().toDate().getTime()));
+				request.setDate(7, new java.sql.Date(gallery.getDate().toDateTimeAtStartOfDay().toDate().getTime()));
 				request.setBoolean(8, gallery.isIntern());
 				request.executeUpdate();
 			} else { // Update gallery
